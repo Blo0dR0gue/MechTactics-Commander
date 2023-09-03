@@ -1,0 +1,16 @@
+{
+  "name": "battletech-commander",
+  "version": "0.0.1",
+  "description": "BattleTech strategy map",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander.git"
+  },
+  "author": "Daniel Czeschner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander/issues"
+  },
+  "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme"
+}

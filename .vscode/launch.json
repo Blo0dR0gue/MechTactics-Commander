@@ -16,13 +16,14 @@
       "runtimeArgs": [
         "--remote-debugging-port=9223" //open debugging port for renderer process
       ],
-      "args": ["./dist/main.js"],
+      "args": ["./dist/app/main.js"],
       "outputCapture": "std",
       "sourceMaps": true,
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**", //use source maps for files in workspace folder
         "!**/node_modules/**" //but ignore everything in the node_modules folder
-      ]
+      ],
+      "preLaunchTask": "Sleepdelay"
     },
     {
       "name": "Electron: Renderer",
@@ -30,7 +31,8 @@
       "request": "attach",
       "port": 9223, //use debug port opened in Electron: Main configuration
       "webRoot": "${workspaceFolder}",
-      "timeout": 30000
+      "timeout": 30000,
+      "preLaunchTask": "Sleepdelay"
     }
   ],
   "compounds": [

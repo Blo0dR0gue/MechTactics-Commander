@@ -2,7 +2,9 @@ import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import electronReload from 'electron-reload';
 
-electronReload(__dirname, {});
+if (process.env.NODE_ENV == 'development') {
+  electronReload(__dirname, {});
+}
 
 function createWindow() {
   const size = screen.getPrimaryDisplay().workAreaSize;

@@ -1,7 +1,8 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
+import electronReload from 'electron-reload';
 
-require('electron-reload')(__dirname, {});
+electronReload(__dirname, {});
 
 function createWindow() {
   const size = screen.getPrimaryDisplay().workAreaSize;
@@ -13,7 +14,7 @@ function createWindow() {
     webPreferences: {},
   });
 
-  //console.log("test");
+  console.log('test');
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, './index.html'));
   mainWindow.maximize();

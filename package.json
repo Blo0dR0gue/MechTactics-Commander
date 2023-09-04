@@ -4,13 +4,14 @@
   "description": "BattleTech strategy map",
   "scripts": {
     "star:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/main.ts",
-    "start": "cross-env NODE_ENV=development electron ./dist/main.js",
+    "start": "cross-env NODE_ENV=development electron ./dist/app/main.js",
     "build:static": "node ./copy.js",
     "watch:static": "nodemon --watch ./src --exec npm run build:static",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "build:all": "npm run build:static && npm run build:ts",
-    "watch:all": "concurrently npm:watch:static npm:watch:ts"
+    "watch:all": "concurrently npm:watch:static npm:watch:ts",
+    "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
@@ -23,11 +24,14 @@
   },
   "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
     "concurrently": "^8.2.1",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "electron": "^26.1.0",
     "electron-reload": "^2.0.0-alpha.1",
+    "eslint": "^8.48.0",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "asar": true,
+  "appId": "de.panomenal.battletechcommander",
+  "productName": "BattleTech-Commander",
+  "copyright": "Daniel Czeschner",
+  "directories": {
+    "app": ".",
+    "output": "release/"
+  },
+  "files": [
+    "!**/*.ts",
+    "**/*.js",
+    "**/*.html",
+    "**/*.css",
+    {
+      "from": "./dist/app",
+      "filter": ["**/*"]
+    }
+  ],
+  "win": {
+    "target": "portable"
+  }
+}

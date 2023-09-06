@@ -1,9 +1,13 @@
 class Universe {
-  public constructor() {}
+  private canvas: HTMLCanvasElement;
+  private context: CanvasRenderingContext2D;
 
-  public init(): void {
-    console.log('test');
+  public constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
   }
+
+  public init(): void {}
 }
 
 export { Universe };

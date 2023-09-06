@@ -13,11 +13,15 @@ class Universe {
   }
 
   public init(): void {
+    // Init quadtree
     this.tree = new Quadtree({
       height: 5000,
       width: 5000,
       maxObjects: 5,
     });
+
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
   }
 }
 

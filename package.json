@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
   "devDependencies": {
+    "@timohausmann/quadtree-ts": "^2.0.0-beta.1",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "concurrently": "^8.2.1",

@@ -1,5 +1,4 @@
 // Lightweight fork of https://github.com/timohausmann/quadtree-ts/ to support negative numbers
-import { NodeGeometry } from './Quadtree';
 
 /**
  * Circle Geometry
@@ -186,44 +185,6 @@ export class Circle<CustomDataType = void> implements CircleGeometry {
     this.x = props.x;
     this.y = props.y;
     this.r = props.r;
-  }
-
-  /**
-   * Determine which quadrant this circle belongs to.
-   * @param node - Quadtree node to be checked
-   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
-   */
-  qtIndex(node: NodeGeometry): number[] {
-    const indexes: number[] = [],
-      w2 = node.width / 2,
-      h2 = node.height / 2;
-
-    //an array of node origins where the array index equals the node index
-    const nodes = [
-      [w2 - node.x, 0 - node.y],
-      [0 - node.x, 0 - node.y],
-      [0 - node.x, h2 - node.y],
-      [w2 - node.x, h2 - node.y],
-    ];
-
-    //test all nodes for circle intersections
-    for (let i = 0; i < nodes.length; i++) {
-      if (
-        Circle.intersectRect(
-          this.x,
-          this.y,
-          this.r,
-          nodes[i][0],
-          nodes[i][1],
-          nodes[i][0] + w2,
-          nodes[i][1] + h2
-        )
-      ) {
-        indexes.push(i);
-      }
-    }
-
-    return indexes;
   }
 
   /**

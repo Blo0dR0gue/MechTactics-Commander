@@ -39,13 +39,13 @@ export interface QuadtreeProps {
   height: number;
 
   /**
-   * X Offset of the node.
+   * Center of the node.
    * @defaultValue `0`
    */
   x?: number;
 
   /**
-   * Y Offset of the node.
+   * Center of the node.
    * @defaultValue `0`
    */
   y?: number;
@@ -167,7 +167,32 @@ export class Quadtree<ObjectsType extends Circle> {
    * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
    */
   getIndex(obj: Circle): number[] {
-    return obj.qtIndex(this.bounds);
+    const indexes = [];
+    const verticalMid = this.bounds.x + this.bounds.width / 2;
+    const horizontalMid = this.bounds.y + this.bounds.height / 2;
+    const objX = obj.x;
+    const objY = obj.y;
+
+    const objFitsInTopQuadrant = objY + obj.r < horizontalMid;
+    const objFitsInBottomQuadrant = objY - obj.r >= horizontalMid;
+
+    if (objX - obj.r >= verticalMid) {
+      if (objFitsInTopQuadrant) {
+        indexes.push(0); // Top-right quadrant
+      }
+      if (objFitsInBottomQuadrant) {
+        indexes.push(3); // Bottom-right quadrant
+      }
+    } else if (objX + obj.r < verticalMid) {
+      if (objFitsInTopQuadrant) {
+        indexes.push(1); // Top-left quadrant
+      }
+      if (objFitsInBottomQuadrant) {
+        indexes.push(2); // Bottom-left quadrant
+      }
+    }
+
+    return indexes;
   }
 
   /**
@@ -182,15 +207,14 @@ export class Quadtree<ObjectsType extends Circle> {
    * ```
    */
   split(): void {
-    const level = this.level + 1,
-      width = this.bounds.width / 2,
-      height = this.bounds.height / 2;
-
+    const level = this.level + 1;
+    const width = this.bounds.width / 2;
+    const height = this.bounds.height / 2;
     const coords = [
-      { x: width, y: 0 },
-      { x: 0, y: 0 },
-      { x: 0, y: height },
-      { x: width, y: height },
+      { x: this.bounds.x + width, y: this.bounds.y },
+      { x: this.bounds.x, y: this.bounds.y },
+      { x: this.bounds.x, y: this.bounds.y + height },
+      { x: this.bounds.x + width, y: this.bounds.y + height },
     ];
 
     for (let i = 0; i < 4; i++) {

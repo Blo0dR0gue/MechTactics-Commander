@@ -46,7 +46,6 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@timohausmann/quadtree-ts": "^2.0.0-beta.1",
     "electron-reload": "^2.0.0-alpha.1"
   }
 }

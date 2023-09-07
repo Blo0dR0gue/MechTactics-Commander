@@ -6,8 +6,6 @@ It uses data from the public wiki at www.sarna.net and www.gruese.de/innersphere
 The author is not affiliated with Harebrained Schemes and intends no copyright or trademark infringement.
 Also credits to Christoph Wassermann and for the first data editing and cleanup Wraith_81 (https://www.gruese.de/innersphere/).
 
-# Setup Quadtree
+# Quadtree
 
-In order to use the Quadtree library by timohausmann you need to change the following in the package.json of this lib in the node_modules:
-
-- "browser": "dist/quadtree.esm.js",
+We use a lightweight fork of https://github.com/timohausmann/quadtree-ts/ by timohausmann to also support negative numbers

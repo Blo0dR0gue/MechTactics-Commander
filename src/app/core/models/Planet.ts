@@ -1,4 +1,4 @@
-import { Circle } from '@timohausmann/quadtree-ts';
+import { Circle } from '../utils/quadtree/Circle';
 
 class Planet extends Circle {
   public constructor(x: number, y: number) {

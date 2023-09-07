@@ -63,32 +63,6 @@ export interface QuadtreeProps {
   maxLevels?: number;
 }
 
-/**
- * Class representing a Quadtree node.
- *
- * @example
- * ```typescript
- * const tree = new Quadtree({
- *   width: 100,
- *   height: 100,
- *   x: 0,           // optional, default:  0
- *   y: 0,           // optional, default:  0
- *   maxObjects: 10, // optional, default: 10
- *   maxLevels: 4,   // optional, default:  4
- * });
- * ```
- *
- * @example Typescript: If you like to be explicit, you optionally can pass in a generic type for objects to be stored in the Quadtree:
- * ```typescript
- * class GameEntity extends Rectangle {
- *   ...
- * }
- * const tree = new Quadtree<GameEntity>({
- *   width: 100,
- *   height: 100,
- * });
- * ```
- */
 export class Quadtree<ObjectsType extends Circle> {
   /**
    * The numeric boundaries of this node.
@@ -131,11 +105,6 @@ export class Quadtree<ObjectsType extends Circle> {
    */
   nodes: Quadtree<ObjectsType>[];
 
-  /**
-   * Quadtree Constructor
-   * @param props - bounds and properties of the node
-   * @param level - depth level (internal use only, required for subnodes)
-   */
   constructor(props: QuadtreeProps, level = 0) {
     this.bounds = {
       x: props.x || 0,
@@ -152,69 +121,45 @@ export class Quadtree<ObjectsType extends Circle> {
     this.nodes = [];
   }
 
-  /**
-   * Get the quadrant (subnode indexes) an object belongs to.
-   *
-   * @example Mostly for internal use but you can call it like so:
-   * ```typescript
-   * const tree = new Quadtree({ width: 100, height: 100 });
-   * const rectangle = new Rectangle({ x: 25, y: 25, width: 10, height: 10 });
-   * const indexes = tree.getIndex(rectangle);
-   * console.log(indexes); // [1]
-   * ```
-   *
-   * @param obj - object to be checked
-   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
-   */
   getIndex(obj: Circle): number[] {
     const indexes = [];
-    const verticalMid = this.bounds.x + this.bounds.width / 2;
-    const horizontalMid = this.bounds.y + this.bounds.height / 2;
-    const objX = obj.x;
-    const objY = obj.y;
 
-    const objFitsInTopQuadrant = objY + obj.r < horizontalMid;
-    const objFitsInBottomQuadrant = objY - obj.r >= horizontalMid;
-
-    if (objX - obj.r >= verticalMid) {
-      if (objFitsInTopQuadrant) {
-        indexes.push(0); // Top-right quadrant
+    if (obj.x + obj.r > this.bounds.x) {
+      // right
+      if (obj.y + obj.r > this.bounds.y) {
+        // top right
+        indexes.push(0);
       }
-      if (objFitsInBottomQuadrant) {
-        indexes.push(3); // Bottom-right quadrant
+      if (obj.y - obj.r < this.bounds.y) {
+        // bottom right
+        indexes.push(3);
       }
-    } else if (objX + obj.r < verticalMid) {
-      if (objFitsInTopQuadrant) {
-        indexes.push(1); // Top-left quadrant
+    }
+    if (obj.x - obj.r < this.bounds.x) {
+      // left
+      if (obj.y + obj.r > this.bounds.y) {
+        // top left
+        indexes.push(1);
       }
-      if (objFitsInBottomQuadrant) {
-        indexes.push(2); // Bottom-left quadrant
+      if (obj.y - obj.r < this.bounds.y) {
+        // bottom left
+        indexes.push(2);
       }
     }
 
     return indexes;
   }
 
-  /**
-   * Split the node into 4 subnodes.
-   * @internal
-   *
-   * @example Mostly for internal use! You should only call this yourself if you know what you are doing:
-   * ```typescript
-   * const tree = new Quadtree({ width: 100, height: 100 });
-   * tree.split();
-   * console.log(tree); // now tree has four subnodes
-   * ```
-   */
   split(): void {
     const level = this.level + 1;
     const width = this.bounds.width / 2;
     const height = this.bounds.height / 2;
+
     const coords = [
-      { x: this.bounds.x + width, y: this.bounds.y },
-      { x: this.bounds.x, y: this.bounds.y },
-      { x: this.bounds.x, y: this.bounds.y + height },
-      { x: this.bounds.x + width, y: this.bounds.y + height },
+      { x: this.bounds.x + width / 2, y: this.bounds.y + height / 2 }, // top right
+      { x: this.bounds.x - width / 2, y: this.bounds.y + height / 2 }, // top left
+      { x: this.bounds.x - width / 2, y: this.bounds.y - height / 2 }, // bottom left
+      { x: this.bounds.x + width / 2, y: this.bounds.y - height / 2 }, // bottom right
     ];
 
     for (let i = 0; i < 4; i++) {
@@ -232,22 +177,15 @@ export class Quadtree<ObjectsType extends Circle> {
     }
   }
 
-  /**
-   * Insert an object into the node. If the node
-   * exceeds the capacity, it will split and add all
-   * objects to their corresponding subnodes.
-   *
-   * @example you can use any shape here (or object with a qtIndex method, see README):
-   * ```typescript
-   * const tree = new Quadtree({ width: 100, height: 100 });
-   * tree.insert(new Rectangle({ x: 25, y: 25, width: 10, height: 10, data: 'data' }));
-   * tree.insert(new Circle({ x: 25, y: 25, r: 10, data: 512 }));
-   * tree.insert(new Line({ x1: 25, y1: 25, x2: 60, y2: 40, data: { custom: 'property'} }));
-   * ```
-   *
-   * @param obj - Object to be added.
-   */
   insert(obj: ObjectsType): void {
+    // check bounds
+    if (
+      Math.abs(obj.x) > this.bounds.width / 2 ||
+      Math.abs(obj.y) > this.bounds.height / 2
+    ) {
+      return;
+    }
+
     //if we have subnodes, call insert on matching subnodes
     if (this.nodes.length) {
       const indexes = this.getIndex(obj);
@@ -281,20 +219,15 @@ export class Quadtree<ObjectsType extends Circle> {
     }
   }
 
-  /**
-   * Return all objects that could collide with the given geometry.
-   *
-   * @example Just like insert, you can use any shape here (or object with a qtIndex method, see README):
-   * ```typescript
-   * tree.retrieve(new Rectangle({ x: 25, y: 25, width: 10, height: 10, data: 'data' }));
-   * tree.retrieve(new Circle({ x: 25, y: 25, r: 10, data: 512 }));
-   * tree.retrieve(new Line({ x1: 25, y1: 25, x2: 60, y2: 40, data: { custom: 'property'} }));
-   * ```
-   *
-   * @param obj - geometry to be checked
-   * @returns Array containing all detected objects.
-   */
   retrieve(obj: Circle): ObjectsType[] {
+    // check bounds
+    if (
+      Math.abs(obj.x) > this.bounds.width / 2 ||
+      Math.abs(obj.y) > this.bounds.height / 2
+    ) {
+      return;
+    }
+
     const indexes = this.getIndex(obj);
     const returnObjects = new Set<ObjectsType>();
 
@@ -319,17 +252,6 @@ export class Quadtree<ObjectsType extends Circle> {
     return [...returnObjects]; // Convert the Set back to an array
   }
 
-  /**
-   * Clear the Quadtree.
-   *
-   * @example
-   * ```typescript
-   * const tree = new Quadtree({ width: 100, height: 100 });
-   * tree.insert(new Circle({ x: 25, y: 25, r: 10 }));
-   * tree.clear();
-   * console.log(tree); // tree.objects and tree.nodes are empty
-   * ```
-   */
   clear(): void {
     this.objects = [];
 

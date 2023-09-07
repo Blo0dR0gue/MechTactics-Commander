@@ -18,37 +18,16 @@ class Universe {
     this.tree = new Quadtree({
       height: 5000,
       width: 5000,
-      maxObjects: 3,
-      x: 2500,
-      y: 2500,
+      maxObjects: 4,
     });
 
-    this.tree.insert(new Planet(-5, 10));
-    this.tree.insert(new Planet(-5, 9));
-    this.tree.insert(new Planet(100, 0));
-    this.tree.insert(new Planet(-10, 16));
-    this.tree.insert(new Planet(-20, 12));
-    function getRandomInRange(min: number, max: number): number {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    }
+    this.tree.insert(new Planet(2500, 2500));
+    this.tree.insert(new Planet(-2500, -2500));
+    this.tree.insert(new Planet(2500, -2500));
+    this.tree.insert(new Planet(-2500, 2500));
+    this.tree.insert(new Planet(0, 0));
 
-    // Generate and insert 100 random planets
-    // TODO: Move to tests!!!!
-    for (let j = 0; j < 5; j++) {
-      this.tree.clear();
-      let d1;
-      for (let i = 0; i < 10000; i++) {
-        const randomX = getRandomInRange(-500, 500); // Adjust the range as needed
-        const randomY = getRandomInRange(-500, 500); // Adjust the range as needed
-        const planet = new Planet(randomX, randomY);
-        this.tree.insert(planet);
-        d1 = planet;
-      }
-      console.log(d1);
-      console.time();
-      console.log(this.tree.retrieve(d1));
-      console.timeEnd();
-    }
+    console.log(this.tree.retrieve(new Planet(0, 0)));
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;

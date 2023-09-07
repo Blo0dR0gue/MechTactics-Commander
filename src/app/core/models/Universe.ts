@@ -33,6 +33,7 @@ class Universe {
     }
 
     // Generate and insert 100 random planets
+    // TODO: Move to tests!!!!
     for (let j = 0; j < 5; j++) {
       this.tree.clear();
       let d1;

@@ -296,37 +296,27 @@ export class Quadtree<ObjectsType extends Circle> {
    */
   retrieve(obj: Circle): ObjectsType[] {
     const indexes = this.getIndex(obj);
-    let returnObjects = this.objects;
-    let deep = false;
+    const returnObjects = new Set<ObjectsType>();
 
-    //if we have subnodes, retrieve their objects
+    // Retrieve objects from this node
+    for (let i = 0; i < this.objects.length; i++) {
+      const c1 = this.objects[i];
+      if (obj.intersect(c1)) {
+        returnObjects.add(c1);
+      }
+    }
+
+    // Retrieve objects from subnodes
     if (this.nodes.length) {
       for (let i = 0; i < indexes.length; i++) {
-        returnObjects = returnObjects.concat(
-          this.nodes[indexes[i]].retrieve(obj)
-        );
-        deep = true;
-      }
-    }
-
-    //remove duplicates
-    returnObjects = returnObjects.filter(function (item, index) {
-      return returnObjects.indexOf(item) >= index;
-    });
-
-    if (deep) {
-      return returnObjects;
-    } else {
-      const intersects = [];
-      // check intersects
-      for (let i = 0; i < returnObjects.length; i++) {
-        const c2 = returnObjects[i] as Circle;
-        if (obj.intersect(c2)) {
-          intersects.push(c2);
+        const subnodeObjects = this.nodes[indexes[i]].retrieve(obj);
+        for (const subnodeObj of subnodeObjects) {
+          returnObjects.add(subnodeObj);
         }
       }
-      return intersects;
     }
+
+    return [...returnObjects]; // Convert the Set back to an array
   }
 
   /**

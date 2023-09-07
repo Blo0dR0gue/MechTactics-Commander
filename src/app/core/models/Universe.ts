@@ -1,11 +1,12 @@
 import { Planet } from './Planet';
 import { Quadtree } from '../utils/quadtree/Quadtree';
+import { Circle } from '../utils/quadtree/Circle';
 
 class Universe {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private planets: Planet[];
-  private tree: Quadtree<Planet>;
+  private tree: Quadtree<Planet | Circle>;
 
   public constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -27,8 +28,26 @@ class Universe {
     this.tree.insert(new Planet(100, 0));
     this.tree.insert(new Planet(-10, 16));
     this.tree.insert(new Planet(-20, 12));
-    this.tree.insert(new Planet(-21, 12));
-    console.log(this.tree.retrieve(new Planet(100, 10)));
+    function getRandomInRange(min: number, max: number): number {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    // Generate and insert 100 random planets
+    for (let j = 0; j < 5; j++) {
+      this.tree.clear();
+      let d1;
+      for (let i = 0; i < 10000; i++) {
+        const randomX = getRandomInRange(-500, 500); // Adjust the range as needed
+        const randomY = getRandomInRange(-500, 500); // Adjust the range as needed
+        const planet = new Planet(randomX, randomY);
+        this.tree.insert(planet);
+        d1 = planet;
+      }
+      console.log(d1);
+      console.time();
+      console.log(this.tree.retrieve(d1));
+      console.timeEnd();
+    }
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;

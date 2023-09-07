@@ -15,8 +15,8 @@
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "watch:all": "concurrently npm:watch:static npm:watch:ts npm:watch:webpack",
     "lint": "eslint . --ext .ts",
-    "postinstall": "electron-builder install-app-deps",
-    "build": "electron-builder -w"
+    "postbuild": "electron-builder install-app-deps",
+    "build": "npm run postbuild && electron-builder -w"
   },
   "repository": {
     "type": "git",

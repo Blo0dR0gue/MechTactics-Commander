@@ -1,4 +1,5 @@
 var path = require('path');
+var fs = require('fs');
 
 module.exports = {
   watch: false,
@@ -20,4 +21,5 @@ module.exports = {
       { test: /\.tsx?$/, loader: 'ts-loader' },
     ],
   },
+  externals: ['better-sqlite3'],
 };

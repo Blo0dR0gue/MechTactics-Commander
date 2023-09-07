@@ -13,10 +13,7 @@
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-      "runtimeArgs": [
-        "--remote-debugging-port=9223" //open debugging port for renderer process
-      ],
-      "args": ["./dist/app/main.js"],
+      "args": ["./dist/app/main.js", "--remote-debugging-port=9222"],
       "env": {
         "NODE_ENV": "development"
       },
@@ -26,7 +23,8 @@
         "${workspaceFolder}/**", //use source maps for files in workspace folder
         "!**/node_modules/**" //but ignore everything in the node_modules folder
       ],
-      "preLaunchTask": "Sleepdelay"
+      "preLaunchTask": "Sleepdelay",
+      "console": "integratedTerminal"
     },
     {
       "name": "Electron: Renderer",

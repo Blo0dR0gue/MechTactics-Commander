@@ -1,14 +1,12 @@
 import { Planet } from './Planet';
 import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Circle } from '../utils/quadtree/Circle';
-import Database from 'better-sqlite3';
 
 class Universe {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private planets: Planet[];
   private tree: Quadtree<Planet | Circle>;
-  private db: Database.Database;
 
   public constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -21,9 +19,6 @@ class Universe {
       height: 5000,
       width: 5000,
       maxObjects: 4,
-    });
-    this.db = new Database(`${__dirname}/BattleTechCommander.db`, {
-      verbose: console.log,
     });
 
     this.tree.insert(new Planet(2500, 2500));

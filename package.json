@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.4",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "concurrently": "^8.2.1",
@@ -46,6 +47,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "better-sqlite3": "^8.6.0",
     "electron-reload": "^2.0.0-alpha.1"
   }
 }

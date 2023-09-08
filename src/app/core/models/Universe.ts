@@ -29,10 +29,17 @@ class Universe {
 
     console.log(this.tree.retrieve(new Planet(0, 0)));
 
+    this.getPlanets();
+
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    //SELECT rowid, name, x, y, affiliation, link FROM Planet;
   }
+
+  private getPlanets = async () => {
+    const response = await window.sql.planets();
+
+    console.log(response);
+  };
 }
 
 export { Universe };

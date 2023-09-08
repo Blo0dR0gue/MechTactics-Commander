@@ -6,7 +6,8 @@
   "copyright": "Daniel Czeschner",
   "directories": {
     "app": ".",
-    "output": "release/"
+    "output": "release/",
+    "buildResources": "build-res"
   },
   "files": [
     "!**/*.ts",
@@ -20,6 +21,6 @@
     }
   ],
   "win": {
-    "target": "portable"
+    "target": "nsis"
   }
 }

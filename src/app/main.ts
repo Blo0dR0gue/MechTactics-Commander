@@ -1,9 +1,13 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import electronReload from 'electron-reload';
-import Database from 'better-sqlite3';
+import ChildProcess = require('child_process');
 
-let db: Database.Database;
+import sqlite3 = require('sqlite3');
+
+if (require('electron-squirrel-startup')) {
+  process.exit(0);
+}
 
 if (process.env.NODE_ENV == 'development') {
   electronReload(__dirname, {});
@@ -16,7 +20,9 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     height: size.height,
     width: size.width,
-    webPreferences: {},
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
 
   mainWindow.loadFile(path.join(__dirname, './index.html'));
@@ -24,15 +30,40 @@ function createWindow() {
 
   if (process.env.NODE_ENV == 'development') {
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    setTimeout(() => {
+      mainWindow.webContents.openDevTools();
+    }, 1000);
   }
 }
 
 app.whenReady().then(() => {
   createWindow();
-  db = new Database(`${__dirname}/core/BattleTechCommander.db`, {
-    verbose: console.log,
-  });
+
+  const db = new sqlite3.Database(
+    path.join(__dirname, 'BattleTechCommander.db'),
+    sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+    (err) => {
+      console.log(err);
+    }
+  );
+
+  ipcMain.handle(
+    'getAllPlanets',
+    () =>
+      new Promise(function (resolve, reject) {
+        db.all(
+          'SELECT rowid, name, x, y, affiliation, link FROM Planet',
+          (err, rows) => {
+            if (err) {
+              reject(err);
+            } else {
+              // TODO: cast to planet
+              resolve(rows);
+            }
+          }
+        );
+      })
+  );
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -40,8 +71,75 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  db.close();
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+
+// this should be placed at top of main.js to handle setup events quickly
+if (handleSquirrelEvent()) {
+  // squirrel event handled and app will exit in 1000ms, so don't do anything else
+  process.exit(0);
+}
+
+function handleSquirrelEvent() {
+  if (process.argv.length === 1) {
+    return false;
+  }
+
+  const appFolder = path.resolve(process.execPath, '..');
+  const rootAtomFolder = path.resolve(appFolder, '..');
+  const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
+  const exeName = path.basename(process.execPath);
+
+  const spawn = function (command, args) {
+    let spawnedProcess, err;
+
+    try {
+      spawnedProcess = ChildProcess.spawn(command, args, { detached: true });
+    } catch (error) {
+      err = error;
+      console.log(err);
+    }
+
+    return spawnedProcess;
+  };
+
+  const spawnUpdate = function (args) {
+    return spawn(updateDotExe, args);
+  };
+
+  const squirrelEvent = process.argv[1];
+  switch (squirrelEvent) {
+    case '--squirrel-install':
+    case '--squirrel-updated':
+      // Optionally do things such as:
+      // - Add your .exe to the PATH
+      // - Write to the registry for things like file associations and
+      //   explorer context menus
+
+      // Install desktop and start menu shortcuts
+      spawnUpdate(['--createShortcut', exeName]);
+
+      setTimeout(app.quit, 1000);
+      return true;
+
+    case '--squirrel-uninstall':
+      // Undo anything you did in the --squirrel-install and
+      // --squirrel-updated handlers
+
+      // Remove desktop and start menu shortcuts
+      spawnUpdate(['--removeShortcut', exeName]);
+
+      setTimeout(app.quit, 1000);
+      return true;
+
+    case '--squirrel-obsolete':
+      // This is called on the outgoing version of your app before
+      // we update to the new version - it's the opposite of
+      // --squirrel-updated
+
+      app.quit();
+      return true;
+  }
+}

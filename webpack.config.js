@@ -21,5 +21,4 @@ module.exports = {
       { test: /\.tsx?$/, loader: 'ts-loader' },
     ],
   },
-  externals: ['better-sqlite3'],
 };

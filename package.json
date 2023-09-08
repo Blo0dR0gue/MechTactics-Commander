@@ -4,7 +4,7 @@
   "description": "BattleTech strategy map",
   "main": "./dist/app/main.js",
   "scripts": {
-    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/main.ts",
+    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/app/main.ts",
     "start": "cross-env NODE_ENV=development electron ./dist/app/main.js",
     "build:static": "node ./copy.js",
     "watch:static": "nodemon --watch ./src --exec npm run build:static",
@@ -15,8 +15,8 @@
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "watch:all": "concurrently npm:watch:static npm:watch:ts npm:watch:webpack",
     "lint": "eslint . --ext .ts",
-    "postbuild": "electron-builder install-app-deps",
-    "build": "npm run postbuild && electron-builder -w"
+    "postinstall": "electron-builder install-app-deps",
+    "build": "npm run postinstall && electron-builder -w"
   },
   "repository": {
     "type": "git",
@@ -29,14 +29,12 @@
   },
   "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.4",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "concurrently": "^8.2.1",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "electron": "^26.1.0",
-    "electron-builder": "^24.6.4",
     "eslint": "^8.48.0",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.1",
@@ -47,7 +45,9 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "better-sqlite3": "^8.6.0",
-    "electron-reload": "^2.0.0-alpha.1"
+    "electron-builder": "^24.6.4",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "sqlite3": "^5.1.6"
   }
 }

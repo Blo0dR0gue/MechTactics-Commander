@@ -10,13 +10,13 @@
     "watch:static": "nodemon --watch ./src --exec npm run build:static",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
-    "build:all": "npm run build:static && npm run build:ts",
+    "build:all": "npm run build:static && npm run build:ts && npm run build:webpack",
     "build:webpack": "webpack --config webpack.config.js",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "watch:all": "concurrently npm:watch:static npm:watch:ts npm:watch:webpack",
     "lint": "eslint . --ext .ts",
     "postinstall": "electron-builder install-app-deps",
-    "build": "npm run postinstall && electron-builder -w"
+    "build:exe": "npm run postinstall && electron-builder -w"
   },
   "repository": {
     "type": "git",
@@ -42,10 +42,10 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "electron-builder": "^24.6.4"
   },
   "dependencies": {
-    "electron-builder": "^24.6.4",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.0",
     "sqlite3": "^5.1.6"

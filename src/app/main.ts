@@ -4,6 +4,8 @@ import electronReload from 'electron-reload';
 import ChildProcess = require('child_process');
 
 import sqlite3 = require('sqlite3');
+import { Planet } from './core/models/Planet';
+import { PlanetJSON } from './core/types/PlanetJson';
 
 if (require('electron-squirrel-startup')) {
   process.exit(0);
@@ -50,15 +52,19 @@ app.whenReady().then(() => {
   ipcMain.handle(
     'getAllPlanets',
     () =>
-      new Promise(function (resolve, reject) {
+      new Promise<Planet[]>(function (resolve, reject) {
         db.all(
           'SELECT rowid, name, x, y, affiliation, link FROM Planet',
           (err, rows) => {
             if (err) {
               reject(err);
             } else {
-              // TODO: cast to planet
-              resolve(rows);
+              const planets = [] as Planet[];
+              rows.forEach((planetJSON: PlanetJSON) => {
+                const planet = new Planet(planetJSON);
+                planets.push(planet);
+              });
+              resolve(planets);
             }
           }
         );

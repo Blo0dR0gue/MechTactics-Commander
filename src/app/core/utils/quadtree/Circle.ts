@@ -1,13 +1,6 @@
 // Lightweight fork of https://github.com/timohausmann/quadtree-ts/ to support negative numbers
 
-/**
- * Circle Geometry
- * @beta
- *
- * @remarks
- * This interface simply represents a circle geometry.
- */
-export interface CircleGeometry {
+interface CircleGeometry {
   /**
    * X center of the circle.
    */
@@ -24,7 +17,7 @@ export interface CircleGeometry {
   r: number;
 }
 
-export class Circle<CustomDataType = void> implements CircleGeometry {
+export class Circle implements CircleGeometry {
   /**
    * X center of the circle.
    */
@@ -41,14 +34,8 @@ export class Circle<CustomDataType = void> implements CircleGeometry {
   r: number;
 
   /**
-   * Custom data.
-   */
-  data?: CustomDataType;
-
-  /**
    * Circle Constructor
    * @param props - Circle properties
-   * @typeParam CustomDataType - Type of the custom data property (optional, inferred automatically).
    */
   constructor(props: CircleGeometry) {
     this.x = props.x;

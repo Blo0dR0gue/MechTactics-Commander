@@ -21,14 +21,6 @@ class Universe {
       maxObjects: 4,
     });
 
-    this.tree.insert(new Planet(2500, 2500));
-    this.tree.insert(new Planet(-2500, -2500));
-    this.tree.insert(new Planet(2500, -2500));
-    this.tree.insert(new Planet(-2500, 2500));
-    this.tree.insert(new Planet(0, 0));
-
-    console.log(this.tree.retrieve(new Planet(0, 0)));
-
     this.getPlanets();
 
     this.canvas.width = window.innerWidth;
@@ -36,9 +28,8 @@ class Universe {
   }
 
   private getPlanets = async () => {
-    const response = await window.sql.planets();
-
-    console.log(response);
+    this.planets = await window.sql.planets();
+    console.log(this.planets);
   };
 }
 

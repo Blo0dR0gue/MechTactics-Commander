@@ -33,13 +33,20 @@ class Universe {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
-    this.cameraOffset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.cameraOffset = {
+      x: window.innerWidth / 2,
+      y: -window.innerHeight * 0.5,
+    };
     this.mouseController = new MouseController(this.canvas, this);
     this.mouseController.init();
   }
 
   private getPlanets = async () => {
-    this.planets = await window.sql.planets();
+    this.planets = [];
+    const planetAffiliationData = await window.sql.planets();
+    planetAffiliationData.forEach((element) => {
+      this.planets.push(new Planet(element));
+    });
   };
 
   private draw() {
@@ -48,17 +55,17 @@ class Universe {
 
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, this.zoom);
+    this.context.scale(this.zoom, -this.zoom);
     this.context.translate(
       -window.innerWidth / 2 + this.cameraOffset.x,
-      -window.innerHeight / 2 + this.cameraOffset.y
+      -window.innerHeight / 2 - this.cameraOffset.y
     );
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
       this.context.beginPath();
-      this.context.arc(planet.x, planet.y, 4, 0, Math.PI * 2);
-      this.context.fillStyle = 'blue';
+      this.context.arc(planet.x, planet.y, 4 / this.zoom, 0, Math.PI * 2);
+      this.context.fillStyle = planet.getColor();
       this.context.fill();
       this.context.closePath();
     });

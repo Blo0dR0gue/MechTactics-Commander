@@ -1,7 +1,7 @@
 import { Coord, Universe } from './Universe';
 
 class MouseController {
-  readonly MAX_ZOOM = 3;
+  readonly MAX_ZOOM = 5;
   readonly MIN_ZOOM = 0.7;
   readonly SCROLL_SENSITIVITY = 0.0005;
 

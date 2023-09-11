@@ -6,6 +6,10 @@ class Affiliation {
     this.name = name;
     this.color = color;
   }
+
+  public getColor() {
+    return this.color;
+  }
 }
 
 export { Affiliation };

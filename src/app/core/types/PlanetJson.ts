@@ -2,9 +2,9 @@ type PlanetJSON = {
   name: string;
   x: number;
   y: number;
-  affiliation: string;
+  affiliation: number;
   link: string;
-  r: number;
+  r?: number;
 };
 
 export { PlanetJSON };

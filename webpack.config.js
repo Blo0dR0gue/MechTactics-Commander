@@ -1,11 +1,12 @@
 var path = require('path');
+var fs = require('fs');
 
 module.exports = {
   watch: false,
   target: 'electron-renderer',
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: `./src/app/core/renderer.ts`,
+  entry: `./src/app/core/index.ts`,
   output: {
     path: path.resolve(__dirname, 'dist/app'),
     filename: 'bundle.js',

@@ -4,19 +4,19 @@
   "description": "BattleTech strategy map",
   "main": "./dist/app/main.js",
   "scripts": {
-    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/main.ts",
+    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/app/main.ts",
     "start": "cross-env NODE_ENV=development electron ./dist/app/main.js",
     "build:static": "node ./copy.js",
     "watch:static": "nodemon --watch ./src --exec npm run build:static",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
-    "build:all": "npm run build:static && npm run build:ts",
+    "build:all": "npm run build:static && npm run build:ts && npm run build:webpack",
     "build:webpack": "webpack --config webpack.config.js",
     "watch:webpack": "webpack --config webpack.config.js --watch",
     "watch:all": "concurrently npm:watch:static npm:watch:ts npm:watch:webpack",
     "lint": "eslint . --ext .ts",
     "postinstall": "electron-builder install-app-deps",
-    "build": "electron-builder -w"
+    "build:exe": "npm run postinstall && electron-builder -w"
   },
   "repository": {
     "type": "git",
@@ -35,7 +35,6 @@
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "electron": "^26.1.0",
-    "electron-builder": "^24.6.4",
     "eslint": "^8.48.0",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.1",
@@ -43,10 +42,12 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "electron-builder": "^24.6.4"
   },
   "dependencies": {
-    "@timohausmann/quadtree-ts": "^2.0.0-beta.1",
-    "electron-reload": "^2.0.0-alpha.1"
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "sqlite3": "^5.1.6"
   }
 }

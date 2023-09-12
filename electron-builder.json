@@ -6,19 +6,21 @@
   "copyright": "Daniel Czeschner",
   "directories": {
     "app": ".",
-    "output": "release/"
+    "output": "release/",
+    "buildResources": "build-res"
   },
   "files": [
     "!**/*.ts",
     "**/*.js",
     "**/*.html",
     "**/*.css",
+    "**/*.db",
     {
       "from": "./dist/app",
       "filter": ["**/*"]
     }
   ],
   "win": {
-    "target": "portable"
+    "target": "nsis"
   }
 }

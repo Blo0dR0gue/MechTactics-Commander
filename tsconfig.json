@@ -10,8 +10,9 @@
     "removeComments": false,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
+    "resolveJsonModule": true,
     "outDir": "./dist"
   },
   "exclude": ["node_modules"],
-  "include": ["src/"]
+  "include": ["src/", "./declarations.d.ts"]
 }

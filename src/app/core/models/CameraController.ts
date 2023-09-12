@@ -1,6 +1,7 @@
-import { Coord, Universe } from './Universe';
+import { Vector } from '../utils/Vector';
+import { Universe } from './Universe';
 
-class MouseController {
+class CameraController {
   readonly MAX_ZOOM = 5;
   readonly MIN_ZOOM = 0.7;
   readonly SCROLL_SENSITIVITY = 0.0005;
@@ -9,7 +10,7 @@ class MouseController {
   private universe: Universe;
 
   private isDragging = false;
-  private dragStart: Coord = { x: 0, y: 0 };
+  private dragStart = new Vector(0, 0);
 
   public constructor(element: HTMLElement, universe: Universe) {
     this.element = element;
@@ -25,10 +26,14 @@ class MouseController {
 
   private handleMouseDown(e: MouseEvent) {
     this.isDragging = true;
-    this.dragStart.x =
-      e.clientX / this.universe.getZoom() - this.universe.getCameraOffset().x;
-    this.dragStart.y =
-      e.clientY / this.universe.getZoom() - this.universe.getCameraOffset().y;
+    this.dragStart.setX(
+      e.clientX / this.universe.getZoom() -
+        this.universe.getCameraOffset().getX()
+    );
+    this.dragStart.setY(
+      e.clientY / this.universe.getZoom() -
+        this.universe.getCameraOffset().getY()
+    );
   }
 
   private handleMouseUp() {
@@ -37,12 +42,9 @@ class MouseController {
 
   private handleMouseMove(e: MouseEvent) {
     if (this.isDragging) {
-      const x = e.clientX / this.universe.getZoom() - this.dragStart.x;
-      const y = e.clientY / this.universe.getZoom() - this.dragStart.y;
-      this.universe.setCameraOffset({
-        x: x,
-        y: y,
-      });
+      const x = e.clientX / this.universe.getZoom() - this.dragStart.getX();
+      const y = e.clientY / this.universe.getZoom() - this.dragStart.getY();
+      this.universe.setCameraOffset(new Vector(x, y));
     }
   }
   private handleMouseWheel(e: WheelEvent) {
@@ -56,4 +58,4 @@ class MouseController {
   }
 }
 
-export { MouseController };
+export { CameraController };

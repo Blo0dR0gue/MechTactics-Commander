@@ -1,7 +1,8 @@
 import { Planet } from './Planet';
 import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Circle } from '../utils/quadtree/Circle';
-import { MouseController } from './MouseController';
+import { CameraController } from './CameraController';
+import { Vector } from '../utils/Vector';
 
 class Universe {
   private canvas: HTMLCanvasElement;
@@ -10,8 +11,8 @@ class Universe {
   private tree: Quadtree<Planet | Circle>;
 
   private zoom = 2;
-  private cameraOffset: Coord = { x: 1, y: 1 };
-  private mouseController: MouseController;
+  private cameraOffset = new Vector(1, 1);
+  private cameraController: CameraController;
 
   public constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -33,12 +34,9 @@ class Universe {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
-    this.cameraOffset = {
-      x: window.innerWidth / 2,
-      y: -window.innerHeight * 0.5,
-    };
-    this.mouseController = new MouseController(this.canvas, this);
-    this.mouseController.init();
+    this.cameraOffset.set(window.innerWidth / 2, -window.innerHeight * 0.5);
+    this.cameraController = new CameraController(this.canvas, this);
+    this.cameraController.init();
   }
 
   private getPlanets = async () => {
@@ -57,8 +55,8 @@ class Universe {
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
     this.context.scale(this.zoom, -this.zoom);
     this.context.translate(
-      -window.innerWidth / 2 + this.cameraOffset.x,
-      -window.innerHeight / 2 - this.cameraOffset.y
+      -window.innerWidth / 2 + this.cameraOffset.getX(),
+      -window.innerHeight / 2 - this.cameraOffset.getY()
     );
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -77,7 +75,7 @@ class Universe {
     this.zoom = zoom;
   }
 
-  public setCameraOffset(offset: Coord) {
+  public setCameraOffset(offset: Vector) {
     this.cameraOffset = offset;
   }
 
@@ -85,14 +83,9 @@ class Universe {
     return this.zoom;
   }
 
-  public getCameraOffset(): Coord {
+  public getCameraOffset(): Vector {
     return this.cameraOffset;
   }
 }
 
-interface Coord {
-  x: number;
-  y: number;
-}
-
-export { Universe, Coord };
+export { Universe };

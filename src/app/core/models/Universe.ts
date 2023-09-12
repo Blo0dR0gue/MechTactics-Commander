@@ -2,7 +2,7 @@ import { Planet } from './Planet';
 import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Circle } from '../utils/quadtree/Circle';
 import { CameraController } from './CameraController';
-import { Vector } from '../utils/Vector';
+import { Vector } from './Vector';
 
 class Universe {
   private canvas: HTMLCanvasElement;

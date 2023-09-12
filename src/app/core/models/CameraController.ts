@@ -1,4 +1,4 @@
-import { Vector } from '../utils/Vector';
+import { Vector } from './Vector';
 import { Universe } from './Universe';
 
 class CameraController {

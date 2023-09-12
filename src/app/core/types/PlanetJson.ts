@@ -1,7 +1,8 @@
+import { Vector } from '../utils/Vector';
+
 type PlanetJSON = {
   name: string;
-  x: number;
-  y: number;
+  coord: Vector;
   affiliation: number;
   link: string;
   r?: number;

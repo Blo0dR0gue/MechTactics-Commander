@@ -62,7 +62,13 @@ class Universe {
 
     this.planets.forEach((planet: Planet) => {
       this.context.beginPath();
-      this.context.arc(planet.x, planet.y, 4 / this.zoom, 0, Math.PI * 2);
+      this.context.arc(
+        planet.coord.getX(),
+        planet.coord.getY(),
+        4 / this.zoom,
+        0,
+        Math.PI * 2
+      );
       this.context.fillStyle = planet.getColor();
       this.context.fill();
       this.context.closePath();

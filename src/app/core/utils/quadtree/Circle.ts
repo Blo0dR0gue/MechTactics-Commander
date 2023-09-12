@@ -1,13 +1,27 @@
 // Lightweight fork of https://github.com/timohausmann/quadtree-ts/ to support negative numbers
 
+import { Vector } from '../Vector';
+
 interface CircleGeometry {
   /**
-   * X center of the circle.
+   * Coordinate of the center of the circle
+   */
+  coord: Vector;
+
+  /**
+   * Radius of the circle.
+   */
+  r: number;
+}
+
+interface CircleProp {
+  /**
+   * X center of the circle
    */
   x: number;
 
   /**
-   * Y center of the circle.
+   * Y center of the circle
    */
   y: number;
 
@@ -19,14 +33,9 @@ interface CircleGeometry {
 
 export class Circle implements CircleGeometry {
   /**
-   * X center of the circle.
+   * Coordinate of the center of the circle
    */
-  x: number;
-
-  /**
-   * Y center of the circle.
-   */
-  y: number;
+  coord: Vector;
 
   /**
    * Radius of the circle.
@@ -37,9 +46,8 @@ export class Circle implements CircleGeometry {
    * Circle Constructor
    * @param props - Circle properties
    */
-  constructor(props: CircleGeometry) {
-    this.x = props.x;
-    this.y = props.y;
+  constructor(props: CircleProp) {
+    this.coord = new Vector(props.x, props.y);
     this.r = props.r;
   }
 
@@ -94,7 +102,10 @@ export class Circle implements CircleGeometry {
   public intersect(c2: Circle): boolean {
     return (
       Math.sqrt(
-        (this.x - c2.x) * (this.x - c2.x) + (this.y - c2.y) * (this.y - c2.y)
+        (this.coord.getX() - c2.coord.getX()) *
+          (this.coord.getX() - c2.coord.getX()) +
+          (this.coord.getY() - c2.coord.getY()) *
+            (this.coord.getY() - c2.coord.getY())
       ) <=
       this.r + c2.r
     );

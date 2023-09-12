@@ -1,17 +1,13 @@
 // Lightweight fork of https://github.com/timohausmann/quadtree-ts/ to support negative numbers
 
+import { Vector } from '../Vector';
 import { Circle } from './Circle';
 
 export interface NodeGeometry {
   /**
-   * X position of the node
+   * Coordinate of the node
    */
-  x: number;
-
-  /**
-   * Y position of the node
-   */
-  y: number;
+  coord: Vector;
 
   /**
    * Width of the node
@@ -107,8 +103,7 @@ export class Quadtree<ObjectsType extends Circle> {
 
   constructor(props: QuadtreeProps, level = 0) {
     this.bounds = {
-      x: props.x || 0,
-      y: props.y || 0,
+      coord: new Vector(props.x || 0, props.y || 0),
       width: props.width,
       height: props.height,
     };
@@ -124,24 +119,24 @@ export class Quadtree<ObjectsType extends Circle> {
   getIndex(obj: Circle): number[] {
     const indexes = [];
 
-    if (obj.x + obj.r > this.bounds.x) {
+    if (obj.coord.getX() + obj.r > this.bounds.coord.getX()) {
       // right
-      if (obj.y + obj.r > this.bounds.y) {
+      if (obj.coord.getY() + obj.r > this.bounds.coord.getY()) {
         // top right
         indexes.push(0);
       }
-      if (obj.y - obj.r < this.bounds.y) {
+      if (obj.coord.getY() - obj.r < this.bounds.coord.getY()) {
         // bottom right
         indexes.push(3);
       }
     }
-    if (obj.x - obj.r < this.bounds.x) {
+    if (obj.coord.getX() - obj.r < this.bounds.coord.getX()) {
       // left
-      if (obj.y + obj.r > this.bounds.y) {
+      if (obj.coord.getY() + obj.r > this.bounds.coord.getY()) {
         // top left
         indexes.push(1);
       }
-      if (obj.y - obj.r < this.bounds.y) {
+      if (obj.coord.getY() - obj.r < this.bounds.coord.getY()) {
         // bottom left
         indexes.push(2);
       }
@@ -156,10 +151,22 @@ export class Quadtree<ObjectsType extends Circle> {
     const height = this.bounds.height / 2;
 
     const coords = [
-      { x: this.bounds.x + width / 2, y: this.bounds.y + height / 2 }, // top right
-      { x: this.bounds.x - width / 2, y: this.bounds.y + height / 2 }, // top left
-      { x: this.bounds.x - width / 2, y: this.bounds.y - height / 2 }, // bottom left
-      { x: this.bounds.x + width / 2, y: this.bounds.y - height / 2 }, // bottom right
+      {
+        x: this.bounds.coord.getX() + width / 2,
+        y: this.bounds.coord.getY() + height / 2,
+      }, // top right
+      {
+        x: this.bounds.coord.getX() - width / 2,
+        y: this.bounds.coord.getY() + height / 2,
+      }, // top left
+      {
+        x: this.bounds.coord.getX() - width / 2,
+        y: this.bounds.coord.getY() - height / 2,
+      }, // bottom left
+      {
+        x: this.bounds.coord.getX() + width / 2,
+        y: this.bounds.coord.getY() - height / 2,
+      }, // bottom right
     ];
 
     for (let i = 0; i < 4; i++) {
@@ -180,8 +187,8 @@ export class Quadtree<ObjectsType extends Circle> {
   insert(obj: ObjectsType): void {
     // check bounds
     if (
-      Math.abs(obj.x) > this.bounds.width / 2 ||
-      Math.abs(obj.y) > this.bounds.height / 2
+      Math.abs(obj.coord.getX()) > this.bounds.width / 2 ||
+      Math.abs(obj.coord.getY()) > this.bounds.height / 2
     ) {
       return;
     }
@@ -222,8 +229,8 @@ export class Quadtree<ObjectsType extends Circle> {
   retrieve(obj: Circle): ObjectsType[] {
     // check bounds
     if (
-      Math.abs(obj.x) > this.bounds.width / 2 ||
-      Math.abs(obj.y) > this.bounds.height / 2
+      Math.abs(obj.coord.getX()) > this.bounds.width / 2 ||
+      Math.abs(obj.coord.getY()) > this.bounds.height / 2
     ) {
       return;
     }

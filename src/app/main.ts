@@ -4,7 +4,7 @@ import electronReload from 'electron-reload';
 import ChildProcess = require('child_process');
 
 import sqlite3 = require('sqlite3');
-import { PlanetAffiliation } from './core/types/PlanetAffiliation';
+import { PlanetAffiliationJSON } from './core/types/PlanetAffiliation';
 
 if (require('electron-squirrel-startup')) {
   process.exit(0);
@@ -51,10 +51,10 @@ app.whenReady().then(() => {
   ipcMain.handle(
     'getAllPlanets',
     () =>
-      new Promise<PlanetAffiliation[]>(function (resolve, reject) {
+      new Promise<PlanetAffiliationJSON[]>(function (resolve, reject) {
         db.all(
           'SELECT p.name as planetName, x, y, affiliation as affiliationId, link, a.name as nameAffiliation, color FROM Planet as p JOIN Affiliation as a ON p.affiliation = a.rowid',
-          (err, rows: PlanetAffiliation[]) => {
+          (err, rows: PlanetAffiliationJSON[]) => {
             if (err) {
               reject(err);
             } else {

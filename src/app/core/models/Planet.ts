@@ -1,6 +1,6 @@
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
-import { PlanetAffiliation } from '../types/PlanetAffiliation';
+import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
 
 class Planet extends Circle {
   private name: string;
@@ -8,7 +8,7 @@ class Planet extends Circle {
   private link: string;
   private affiliation: Affiliation;
 
-  public constructor(probs: PlanetAffiliation) {
+  public constructor(probs: PlanetAffiliationJSON) {
     super({ x: probs.x, y: probs.y, r: 5 });
     this.name = probs.planetName;
     this.affiliationId = probs.affiliationId;

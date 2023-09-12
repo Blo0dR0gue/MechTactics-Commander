@@ -1,4 +1,6 @@
-type PlanetAffiliation = {
+import { Vector } from '../utils/Vector';
+
+type PlanetAffiliationJSON = {
   planetName: string;
   x: number;
   y: number;
@@ -8,4 +10,13 @@ type PlanetAffiliation = {
   color: string;
 };
 
-export { PlanetAffiliation };
+type PlanetAffiliation = {
+  planetName: string;
+  coord: Vector;
+  affiliationId: number;
+  link: string;
+  nameAffiliation: string;
+  color: string;
+};
+
+export { PlanetAffiliationJSON, PlanetAffiliation };

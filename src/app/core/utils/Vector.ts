@@ -15,6 +15,10 @@ class Vector {
     return this.y;
   }
 
+  public get(): { x: number; y: number } {
+    return { x: this.x, y: this.y };
+  }
+
   public setX(x: number) {
     this.x = x;
   }

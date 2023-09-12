@@ -1,5 +1,5 @@
-import { Vector } from './Vector';
-import { Universe } from './Universe';
+import { Vector } from '../map/Vector';
+import { Universe } from '../map/Universe';
 
 class CameraController {
   readonly MAX_ZOOM = 5;

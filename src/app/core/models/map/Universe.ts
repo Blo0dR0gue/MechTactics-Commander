@@ -1,7 +1,7 @@
-import { Planet } from './Planet';
-import { Quadtree } from '../utils/quadtree/Quadtree';
-import { Circle } from '../utils/quadtree/Circle';
-import { CameraController } from './CameraController';
+import { Planet } from '../objects/Planet';
+import { Quadtree } from '../../utils/quadtree/Quadtree';
+import { Circle } from '../../utils/quadtree/Circle';
+import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
 
 class Universe {

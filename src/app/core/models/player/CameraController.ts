@@ -1,5 +1,6 @@
 import { Vector } from '../map/Vector';
 import { Universe } from '../map/Universe';
+import { Planet } from '../objects/Planet';
 
 class CameraController {
   readonly MAX_ZOOM = 5;
@@ -8,6 +9,8 @@ class CameraController {
 
   private element: HTMLElement;
   private universe: Universe;
+
+  private selectedPlanet: Planet;
 
   private isDragging = false;
   private dragStart = new Vector(0, 0);
@@ -22,6 +25,7 @@ class CameraController {
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
+    this.element.addEventListener('click', this.handleClick.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -55,6 +59,16 @@ class CameraController {
     newZoom = Math.min(newZoom, this.MAX_ZOOM);
     newZoom = Math.max(newZoom, this.MIN_ZOOM);
     this.universe.setZoom(newZoom);
+  }
+
+  private handleClick(e: MouseEvent) {
+    const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
+    console.log(
+      `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
+    );
+    const planet = this.universe.getClosestPlanet(clicked);
+    this.selectedPlanet = planet;
+    console.log(planet);
   }
 }
 

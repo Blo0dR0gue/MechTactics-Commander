@@ -185,14 +185,6 @@ export class Quadtree<ObjectsType extends Circle> {
   }
 
   insert(obj: ObjectsType): void {
-    // check bounds
-    if (
-      Math.abs(obj.coord.getX()) > this.bounds.width / 2 ||
-      Math.abs(obj.coord.getY()) > this.bounds.height / 2
-    ) {
-      return;
-    }
-
     //if we have subnodes, call insert on matching subnodes
     if (this.nodes.length) {
       const indexes = this.getIndex(obj);
@@ -227,14 +219,6 @@ export class Quadtree<ObjectsType extends Circle> {
   }
 
   retrieve(obj: Circle): ObjectsType[] {
-    // check bounds
-    if (
-      Math.abs(obj.coord.getX()) > this.bounds.width / 2 ||
-      Math.abs(obj.coord.getY()) > this.bounds.height / 2
-    ) {
-      return;
-    }
-
     const indexes = this.getIndex(obj);
     const returnObjects = new Set<ObjectsType>();
 

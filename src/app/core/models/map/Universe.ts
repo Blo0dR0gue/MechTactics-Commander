@@ -43,7 +43,9 @@ class Universe {
     this.planets = [];
     const planetAffiliationData = await window.sql.planets();
     planetAffiliationData.forEach((element) => {
-      this.planets.push(new Planet(element));
+      const planet = new Planet(element);
+      this.planets.push(planet);
+      this.tree.insert(planet);
     });
   };
 
@@ -53,11 +55,12 @@ class Universe {
 
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, -this.zoom);
+    this.context.scale(this.zoom, -this.zoom); // invert y so we get the correct battletech map.
     this.context.translate(
       -window.innerWidth / 2 + this.cameraOffset.getX(),
-      -window.innerHeight / 2 - this.cameraOffset.getY()
+      -window.innerHeight / 2 - this.cameraOffset.getY() // because of the invert we need to subtract here.
     );
+
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
@@ -91,6 +94,33 @@ class Universe {
 
   public getCameraOffset(): Vector {
     return this.cameraOffset;
+  }
+
+  public getXY(vec: Vector): Vector {
+    const point = new DOMPoint(vec.getX(), vec.getY());
+    const matrix = this.context.getTransform();
+    const inverse = matrix.invertSelf();
+    return new Vector(
+      point.matrixTransform(inverse).x,
+      point.matrixTransform(inverse).y
+    );
+  }
+
+  public getClosestPlanet(vec: Vector): Planet | null {
+    const planets = this.tree.retrieve(
+      new Circle({ x: vec.getX(), y: vec.getY(), r: 5 })
+    );
+    let closest: Planet;
+    let closestDist: number = Infinity;
+    for (const planet of planets) {
+      const dist = vec.distance(planet.coord);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = planet as Planet;
+      }
+    }
+    console.log(planets);
+    return closest;
   }
 }
 

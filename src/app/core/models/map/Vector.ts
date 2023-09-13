@@ -1,3 +1,4 @@
+// TODO: COMMENT, TESTS
 class Vector {
   private x: number;
   private y: number;

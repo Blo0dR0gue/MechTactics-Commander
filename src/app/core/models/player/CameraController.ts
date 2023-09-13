@@ -2,6 +2,8 @@ import { Vector } from '../map/Vector';
 import { Universe } from '../map/Universe';
 import { Planet } from '../objects/Planet';
 
+// TODO: COMMENT, TESTS
+
 class CameraController {
   readonly MAX_ZOOM = 5;
   readonly MIN_ZOOM = 0.7;

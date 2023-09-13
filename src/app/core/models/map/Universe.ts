@@ -4,6 +4,8 @@ import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
 
+// TODO: COMMENT, TESTS
+
 class Universe {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;

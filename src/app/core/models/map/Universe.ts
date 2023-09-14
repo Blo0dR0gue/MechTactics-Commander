@@ -57,10 +57,10 @@ class Universe {
 
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, -this.zoom); // invert y so we get the correct battletech map.
+    this.context.scale(this.zoom, this.zoom);
     this.context.translate(
       -window.innerWidth / 2 + this.cameraOffset.getX(),
-      -window.innerHeight / 2 - this.cameraOffset.getY() // because of the invert we need to subtract here.
+      -window.innerHeight / 2 + this.cameraOffset.getY()
     );
 
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);

@@ -68,9 +68,11 @@ class CameraController {
     console.log(
       `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
     );
-    const planet = this.universe.getClosestPlanet(clicked);
-    this.selectedPlanet = planet;
-    console.log(planet);
+    const closest = this.universe.getClosestPlanet(clicked);
+    if (closest !== undefined && closest.dist < 2.5) {
+      this.selectedPlanet = closest.planet;
+      console.log(this.selectedPlanet);
+    }
   }
 }
 

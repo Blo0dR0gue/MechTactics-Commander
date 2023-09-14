@@ -108,7 +108,9 @@ class Universe {
     );
   }
 
-  public getClosestPlanet(vec: Vector): Planet | null {
+  public getClosestPlanet(
+    vec: Vector
+  ): { planet: Planet; dist: number } | null {
     const planets = this.tree.retrieve(
       new Circle({ x: vec.getX(), y: vec.getY(), r: 5 })
     );
@@ -121,8 +123,7 @@ class Universe {
         closest = planet as Planet;
       }
     }
-    console.log(planets);
-    return closest;
+    return { planet: closest, dist: closestDist };
   }
 }
 

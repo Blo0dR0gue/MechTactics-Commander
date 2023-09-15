@@ -51,6 +51,15 @@ class CameraController {
       const x = e.clientX / this.universe.getZoom() - this.dragStart.getX();
       const y = e.clientY / this.universe.getZoom() - this.dragStart.getY();
       this.universe.setCameraOffset(new Vector(x, y));
+    } else {
+      // Mouse move but not dragging -> handle
+      const pos = this.universe.getXY(new Vector(e.clientX, e.clientY));
+      const closest = this.universe.getClosestPlanet(pos, 5);
+      if (closest !== undefined && closest.dist < 2.5) {
+        this.universe.highlightPlanet(closest.planet);
+      } else {
+        this.universe.highlightPlanet(undefined);
+      }
     }
   }
   private handleMouseWheel(e: WheelEvent) {

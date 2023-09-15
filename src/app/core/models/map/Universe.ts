@@ -11,6 +11,7 @@ class Universe {
   private context: CanvasRenderingContext2D;
   private planets: Planet[];
   private tree: Quadtree<Planet | Circle>;
+  private hoveredPlanet: Planet | null;
 
   private zoom = 2;
   private cameraOffset = new Vector(1, 1);
@@ -52,9 +53,9 @@ class Universe {
   };
 
   private draw() {
+    // Prepare canvas
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
     this.context.scale(this.zoom, this.zoom);
@@ -62,10 +63,10 @@ class Universe {
       -window.innerWidth / 2 + this.cameraOffset.getX(),
       -window.innerHeight / 2 + this.cameraOffset.getY()
     );
-
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
+      // Render all planets
       this.context.beginPath();
       this.context.arc(
         planet.coord.getX(),
@@ -79,6 +80,26 @@ class Universe {
       this.context.closePath();
     });
 
+    if (this.zoom > 2) {
+      // Render only at a Zoom of 2 or bigger
+      if (this.hoveredPlanet !== undefined) {
+        // Highlight the jump range of 30
+        // TODO: Allow to change range in settings to 60
+        this.context.beginPath();
+        this.context.arc(
+          this.hoveredPlanet.coord.getX(),
+          this.hoveredPlanet.coord.getY(),
+          30, // Jump Range
+          0,
+          Math.PI * 2
+        );
+        this.context.lineWidth = 0.4;
+        this.context.strokeStyle = 'white';
+        this.context.stroke();
+      }
+    }
+
+    // Request a rerender
     requestAnimationFrame(this.draw.bind(this));
   }
 
@@ -130,6 +151,10 @@ class Universe {
       }
     }
     return { planet: closest, dist: closestDist };
+  }
+
+  public highlightPlanet(planet: Planet | null): void {
+    this.hoveredPlanet = planet;
   }
 }
 

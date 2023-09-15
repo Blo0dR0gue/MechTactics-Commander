@@ -64,11 +64,12 @@ class CameraController {
   }
 
   private handleClick(e: MouseEvent) {
+    if (this.isDragging) return;
     const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
     console.log(
       `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
     );
-    const closest = this.universe.getClosestPlanet(clicked);
+    const closest = this.universe.getClosestPlanet(clicked, 5);
     if (closest !== undefined && closest.dist < 2.5) {
       this.selectedPlanet = closest.planet;
       console.log(this.selectedPlanet);

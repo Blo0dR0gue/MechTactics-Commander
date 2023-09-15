@@ -108,16 +108,22 @@ class Universe {
     );
   }
 
-  public getClosestPlanet(
-    vec: Vector
-  ): { planet: Planet; dist: number } | null {
+  public getAllInRange(coord: Vector, range: number): Planet[] {
     const planets = this.tree.retrieve(
-      new Circle({ x: vec.getX(), y: vec.getY(), r: 5 })
-    );
+      new Circle({ x: coord.getX(), y: coord.getY(), r: range })
+    ) as Planet[];
+    return planets;
+  }
+
+  public getClosestPlanet(
+    coord: Vector,
+    range: number
+  ): { planet: Planet; dist: number } | null {
+    const planets = this.getAllInRange(coord, range);
     let closest: Planet;
     let closestDist: number = Infinity;
     for (const planet of planets) {
-      const dist = vec.distance(planet.coord);
+      const dist = coord.distance(planet.coord);
       if (dist < closestDist) {
         closestDist = dist;
         closest = planet as Planet;

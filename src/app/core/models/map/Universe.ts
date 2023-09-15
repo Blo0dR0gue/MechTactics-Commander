@@ -4,24 +4,60 @@ import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
 
-// TODO: COMMENT, TESTS
+// TODO: TESTS
 
+/**
+ * This class represents the universe map. <br>
+ * It is responsible for rendering.
+ */
 class Universe {
+  /**
+   * The canvas html element
+   */
   private canvas: HTMLCanvasElement;
+  /**
+   * The context of the html element
+   */
   private context: CanvasRenderingContext2D;
+  /**
+   * The array which contains all planets
+   */
   private planets: Planet[];
+  /**
+   * The search tree (quadtree) to get all close planets to a specific point (Faster lookup)
+   */
   private tree: Quadtree<Planet | Circle>;
-  private hoveredPlanet: Planet | null;
 
+  /**
+   * Holds the current hovered planet
+   */
+  private hoveredPlanet: Planet | null;
+  /**
+   * The current zoom amount <br>
+   * A bigger number means we are closer to the surface
+   */
   private zoom = 2;
+  /**
+   * The current offset of the camera to the default
+   */
   private cameraOffset = new Vector(1, 1);
+  /**
+   * The camera
+   */
   private cameraController: CameraController;
 
+  /**
+   * Creates a new universe
+   * @param canvas The canvas html element to render on
+   */
   public constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
   }
 
+  /**
+   * Setup the universe and start the rendering
+   */
   public init(): void {
     // Init quadtree
     this.tree = new Quadtree({
@@ -42,6 +78,9 @@ class Universe {
     this.cameraController.init();
   }
 
+  /**
+   * Retrieves all planets from the backend database and stores them in the local array
+   */
   private getPlanets = async () => {
     this.planets = [];
     const planetAffiliationData = await window.sql.planets();
@@ -52,6 +91,9 @@ class Universe {
     });
   };
 
+  /**
+   * The render function
+   */
   private draw() {
     // Prepare canvas
     this.canvas.width = window.innerWidth;
@@ -103,22 +145,43 @@ class Universe {
     requestAnimationFrame(this.draw.bind(this));
   }
 
+  /**
+   * Set the zoom factor
+   * @param zoom The zoom amount
+   */
   public setZoom(zoom: number) {
     this.zoom = zoom;
   }
 
+  /**
+   * Sets the offset for the camera
+   * @param offset The new offset
+   */
   public setCameraOffset(offset: Vector) {
     this.cameraOffset = offset;
   }
 
+  /**
+   * To get the current zoom factor
+   * @returns The current zoom
+   */
   public getZoom(): number {
     return this.zoom;
   }
 
+  /**
+   * To get the current offset of the camera
+   * @returns The current offset as an vector
+   */
   public getCameraOffset(): Vector {
     return this.cameraOffset;
   }
 
+  /**
+   * To get the x and y coordinate on the canvas of a specific point on the screen (e.g. mouse position)
+   * @param vec The current position on the screen
+   * @returns The converted x and y coordinates on the canvas
+   */
   public getXY(vec: Vector): Vector {
     const point = new DOMPoint(vec.getX(), vec.getY());
     const matrix = this.context.getTransform();
@@ -129,6 +192,12 @@ class Universe {
     );
   }
 
+  /**
+   * To get all planets which are in range on the specified vector
+   * @param coord The coordinate from where to check (canvas space)
+   * @param range The range in pixels (1px = 1 Lightyear)
+   * @returns A list of planets
+   */
   public getAllInRange(coord: Vector, range: number): Planet[] {
     const planets = this.tree.retrieve(
       new Circle({ x: coord.getX(), y: coord.getY(), r: range })
@@ -136,6 +205,12 @@ class Universe {
     return planets;
   }
 
+  /**
+   * To get the closest planet to a specific vector and its distance
+   * @param coord The coordinate from where to check (canvas space)
+   * @param range The range in pixels (1px = 1 Lightyear)
+   * @returns The closest planet and its distance in an object
+   */
   public getClosestPlanet(
     coord: Vector,
     range: number
@@ -153,6 +228,10 @@ class Universe {
     return { planet: closest, dist: closestDist };
   }
 
+  /**
+   * To highlight an planet by e.g. hovering
+   * @param planet The planet to highlight
+   */
   public highlightPlanet(planet: Planet | null): void {
     this.hoveredPlanet = planet;
   }

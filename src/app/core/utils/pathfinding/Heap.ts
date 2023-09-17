@@ -57,7 +57,7 @@ class Heap<Type> {
       } else {
         break;
       }
-      parentIndex = (item.heapIndex - 1) / 2;
+      parentIndex = Math.floor((item.heapIndex - 1) / 2);
     }
   }
 

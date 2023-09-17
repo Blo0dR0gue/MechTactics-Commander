@@ -1,3 +1,5 @@
+// TODO: COMMENT, TEST
+
 /**
  * Min-Heap implantation
  */
@@ -10,7 +12,7 @@ class Heap<Type> {
     this.itemCount = 0;
   }
 
-  public add(element: Type, priority: number) {
+  public add(element: Type, priority: number): void {
     const item = new HeapElement<Type>();
     item.heapIndex = this.itemCount;
     item.element = element;
@@ -33,7 +35,7 @@ class Heap<Type> {
     return this.items.length;
   }
 
-  public updateItem(item: Type, newPriority: number) {
+  public updateItem(item: Type, newPriority: number): void {
     const index = this.items.findIndex((el) => el.element === item);
     if (index !== -1) {
       this.items[index].priority = newPriority;
@@ -46,7 +48,7 @@ class Heap<Type> {
     return index !== -1;
   }
 
-  private sortUp(item: HeapElement<Type>) {
+  private sortUp(item: HeapElement<Type>): void {
     let parentIndex = Math.floor((item.heapIndex - 1) / 2);
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -61,7 +63,7 @@ class Heap<Type> {
     }
   }
 
-  private sortDown(item: HeapElement<Type>) {
+  private sortDown(item: HeapElement<Type>): void {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const childIndexLeft = Math.floor(item.heapIndex * 2 + 1);
@@ -90,7 +92,7 @@ class Heap<Type> {
     }
   }
 
-  private swap(item1: HeapElement<Type>, item2: HeapElement<Type>) {
+  private swap(item1: HeapElement<Type>, item2: HeapElement<Type>): void {
     this.items[item1.heapIndex] = item2;
     this.items[item2.heapIndex] = item1;
     const item1Index = item1.heapIndex;
@@ -98,11 +100,11 @@ class Heap<Type> {
     item2.heapIndex = item1Index;
   }
 
-  public displayHeapTree() {
+  public displayHeapTree(): void {
     this.displayHeapTreeRecursive(0, '');
   }
 
-  private displayHeapTreeRecursive(index: number, indent: string) {
+  private displayHeapTreeRecursive(index: number, indent: string): void {
     if (index < this.itemCount) {
       const item = this.items[index];
       console.log(

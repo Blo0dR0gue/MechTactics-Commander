@@ -1,6 +1,8 @@
 import { Heap } from './Heap';
 
 // TODO: Handle ignore of planets or affiliations
+// TODO: COMMENTS, TESTS
+
 class AStarPathfinding<Type> {
   private pathTo(state: Type, parent: Map<Type, Type>): Type[] {
     const element = parent.get(state);
@@ -15,7 +17,7 @@ class AStarPathfinding<Type> {
     goal: Type,
     next_elements: (element: Type) => Type[],
     heuristic: (elementA: Type, elementB: Type) => number
-  ) {
+  ): Type[] {
     const parent = new Map<Type, Type>();
     parent.set(start, start);
 

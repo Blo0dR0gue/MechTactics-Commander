@@ -1,5 +1,8 @@
-import { Vector } from '../utils/Vector';
-import { Universe } from './Universe';
+import { Vector } from '../map/Vector';
+import { Universe } from '../map/Universe';
+import { Planet } from '../objects/Planet';
+
+// TODO: COMMENT, TESTS
 
 class CameraController {
   readonly MAX_ZOOM = 5;
@@ -8,6 +11,8 @@ class CameraController {
 
   private element: HTMLElement;
   private universe: Universe;
+
+  private selectedPlanet: Planet;
 
   private isDragging = false;
   private dragStart = new Vector(0, 0);
@@ -22,6 +27,7 @@ class CameraController {
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
+    this.element.addEventListener('click', this.handleClick.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -45,6 +51,15 @@ class CameraController {
       const x = e.clientX / this.universe.getZoom() - this.dragStart.getX();
       const y = e.clientY / this.universe.getZoom() - this.dragStart.getY();
       this.universe.setCameraOffset(new Vector(x, y));
+    } else {
+      // Mouse move but not dragging -> handle
+      const pos = this.universe.getXY(new Vector(e.clientX, e.clientY));
+      const closest = this.universe.getClosestPlanet(pos, 5);
+      if (closest !== undefined && closest.dist < 2.5) {
+        this.universe.highlightPlanet(closest.planet);
+      } else {
+        this.universe.highlightPlanet(undefined);
+      }
     }
   }
   private handleMouseWheel(e: WheelEvent) {
@@ -55,6 +70,19 @@ class CameraController {
     newZoom = Math.min(newZoom, this.MAX_ZOOM);
     newZoom = Math.max(newZoom, this.MIN_ZOOM);
     this.universe.setZoom(newZoom);
+  }
+
+  private handleClick(e: MouseEvent) {
+    if (this.isDragging) return;
+    const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
+    console.log(
+      `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
+    );
+    const closest = this.universe.getClosestPlanet(clicked, 5);
+    if (closest !== undefined && closest.dist < 2.5) {
+      this.selectedPlanet = closest.planet;
+      console.log(this.selectedPlanet);
+    }
   }
 }
 

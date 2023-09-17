@@ -1,3 +1,4 @@
+// TODO: COMMENT, TESTS
 class Vector {
   private x: number;
   private y: number;
@@ -30,6 +31,19 @@ class Vector {
   public set(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  public lengthSqrt(): number {
+    return this.x * this.x + this.y * this.y;
+  }
+
+  public length(): number {
+    return Math.sqrt(this.lengthSqrt());
+  }
+
+  public distance(vec: Vector): number {
+    const dist = new Vector(this.getX() - vec.getX(), this.getY() - vec.getY());
+    return dist.length();
   }
 }
 

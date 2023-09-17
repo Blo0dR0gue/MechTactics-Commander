@@ -1,5 +1,6 @@
 import { Heap } from './Heap';
 
+// TODO: Handle ignore of planets or affiliations
 class AStarPathfinding<Type> {
   private pathTo(state: Type, parent: Map<Type, Type>): Type[] {
     const element = parent.get(state);

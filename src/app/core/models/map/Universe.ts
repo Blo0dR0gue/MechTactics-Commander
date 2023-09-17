@@ -3,6 +3,7 @@ import { Quadtree } from '../../utils/quadtree/Quadtree';
 import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
+import { AStarPathfinding } from '../../utils/pathfinding/AStarPathfinding';
 
 // TODO: TESTS
 
@@ -203,6 +204,31 @@ class Universe {
       new Circle({ x: coord.getX(), y: coord.getY(), r: range })
     ) as Planet[];
     return planets;
+  }
+
+  /**
+   * Calculates the shortest route from planet a to planet b
+   *
+   * @param planetA The start planet
+   * @param planetB The destination planet
+   * @param jumpRange The max range a ship can jump (default = 30)
+   * @returns The route from planet a to planet b
+   */
+  public findRoute(planetA: Planet, planetB: Planet, jumpRange = 30): Planet[] {
+    const path = new AStarPathfinding<Planet>();
+    const result = path.search(
+      planetA,
+      planetB,
+      (element: Planet) => {
+        const data = this.getAllInRange(element.coord, jumpRange);
+        console.log(element, data);
+        return data;
+      },
+      (elementA: Planet, elementB: Planet) => {
+        return elementA.coord.distance(elementB.coord);
+      }
+    );
+    return result;
   }
 
   /**

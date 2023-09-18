@@ -6,9 +6,14 @@ class RouteManager {
   private universe: Universe;
   private pathfinding: AStarPathfinding<Planet>;
 
+  private targetPlanets: Planet[];
+  private route: Planet[];
+
   public constructor(universe: Universe) {
     this.universe = universe;
     this.pathfinding = new AStarPathfinding();
+    this.targetPlanets = [];
+    this.route = [];
   }
 
   /**
@@ -19,7 +24,11 @@ class RouteManager {
    * @param jumpRange The max range a ship can jump (default = 30)
    * @returns The route from planet a to planet b
    */
-  public findRoute(planetA: Planet, planetB: Planet, jumpRange = 30): Planet[] {
+  private findRoute(
+    planetA: Planet,
+    planetB: Planet,
+    jumpRange = 30
+  ): Planet[] {
     const result = this.pathfinding.search(
       planetA,
       planetB,

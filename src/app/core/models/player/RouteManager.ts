@@ -16,6 +16,19 @@ class RouteManager {
     this.route = [];
   }
 
+  public addTargetPlanet(planet: Planet): void {
+    this.targetPlanets.push(planet);
+  }
+
+  public clearTargetPlanets(): void {
+    this.targetPlanets = [];
+  }
+
+  public removeTargetPlanet(planet: Planet): void {
+    const index = this.targetPlanets.indexOf(planet);
+    if (index > -1) this.targetPlanets.slice(index, 1);
+  }
+
   public calculateRoute(jumpRange: number): void {
     if (this.targetPlanets.length < 2) return;
     this.route = [];

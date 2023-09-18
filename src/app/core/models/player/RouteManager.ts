@@ -32,6 +32,10 @@ class RouteManager {
     return this.route;
   }
 
+  public getNumberOfJumps(): number {
+    return this.route.length - 1;
+  }
+
   /**
    * Calculates the shortest route from planet a to planet b
    *

@@ -99,14 +99,10 @@ class RouteManager {
     const result = this.pathfinding.search(
       planetA,
       planetB,
-      (element: Planet) => {
-        const data = this.universe.getAllInRange(element.coord, jumpRange);
-        console.log(element, data);
-        return data;
-      },
-      (elementA: Planet, elementB: Planet) => {
-        return elementA.coord.distance(elementB.coord);
-      }
+      (element: Planet) =>
+        this.universe.getAllInRange(element.coord, jumpRange),
+      (elementA: Planet, elementB: Planet) =>
+        elementA.coord.distance(elementB.coord)
     );
     return result;
   }

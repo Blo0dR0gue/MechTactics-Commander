@@ -3,6 +3,7 @@ import { Quadtree } from '../../utils/quadtree/Quadtree';
 import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
+import { RouteManager } from '../player/RouteManager';
 
 // TODO: TESTS
 
@@ -45,6 +46,10 @@ class Universe {
    * The camera
    */
   private cameraController: CameraController;
+  /**
+   * The route planing manager
+   */
+  private routeManager: RouteManager;
 
   /**
    * Creates a new universe
@@ -74,8 +79,11 @@ class Universe {
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
     this.cameraOffset.set(window.innerWidth / 3, window.innerHeight * 0.5);
+
     this.cameraController = new CameraController(this.canvas, this);
     this.cameraController.init();
+
+    this.routeManager = new RouteManager(this);
   }
 
   /**

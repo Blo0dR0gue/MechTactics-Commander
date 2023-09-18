@@ -16,19 +16,57 @@ class RouteManager {
     this.route = [];
   }
 
+  /**
+   * Add a planet to the route planing array
+   * @param planet The planet to add
+   */
   public addTargetPlanet(planet: Planet): void {
+    // Don't add the same planet behind each other
+    if (this.targetPlanets[this.targetPlanets.length - 1] === planet) return;
     this.targetPlanets.push(planet);
   }
 
+  /**
+   * Clears the route planing array
+   */
   public clearTargetPlanets(): void {
     this.targetPlanets = [];
   }
 
+  /**
+   * Removes the first occurrence of a planet in the route planing array.
+   * @param planet The planet to remove
+   */
   public removeTargetPlanet(planet: Planet): void {
     const index = this.targetPlanets.indexOf(planet);
-    if (index > -1) this.targetPlanets.slice(index, 1);
+    this.removeIndexOfTargetPlanet(index);
   }
 
+  /**
+   * Removes an index from the route planing array
+   * @param index The index to remove
+   */
+  public removeIndexOfTargetPlanet(index: number): void {
+    if (index >= this.targetPlanets.length || index < 0) return;
+    this.targetPlanets.slice(index, 1);
+  }
+
+  /**
+   * Removes all occurrences of a planet in the route planing array.
+   * @param planet The planet to remove
+   */
+  public removeTargetPlanetAll(planet: Planet): void {
+    let index = this.targetPlanets.indexOf(planet);
+    while (index >= 0) {
+      this.removeIndexOfTargetPlanet(index);
+      index = this.targetPlanets.indexOf(planet);
+    }
+  }
+
+  /**
+   * Calculates the whole route to each planet in the route planing array.
+   * @param jumpRange The max range a ship can jump in light years.
+   */
   public calculateRoute(jumpRange: number): void {
     if (this.targetPlanets.length < 2) return;
     this.route = [];
@@ -54,14 +92,10 @@ class RouteManager {
    *
    * @param planetA The start planet
    * @param planetB The destination planet
-   * @param jumpRange The max range a ship can jump (default = 30)
+   * @param jumpRange The max range a ship can jump
    * @returns The route from planet a to planet b
    */
-  private findRoute(
-    planetA: Planet,
-    planetB: Planet,
-    jumpRange = 30
-  ): Planet[] {
+  private findRoute(planetA: Planet, planetB: Planet, jumpRange): Planet[] {
     const result = this.pathfinding.search(
       planetA,
       planetB,

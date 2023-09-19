@@ -1,17 +1,19 @@
 import { AStarPathfinding } from '../../utils/pathfinding/AStarPathfinding';
+import { BiAStarPathfinding } from '../../utils/pathfinding/BiAStarPathfinding';
+import { Pathfinding } from '../../utils/pathfinding/Pathfinding';
 import { Universe } from '../map/Universe';
 import { Planet } from '../objects/Planet';
 
 class RouteManager {
   private universe: Universe;
-  private pathfinding: AStarPathfinding<Planet>;
+  private pathfinding: Pathfinding<Planet>;
 
   private targetPlanets: Planet[];
   private route: Planet[];
 
   public constructor(universe: Universe) {
     this.universe = universe;
-    this.pathfinding = new AStarPathfinding();
+    this.pathfinding = new BiAStarPathfinding();
     this.targetPlanets = [];
     this.route = [];
   }
@@ -75,7 +77,7 @@ class RouteManager {
       const p1 = this.targetPlanets[i];
       const p2 = this.targetPlanets[i + 1];
       const route = this.findRoute(p1, p2, jumpRange);
-      this.route.concat(route);
+      this.route = this.route.concat(route);
     }
   }
 

@@ -73,6 +73,14 @@ class Universe {
 
     this.getPlanets().then(() => {
       this.draw();
+      this.routeManager.addTargetPlanet(
+        this.planets.find((planet) => planet.getName() == 'Terra')
+      );
+      this.routeManager.addTargetPlanet(
+        this.planets.find((planet) => planet.getName() == 'Main Street')
+      );
+      this.routeManager.calculateRoute(30);
+      console.log(this.routeManager.getRoute());
     });
 
     this.canvas.width = window.innerWidth;

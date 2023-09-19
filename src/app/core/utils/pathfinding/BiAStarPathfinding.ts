@@ -84,15 +84,6 @@ class BiAStarPathfinding<Type> extends Pathfinding<Type> {
       }
     }
   }
-  combinePath(
-    state: Type,
-    parentA: Map<Type, Type>,
-    parentB: Map<Type, Type>
-  ): Type[] {
-    const path1 = this.pathTo(state, parentA);
-    const path2 = this.pathTo(state, parentB);
-    return path1.slice(0, -1).concat(path2.reverse());
-  }
 }
 
 export { BiAStarPathfinding };

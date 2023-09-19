@@ -73,6 +73,7 @@ class Universe {
 
     this.getPlanets().then(() => {
       this.draw();
+      // TODO: Tests (REMOVE HERE)
       this.routeManager.addTargetPlanet(
         this.planets.find((planet) => planet.getName() == 'Terra')
       );

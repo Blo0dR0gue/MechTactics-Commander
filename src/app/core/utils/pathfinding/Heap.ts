@@ -22,13 +22,13 @@ class Heap<Type> {
     this.itemCount += 1;
   }
 
-  public pop(): Type {
+  public pop(): { element: Type; priority: number } {
     const first = this.items[0];
     this.itemCount -= 1;
     this.items[0] = this.items[this.itemCount];
     this.items[0].heapIndex = 0;
     this.sortDown(this.items[0]);
-    return first.element;
+    return { element: first.element, priority: first.priority };
   }
 
   public size(): number {

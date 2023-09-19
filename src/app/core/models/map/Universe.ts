@@ -1,9 +1,9 @@
-import { Planet } from '../objects/Planet';
+import { Planet } from '../object/Planet';
 import { Quadtree } from '../../utils/quadtree/Quadtree';
 import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';
 import { Vector } from './Vector';
-import { AStarPathfinding } from '../../utils/pathfinding/AStarPathfinding';
+import { RouteManager } from '../player/RouteManager';
 
 // TODO: TESTS
 
@@ -46,6 +46,10 @@ class Universe {
    * The camera
    */
   private cameraController: CameraController;
+  /**
+   * The route planing manager
+   */
+  private routeManager: RouteManager;
 
   /**
    * Creates a new universe
@@ -69,14 +73,26 @@ class Universe {
 
     this.getPlanets().then(() => {
       this.draw();
+      // TODO: Tests (REMOVE HERE)
+      this.routeManager.addTargetPlanet(
+        this.planets.find((planet) => planet.getName() == 'Terra')
+      );
+      this.routeManager.addTargetPlanet(
+        this.planets.find((planet) => planet.getName() == 'Main Street')
+      );
+      this.routeManager.calculateRoute(30);
+      console.log(this.routeManager.getRoute());
     });
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
     this.cameraOffset.set(window.innerWidth / 3, window.innerHeight * 0.5);
+
     this.cameraController = new CameraController(this.canvas, this);
     this.cameraController.init();
+
+    this.routeManager = new RouteManager(this);
   }
 
   /**
@@ -204,31 +220,6 @@ class Universe {
       new Circle({ x: coord.getX(), y: coord.getY(), r: range })
     ) as Planet[];
     return planets;
-  }
-
-  /**
-   * Calculates the shortest route from planet a to planet b
-   *
-   * @param planetA The start planet
-   * @param planetB The destination planet
-   * @param jumpRange The max range a ship can jump (default = 30)
-   * @returns The route from planet a to planet b
-   */
-  public findRoute(planetA: Planet, planetB: Planet, jumpRange = 30): Planet[] {
-    const path = new AStarPathfinding<Planet>();
-    const result = path.search(
-      planetA,
-      planetB,
-      (element: Planet) => {
-        const data = this.getAllInRange(element.coord, jumpRange);
-        console.log(element, data);
-        return data;
-      },
-      (elementA: Planet, elementB: Planet) => {
-        return elementA.coord.distance(elementB.coord);
-      }
-    );
-    return result;
   }
 
   /**

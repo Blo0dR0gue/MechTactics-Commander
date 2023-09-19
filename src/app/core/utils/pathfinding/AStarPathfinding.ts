@@ -1,17 +1,10 @@
 import { Heap } from './Heap';
+import { Pathfinding } from './Pathfinding';
 
 // TODO: Handle ignore of planets or affiliations
 // TODO: COMMENTS, TESTS
 
-class AStarPathfinding<Type> {
-  private pathTo(state: Type, parent: Map<Type, Type>): Type[] {
-    const element = parent.get(state);
-    if (element === state) {
-      return [state];
-    }
-    return this.pathTo(element, parent).concat([state]);
-  }
-
+class AStarPathfinding<Type> extends Pathfinding<Type> {
   public search(
     start: Type,
     goal: Type,
@@ -32,7 +25,7 @@ class AStarPathfinding<Type> {
     frontier.add(start, estGoal);
 
     while (frontier.size() > 0) {
-      const element = frontier.pop();
+      const element = frontier.pop().element;
       if (element === goal) {
         return this.pathTo(goal, parent);
       }

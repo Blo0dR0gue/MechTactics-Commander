@@ -1,6 +1,6 @@
 import { Vector } from '../map/Vector';
 import { Universe } from '../map/Universe';
-import { Planet } from '../objects/Planet';
+import { Planet } from '../object/Planet';
 
 // TODO: COMMENT, TESTS
 
@@ -14,7 +14,8 @@ class CameraController {
 
   private selectedPlanet: Planet;
 
-  private isDragging = false;
+  private isMoved = false;
+  private isClicked = false;
   private dragStart = new Vector(0, 0);
 
   public constructor(element: HTMLElement, universe: Universe) {
@@ -31,7 +32,8 @@ class CameraController {
   }
 
   private handleMouseDown(e: MouseEvent) {
-    this.isDragging = true;
+    this.isClicked = true;
+    this.isMoved = false;
     this.dragStart.setX(
       e.clientX / this.universe.getZoom() -
         this.universe.getCameraOffset().getX()
@@ -43,11 +45,12 @@ class CameraController {
   }
 
   private handleMouseUp() {
-    this.isDragging = false;
+    this.isClicked = false;
   }
 
   private handleMouseMove(e: MouseEvent) {
-    if (this.isDragging) {
+    this.isMoved = true;
+    if (this.isClicked) {
       const x = e.clientX / this.universe.getZoom() - this.dragStart.getX();
       const y = e.clientY / this.universe.getZoom() - this.dragStart.getY();
       this.universe.setCameraOffset(new Vector(x, y));
@@ -63,7 +66,7 @@ class CameraController {
     }
   }
   private handleMouseWheel(e: WheelEvent) {
-    if (this.isDragging) return;
+    if (this.isClicked) return;
     const zoomAmount = e.deltaY * this.SCROLL_SENSITIVITY;
     let newZoom = this.universe.getZoom() - zoomAmount;
 
@@ -73,7 +76,7 @@ class CameraController {
   }
 
   private handleClick(e: MouseEvent) {
-    if (this.isDragging) return;
+    if (this.isMoved) return;
     const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
     console.log(
       `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`

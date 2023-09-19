@@ -46,7 +46,7 @@ class BiAStarPathfinding<Type> extends Pathfinding<Type> {
       if (priorityA <= priorityB) {
         frontierB.add(elementB, priorityB);
         for (const next of next_elements(elementA)) {
-          const oldEstimate = estimateA.get(elementA) || undefined;
+          const oldEstimate = estimateA.get(next) || undefined;
           const newEstimate = distA + 1 + heuristic(next, goal);
           if (oldEstimate === undefined || newEstimate < oldEstimate) {
             distanceA.set(next, distA + 1);
@@ -65,7 +65,7 @@ class BiAStarPathfinding<Type> extends Pathfinding<Type> {
       } else {
         frontierA.add(elementA, priorityA);
         for (const next of next_elements(elementB)) {
-          const oldEstimate = estimateB.get(elementB) || undefined;
+          const oldEstimate = estimateB.get(next) || undefined;
           const newEstimate = distB + 1 + heuristic(start, next);
           if (oldEstimate === undefined || newEstimate < oldEstimate) {
             distanceB.set(next, distB + 1);

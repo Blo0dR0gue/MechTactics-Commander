@@ -1,5 +1,4 @@
-import { AStarPathfinding } from '../../utils/pathfinding/AStarPathfinding';
-import { BiAStarPathfinding } from '../../utils/pathfinding/BiAStarPathfinding';
+import { BiBreadthFirstSearch } from '../../utils/pathfinding/BiBreadthFirstSearch';
 import { Pathfinding } from '../../utils/pathfinding/Pathfinding';
 import { Universe } from '../map/Universe';
 import { Planet } from '../objects/Planet';
@@ -13,7 +12,7 @@ class RouteManager {
 
   public constructor(universe: Universe) {
     this.universe = universe;
-    this.pathfinding = new BiAStarPathfinding();
+    this.pathfinding = new BiBreadthFirstSearch();
     this.targetPlanets = [];
     this.route = [];
   }

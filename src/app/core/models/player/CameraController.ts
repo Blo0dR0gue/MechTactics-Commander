@@ -1,6 +1,6 @@
 import { Vector } from '../map/Vector';
 import { Universe } from '../map/Universe';
-import { Planet } from '../objects/Planet';
+import { Planet } from '../object/Planet';
 
 // TODO: COMMENT, TESTS
 

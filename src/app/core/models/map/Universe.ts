@@ -1,4 +1,4 @@
-import { Planet } from '../objects/Planet';
+import { Planet } from '../object/Planet';
 import { Quadtree } from '../../utils/quadtree/Quadtree';
 import { Circle } from '../../utils/quadtree/Circle';
 import { CameraController } from '../player/CameraController';

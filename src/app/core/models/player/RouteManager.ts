@@ -1,7 +1,7 @@
 import { BiBreadthFirstSearch } from '../../utils/pathfinding/BiBreadthFirstSearch';
 import { Pathfinding } from '../../utils/pathfinding/Pathfinding';
 import { Universe } from '../map/Universe';
-import { Planet } from '../objects/Planet';
+import { Planet } from '../object/Planet';
 
 class RouteManager {
   private universe: Universe;

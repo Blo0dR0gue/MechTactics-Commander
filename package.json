@@ -17,7 +17,8 @@
     "lint": "eslint . --ext .ts",
     "postinstall": "electron-builder install-app-deps",
     "build:exe": "npm run postinstall && electron-builder -w",
-    "test": "jest"
+    "test:unit": "jest",
+    "test": "npm run test:unit"
   },
   "repository": {
     "type": "git",

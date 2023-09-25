@@ -1,3 +1,8 @@
+/*
+TODO: Comment 
+TODO: Use Vars 
+*/
+
 * {
   margin: 0;
   padding: 0;
@@ -16,63 +21,85 @@ body {
   display: flex;
 }
 
-.side-menu {
-  width: 350px;
-  background-color: #585858;
-  height: 100vh;
-  overflow-y: auto;
-  position: fixed;
-  right: -300px;
-  top: 0;
-  transition: right 0.3s;
-}
+/* Action-Bar */
 
-.menu-header {
-  background-color: #444;
-  padding: 20px;
+.action-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 2px;
+  z-index: 1;
+  height: 140px;
 }
 
-.menu-header h1 {
-  font-size: 24px;
+.action-buttons {
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  right: -10px;
 }
 
-#close-menu {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 24px;
+.tab {
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  /*padding: 5px 5px;*/
+  transform: skewX(-15deg);
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 2px solid #fff;
+  margin: 2px 0;
+  width: 180px;
+  height: 35px;
+  align-items: center;
+  text-align: center;
+  display: flex;
 }
 
-.menu-list {
-  list-style: none;
-  padding: 0;
+.tab:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Highlight on hover */
 }
 
-.menu-list li {
-  padding: 10px 20px;
-  border-bottom: 1px solid #555;
+.icon {
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  margin: 0 auto 10px;
 }
 
-.menu-list li:last-child {
-  border-bottom: none;
-}
-
-.menu-list a {
-  text-decoration: none;
-  color: #fff;
-  font-size: 18px;
+.tab-label {
   display: block;
-  transition: background-color 0.2s;
+  transform: skewX(15deg); /* Counter skew for text */
+  text-align: center; /* Center-align the text */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  width: 180px;
 }
 
-.menu-list a:hover {
-  background-color: #222222;
+.content-box {
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 100vw;
+  position: relative;
+  height: 100%;
 }
 
-.menu-opened {
+/* Header */
+
+header {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Add a background color to the header */
+  padding: 5px; /* Add some padding for spacing */
+  position: fixed;
+  top: 0;
   right: 0;
+  left: 0;
+  z-index: 2; /* Ensure it's above other elements */
+}
+
+.settings-button {
+  float: right; /* Float the button to the right within the header */
+  margin-right: 20px; /* Add some margin for spacing */
 }

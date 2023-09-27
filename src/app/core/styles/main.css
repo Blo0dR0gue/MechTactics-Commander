@@ -86,6 +86,14 @@ body {
   height: 100%;
 }
 
+.tab-content {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
 /* Header */
 
 header {

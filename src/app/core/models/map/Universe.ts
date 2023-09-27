@@ -198,7 +198,7 @@ class Universe {
    * @param planet The planet for which the planet name should be drawn
    */
   private drawPlanetName(planet: Planet) {
-    this.context.font = '4px serif';
+    this.context.font = '3px serif';
     this.context.fillStyle = '#D5D5D5';
     this.context.fillText(
       planet.getName(),

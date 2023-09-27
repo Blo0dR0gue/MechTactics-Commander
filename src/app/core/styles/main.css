@@ -59,6 +59,10 @@ body {
   background-color: rgba(255, 255, 255, 0.2); /* Highlight on hover */
 }
 
+.tab.selected {
+  background-color: rgba(15, 75, 145, 0.7);
+}
+
 .icon {
   width: 40px;
   height: 40px;

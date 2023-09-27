@@ -84,6 +84,7 @@ body {
   width: 100vw;
   position: relative;
   height: 100%;
+  padding: 5px;
 }
 
 .tab-content {

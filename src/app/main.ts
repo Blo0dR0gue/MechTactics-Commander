@@ -1,16 +1,19 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import electronReload from 'electron-reload';
 import ChildProcess = require('child_process');
 
 import sqlite3 = require('sqlite3');
 import { PlanetAffiliationJSON } from './core/types/PlanetAffiliation';
 
+const development = process.env.NODE_ENV === 'development';
+
 if (require('electron-squirrel-startup')) {
   process.exit(0);
 }
 
-if (process.env.NODE_ENV == 'development') {
+if (development) {
   electronReload(__dirname, {});
 }
 
@@ -29,7 +32,7 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, './index.html'));
   mainWindow.maximize();
 
-  if (process.env.NODE_ENV == 'development') {
+  if (development) {
     // Open the DevTools.
     setTimeout(() => {
       mainWindow.webContents.openDevTools();
@@ -38,32 +41,46 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  const userDataPath = app.getPath('userData');
 
+  // TODO: Update process for DB
+  // Store db to userData on production.
+  if (!development) {
+    // Define the source and destination paths for the database
+    const sourcePath = path.join(__dirname, 'BattleTechCommander.db');
+    const destinationPath = path.join(userDataPath, 'BattleTechCommander.db');
+    // Check if the database file already exists in userData. iff not override!
+    if (!fs.existsSync(destinationPath)) {
+      // Copy the database file to userData
+      fs.copyFileSync(sourcePath, destinationPath);
+    }
+  }
+
+  createWindow();
   const db = new sqlite3.Database(
-    path.join(__dirname, 'BattleTechCommander.db'),
+    path
+      .join(development ? __dirname : userDataPath, 'BattleTechCommander.db')
+      .replace('app.asar', 'app.asar.unpacked'),
     sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {
       console.log(err);
     }
   );
 
-  ipcMain.handle(
-    'getAllPlanets',
-    () =>
-      new Promise<PlanetAffiliationJSON[]>(function (resolve, reject) {
-        db.all(
-          'SELECT p.name as planetName, x, y, affiliation as affiliationId, link, a.name as nameAffiliation, color FROM Planet as p JOIN Affiliation as a ON p.affiliation = a.rowid',
-          (err, rows: PlanetAffiliationJSON[]) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(rows);
-            }
+  ipcMain.handle('getAllPlanets', () => {
+    return new Promise<PlanetAffiliationJSON[]>(function (resolve, reject) {
+      db.all(
+        'SELECT p.name as planetName, x, y, affiliation as affiliationId, link, a.name as nameAffiliation, color FROM Planet as p JOIN Affiliation as a ON p.affiliation = a.rowid',
+        (err, rows: PlanetAffiliationJSON[]) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
           }
-        );
-      })
-  );
+        }
+      );
+    });
+  });
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

@@ -10,17 +10,13 @@
     "buildResources": "build-res"
   },
   "files": [
-    "!**/*.ts",
-    "**/*.js",
-    "**/*.html",
-    "**/*.css",
-    "**/*.db",
-    {
-      "from": "./dist/app",
-      "filter": ["**/*"]
-    }
+    "./dist/app/bundle.js",
+    "./dist/app/main.js",
+    "./dist/app/preload.js",
+    "./dist/app/index.html",
+    "./dist/app/BattleTechCommander.db"
   ],
   "win": {
-    "target": "nsis"
+    "target": "portable"
   }
 }

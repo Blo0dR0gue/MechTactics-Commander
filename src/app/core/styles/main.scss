@@ -1,6 +1,10 @@
+// Import all of Bootstrap's CSS
+@import '~bootstrap/scss/bootstrap';
+
 /*
 TODO: Comment 
 TODO: Use Vars 
+TODO: USE BOOTSTRAP
 */
 
 * {
@@ -127,5 +131,3 @@ header {
   align-items: center;
   height: 100%;
 }
-
-/*TODO: SWAP TO BOOTSTRAP???*/

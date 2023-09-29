@@ -1,6 +1,6 @@
 {
   "name": "battletech-commander",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "BattleTech strategy map",
   "main": "./dist/app/main.js",
   "scripts": {

@@ -17,7 +17,7 @@
     "./dist/app/BattleTechCommander.db"
   ],
   "win": {
-    "target": "portable",
+    "target": "nsis",
     "publish": ["github"]
   }
 }

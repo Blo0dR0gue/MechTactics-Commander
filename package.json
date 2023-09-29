@@ -1,6 +1,6 @@
 {
   "name": "battletech-commander",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "BattleTech strategy map",
   "main": "./dist/app/main.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "build:all:prod": "npm run build:static && npm run build:ts && npm run build:webpack:prod",
     "lint": "eslint . --ext .ts",
     "postinstall": "electron-builder install-app-deps",
-    "build:exe": "rimraf ./dist/ && npm run build:all:prod && npm run postinstall && electron-builder --win --publish never",
+    "build:exe": "rimraf ./dist/ && rimraf ./release/ && npm run build:all:prod && npm run postinstall && electron-builder --win --publish never",
     "publish": "electron-builder --win --publish always",
     "test:unit": "jest",
     "test": "npm run test:unit"

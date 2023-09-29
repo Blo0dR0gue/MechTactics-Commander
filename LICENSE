@@ -1,8 +1,12 @@
 MIT License
 
-This licence applies to the code only. The data used is licensed by its original authors:
+This license applies ONLY to the code under src. Used Libraries and the used data is licensed by its original authors:
+
+- Electron: https://www.electronjs.org/de/
 - Christoph Wassermann and Wraith_81 for the planetary dataset at http://www.gruese.de/innersphere/ (they used data from the public wiki at http://www.sarna.net/)
   - Of the game BATTLETECH by Harebrained Schemes
+- Bootstrap: https://getbootstrap.com/
+- Popper: https://popper.js.org/
 
 Copyright (c) 2023 Daniel Czeschner
 

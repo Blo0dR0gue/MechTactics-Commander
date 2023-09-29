@@ -12,7 +12,7 @@ class CameraController {
   private element: HTMLElement;
   private universe: Universe;
 
-  private selectedPlanet: Planet;
+  private selectedPlanet: Planet | null;
 
   private isMoved = false;
   private isClicked = false;
@@ -58,10 +58,10 @@ class CameraController {
       // Mouse move but not dragging -> handle
       const pos = this.universe.getXY(new Vector(e.clientX, e.clientY));
       const closest = this.universe.getClosestPlanet(pos, 5);
-      if (closest !== undefined && closest.dist < 2.5) {
+      if (closest !== undefined && closest.dist < 4) {
         this.universe.highlightPlanet(closest.planet);
       } else {
-        this.universe.highlightPlanet(undefined);
+        this.universe.highlightPlanet(null);
       }
     }
   }
@@ -82,10 +82,16 @@ class CameraController {
       `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
     );
     const closest = this.universe.getClosestPlanet(clicked, 5);
-    if (closest !== undefined && closest.dist < 2.5) {
+    if (closest !== undefined && closest.dist < 4) {
       this.selectedPlanet = closest.planet;
       console.log(this.selectedPlanet);
+    } else {
+      this.selectedPlanet = null;
     }
+  }
+
+  public getSelectedPlanet(): Planet | null {
+    return this.selectedPlanet;
   }
 }
 

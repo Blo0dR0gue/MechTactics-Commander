@@ -53,6 +53,7 @@ class Universe {
 
   /**
    * Creates a new universe
+   *
    * @param canvas The canvas html element to render on
    */
   public constructor(canvas: HTMLCanvasElement) {
@@ -87,7 +88,7 @@ class Universe {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
-    this.cameraOffset.set(window.innerWidth / 3, window.innerHeight * 0.5);
+    this.cameraOffset.set(window.innerWidth / 2, window.innerHeight * 0.5);
 
     this.cameraController = new CameraController(this.canvas, this);
     this.cameraController.init();
@@ -125,23 +126,24 @@ class Universe {
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
+      if (
+        this.cameraController.getSelectedPlanet() &&
+        this.cameraController.getSelectedPlanet() === planet
+      )
+        return;
       // Render all planets
-      this.context.beginPath();
-      this.context.arc(
-        planet.coord.getX(),
-        planet.coord.getY(),
-        4 / this.zoom,
-        0,
-        Math.PI * 2
-      );
-      this.context.fillStyle = planet.getColor();
-      this.context.fill();
-      this.context.closePath();
+      this.drawPlanet(planet, 4);
     });
+
+    if (this.cameraController.getSelectedPlanet()) {
+      // Draw the selected planets in the foreground
+      this.drawPlanet(this.cameraController.getSelectedPlanet(), 7, '#07d9c7');
+      this.drawPlanet(this.cameraController.getSelectedPlanet(), 4);
+    }
 
     if (this.zoom > 2) {
       // Render only at a Zoom of 2 or bigger
-      if (this.hoveredPlanet !== undefined) {
+      if (this.hoveredPlanet) {
         // Highlight the jump range of 30
         // TODO: Allow to change range in settings to 60
         this.context.beginPath();
@@ -158,12 +160,56 @@ class Universe {
       }
     }
 
+    if (this.zoom > 3) {
+      this.planets.forEach((planet: Planet) => {
+        // Render all planet texts
+        this.drawPlanetName(planet);
+      });
+    }
+
     // Request a rerender
     requestAnimationFrame(this.draw.bind(this));
   }
 
   /**
+   * Helper function to draw a planet on the canvas
+   *
+   * @param planet The planet to draw
+   * @param size The size of the planet
+   * @param color (Optional) A color to override the planet color
+   */
+  private drawPlanet(planet: Planet, size: number, color?: string) {
+    this.context.beginPath();
+    this.context.arc(
+      planet.coord.getX(),
+      planet.coord.getY(),
+      size / this.zoom,
+      0,
+      Math.PI * 2
+    );
+    this.context.fillStyle = color || planet.getColor();
+    this.context.fill();
+    this.context.closePath();
+  }
+
+  /**
+   * Helper function to draw the planet name on the canvas
+   *
+   * @param planet The planet for which the planet name should be drawn
+   */
+  private drawPlanetName(planet: Planet) {
+    this.context.font = '3px serif';
+    this.context.fillStyle = '#D5D5D5';
+    this.context.fillText(
+      planet.getName(),
+      planet.coord.getX() + 2,
+      planet.coord.getY()
+    );
+  }
+
+  /**
    * Set the zoom factor
+   *
    * @param zoom The zoom amount
    */
   public setZoom(zoom: number) {
@@ -172,6 +218,7 @@ class Universe {
 
   /**
    * Sets the offset for the camera
+   *
    * @param offset The new offset
    */
   public setCameraOffset(offset: Vector) {
@@ -180,6 +227,7 @@ class Universe {
 
   /**
    * To get the current zoom factor
+   *
    * @returns The current zoom
    */
   public getZoom(): number {
@@ -188,6 +236,7 @@ class Universe {
 
   /**
    * To get the current offset of the camera
+   *
    * @returns The current offset as an vector
    */
   public getCameraOffset(): Vector {
@@ -196,6 +245,7 @@ class Universe {
 
   /**
    * To get the x and y coordinate on the canvas of a specific point on the screen (e.g. mouse position)
+   *
    * @param vec The current position on the screen
    * @returns The converted x and y coordinates on the canvas
    */
@@ -211,6 +261,7 @@ class Universe {
 
   /**
    * To get all planets which are in range on the specified vector
+   *
    * @param coord The coordinate from where to check (canvas space)
    * @param range The range in pixels (1px = 1 Lightyear)
    * @returns A list of planets
@@ -224,6 +275,7 @@ class Universe {
 
   /**
    * To get the closest planet to a specific vector and its distance
+   *
    * @param coord The coordinate from where to check (canvas space)
    * @param range The range in pixels (1px = 1 Lightyear)
    * @returns The closest planet and its distance in an object
@@ -247,6 +299,7 @@ class Universe {
 
   /**
    * To highlight an planet by e.g. hovering
+   *
    * @param planet The planet to highlight
    */
   public highlightPlanet(planet: Planet | null): void {

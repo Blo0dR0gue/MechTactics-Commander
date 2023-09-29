@@ -1,0 +1,95 @@
+$body-bg: #333232;
+
+$theme-colors: (
+  'actionBar': rgba(0, 0, 0, 0.7),
+);
+
+/*
+TODO: Comment 
+TODO: Use Vars 
+TODO: USE BOOTSTRAP
+*/
+* {
+  font-family: Arial, sans-serif !important;
+}
+/* Action-Bar */
+
+.right--10 {
+  right: -10px;
+}
+
+.w-180px {
+  width: 180px;
+}
+
+.h-35px {
+  height: 35px;
+}
+
+.h-140px {
+  height: 140px;
+}
+
+.transform-skew--15 {
+  transform: skewX(-15deg);
+}
+
+.transform-skew-15 {
+  transform: skewX(15deg);
+}
+
+.btn-actionBar:not(.bg-selected):hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ) !important; /* Highlight on hover */
+}
+
+.bg-selected {
+  background-color: rgba(15, 75, 145, 0.75) !important;
+}
+
+/* Add this CSS to your stylesheet */
+.affiliation-label {
+  white-space: nowrap; /* Prevents label from wrapping to the next line */
+  flex-shrink: 0; /* Prevents label from shrinking */
+  margin-right: 10px; /* Adjust as needed for spacing */
+}
+
+.affiliation-name {
+  white-space: nowrap; /* Prevents long names from wrapping */
+  overflow: hidden; /* Hides any overflow */
+  text-overflow: ellipsis; /* Adds ellipsis (...) for long names */
+  flex-grow: 1; /* Allows the name to expand and fill available space */
+}
+
+.hide {
+  display: none !important;
+}
+
+/* Header */
+
+header {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Add a background color to the header */
+  padding: 5px; /* Add some padding for spacing */
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2; /* Ensure it's above other elements */
+}
+
+.settings-button {
+  float: right; /* Float the button to the right within the header */
+  margin-right: 20px; /* Add some margin for spacing */
+}
+
+// Import all of Bootstrap's CSS
+@import '~bootstrap/scss/bootstrap';

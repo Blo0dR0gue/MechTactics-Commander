@@ -19,6 +19,28 @@ module.exports = {
     rules: [
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       { test: /\.tsx?$/, loader: 'ts-loader' },
+      {
+        test: /\.(scss)$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: () => [require('autoprefixer')],
+              },
+            },
+          },
+          {
+            loader: 'sass-loader',
+          },
+        ],
+      },
     ],
   },
 };

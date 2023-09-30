@@ -1,6 +1,6 @@
 import { Circle } from '../../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
-import { PlanetAffiliationJSON } from '../../types/PlanetAffiliation';
+import { PlanetAffiliationJSON } from '../../../types/PlanetAffiliation';
 
 /**
  * Represents a new planet

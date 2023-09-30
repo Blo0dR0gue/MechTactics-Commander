@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import electronReload from 'electron-reload';
 
 import sqlite3 = require('sqlite3');
-import { PlanetAffiliationJSON } from './renderer/types/PlanetAffiliation';
+import { PlanetAffiliationJSON } from './types/PlanetAffiliation';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 

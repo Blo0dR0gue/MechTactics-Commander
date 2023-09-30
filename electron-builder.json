@@ -10,6 +10,7 @@
     "buildResources": "build-res"
   },
   "files": [
+    "!src/**/*",
     "./dist/app/bundle.js",
     "./dist/app/main.js",
     "./dist/app/preload.js",

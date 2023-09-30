@@ -33,6 +33,7 @@ function createWindow() {
     width: size.width,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      devTools: isDevelopment ? true : false,
     },
   });
 
@@ -44,6 +45,8 @@ function createWindow() {
     setTimeout(() => {
       mainWindow.webContents.openDevTools();
     }, 1000);
+  } else {
+    mainWindow.removeMenu();
   }
   mainWindow.once('ready-to-show', () => {
     if (!isDevelopment) {

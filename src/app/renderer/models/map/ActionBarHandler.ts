@@ -1,31 +1,23 @@
 class ActionBarHandler {
-  private planetDetailsButton: HTMLDivElement;
-  private routingButton: HTMLDivElement;
+  private navButtons: NodeListOf<HTMLDivElement>;
   private contentArea: HTMLDivElement;
 
   public constructor() {
-    this.planetDetailsButton = document.getElementById(
-      'planet-details-tab'
-    ) as HTMLDivElement;
-    this.routingButton = document.getElementById(
-      'routing-tab'
-    ) as HTMLDivElement;
+    this.navButtons = document.querySelectorAll('.btn-actionBar');
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
   }
 
   public init() {
-    this.planetDetailsButton.addEventListener(
-      'click',
-      function () {
-        this.showTab('planet-details');
-      }.bind(this)
-    );
-    this.routingButton.addEventListener(
-      'click',
-      function () {
-        this.showTab('routing');
-      }.bind(this)
-    );
+    this.navButtons.forEach((element) => {
+      if (element.id === undefined || element.dataset.content === undefined)
+        return;
+      element.addEventListener(
+        'click',
+        function () {
+          this.showTab(element.dataset.content);
+        }.bind(this)
+      );
+    });
   }
 
   private showTab(tabName) {
@@ -37,7 +29,7 @@ class ActionBarHandler {
     }
 
     // Show the selected tab content
-    const selectedTab = document.getElementById(`${tabName}-tab-content`);
+    const selectedTab = document.getElementById(tabName);
     if (selectedTab === null) return;
     selectedTab.classList.remove('hide');
   }

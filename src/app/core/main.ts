@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import electronReload from 'electron-reload';
 
 import sqlite3 = require('sqlite3');
-import { PlanetAffiliationJSON } from './core/types/PlanetAffiliation';
+import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -33,10 +33,11 @@ function createWindow() {
     width: size.width,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      devTools: isDevelopment ? true : false,
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, './index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../renderer/pages/index.html'));
   mainWindow.maximize();
 
   if (isDevelopment) {
@@ -44,6 +45,8 @@ function createWindow() {
     setTimeout(() => {
       mainWindow.webContents.openDevTools();
     }, 1000);
+  } else {
+    mainWindow.removeMenu();
   }
   mainWindow.once('ready-to-show', () => {
     if (!isDevelopment) {
@@ -59,8 +62,8 @@ app.whenReady().then(() => {
   // Store db to userData on production.
   if (!isDevelopment) {
     // Define the source and destination paths for the database
-    const sourcePath = path.join(__dirname, 'BattleTechCommander.db');
-    const destinationPath = path.join(userDataPath, 'BattleTechCommander.db');
+    const sourcePath = path.join(__dirname, 'commander.db');
+    const destinationPath = path.join(userDataPath, 'commander.db');
     // Check if the database file already exists in userData. iff not override!
     if (!fs.existsSync(destinationPath)) {
       // Copy the database file to userData
@@ -71,7 +74,7 @@ app.whenReady().then(() => {
   createWindow();
   const db = new sqlite3.Database(
     path
-      .join(isDevelopment ? __dirname : userDataPath, 'BattleTechCommander.db')
+      .join(isDevelopment ? __dirname : userDataPath, 'commander.db')
       .replace('app.asar', 'app.asar.unpacked'),
     sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {

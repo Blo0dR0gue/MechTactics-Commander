@@ -1,6 +1,6 @@
 // Lightweight fork of https://github.com/timohausmann/quadtree-ts/ to support negative numbers
 
-import { Vector } from '../../models/map/Vector';
+import { Vector } from '../../models/Vector';
 import { Circle } from './Circle';
 
 export interface NodeGeometry {

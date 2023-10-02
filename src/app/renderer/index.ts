@@ -1,5 +1,5 @@
-import { ActionBarHandler } from './models/map/ActionBarHandler';
-import { Universe } from './models/map/Universe';
+import { ActionBarHandler } from './manager/ActionBarHandler';
+import { Universe } from './ui/Universe';
 // Import custom CSS to load bootstrap and override variables
 import './styles/main.scss';
 

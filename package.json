@@ -1,11 +1,11 @@
 {
-  "name": "battletech-commander",
-  "version": "0.0.3",
+  "name": "mechtactics-commander",
+  "version": "0.0.4",
   "description": "BattleTech strategy map",
-  "main": "./dist/app/main.js",
+  "main": "./dist/app/core/main.js",
   "scripts": {
-    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/app/main.ts",
-    "start": "cross-env NODE_ENV=development electron ./dist/app/main.js",
+    "start:ts": "cross-env NODE_ENV=development electron -r ts-node/register ./src/app/core/main.ts",
+    "start": "cross-env NODE_ENV=development electron ./dist/app/core/main.js",
     "build:static": "node ./copy.js",
     "watch:static": "nodemon --watch ./src --exec npm run build:static",
     "build:ts": "tsc",
@@ -25,14 +25,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander.git"
+    "url": "https://github.com/Blo0dR0gue/MechTactics-Commander.git"
   },
   "author": "Daniel Czeschner",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander/issues"
+    "url": "https://github.com/Blo0dR0gue/MechTactics-Commander/issues"
   },
-  "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
+  "homepage": "https://github.com/Blo0dR0gue/MechTactics-Commander#readme",
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
     "@types/jest": "^29.5.5",

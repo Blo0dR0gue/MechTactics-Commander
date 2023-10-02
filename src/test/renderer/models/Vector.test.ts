@@ -1,4 +1,4 @@
-import { Vector } from '../../../../app/core/models/map/Vector';
+import { Vector } from '../../../app/renderer/models/Vector';
 
 describe('Vector', () => {
   test.each([

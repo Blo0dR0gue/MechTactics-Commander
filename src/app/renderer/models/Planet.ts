@@ -1,4 +1,4 @@
-import { Circle } from '../../utils/quadtree/Circle';
+import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
 import { PlanetAffiliationJSON } from '../../types/PlanetAffiliation';
 

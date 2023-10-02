@@ -1,4 +1,4 @@
-# BattleTech-Commander
+# MechTactics-Commander
 
 This is a non-profit open source project for the BattleTech universe. <br>
 It uses data from the public wiki at www.sarna.net and from the fan created map at www.gruese.de/innersphere/ (by Christoph Wassermann and Wraith_81) of the computer game BATTLETECH by Harebrained Schemes (published by Paradox Interactive).

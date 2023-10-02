@@ -1,4 +1,4 @@
-import { Vector } from '../models/map/Vector';
+import { Vector } from '../renderer/models/Vector';
 
 type PlanetJSON = {
   name: string;

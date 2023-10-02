@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "asar": true,
-  "appId": "de.panomenal.battletechcommander",
-  "productName": "BattleTech-Commander",
+  "appId": "de.panomenal.mechtacticscommander",
+  "productName": "MechTactics-Commander",
   "copyright": "Daniel Czeschner",
   "directories": {
     "app": ".",
@@ -10,11 +10,12 @@
     "buildResources": "build-res"
   },
   "files": [
-    "./dist/app/bundle.js",
-    "./dist/app/main.js",
-    "./dist/app/preload.js",
-    "./dist/app/index.html",
-    "./dist/app/BattleTechCommander.db"
+    "!src/**/*",
+    "./dist/app/renderer/bundle.js",
+    "./dist/app/renderer/pages/index.html",
+    "./dist/app/core/main.js",
+    "./dist/app/core/preload.js",
+    "./dist/app/core/commander.db"
   ],
   "win": {
     "target": "nsis",

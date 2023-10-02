@@ -22,7 +22,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: npm install, build, and test
+      - name: npm install, test and build/test
         run: |
           npm install
           npm run test
@@ -44,7 +44,7 @@ jobs:
       - name: npm install and build
         run: |
           npm install
-          npm run build:exe
+          npm run build:all:prod
 
       - name: 'Publish new release'
         run: |

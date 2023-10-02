@@ -25,14 +25,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander.git"
+    "url": "https://github.com/Blo0dR0gue/MechTactics-Commander.git"
   },
   "author": "Daniel Czeschner",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Blo0dR0gue/BattleTech-Commander/issues"
+    "url": "https://github.com/Blo0dR0gue/MechTactics-Commander/issues"
   },
-  "homepage": "https://github.com/Blo0dR0gue/BattleTech-Commander#readme",
+  "homepage": "https://github.com/Blo0dR0gue/MechTactics-Commander#readme",
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
     "@types/jest": "^29.5.5",

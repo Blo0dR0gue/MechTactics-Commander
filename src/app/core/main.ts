@@ -62,8 +62,8 @@ app.whenReady().then(() => {
   // Store db to userData on production.
   if (!isDevelopment) {
     // Define the source and destination paths for the database
-    const sourcePath = path.join(__dirname, 'BattleTechCommander.db');
-    const destinationPath = path.join(userDataPath, 'BattleTechCommander.db');
+    const sourcePath = path.join(__dirname, 'commander.db');
+    const destinationPath = path.join(userDataPath, 'commander.db');
     // Check if the database file already exists in userData. iff not override!
     if (!fs.existsSync(destinationPath)) {
       // Copy the database file to userData
@@ -74,7 +74,7 @@ app.whenReady().then(() => {
   createWindow();
   const db = new sqlite3.Database(
     path
-      .join(isDevelopment ? __dirname : userDataPath, 'BattleTechCommander.db')
+      .join(isDevelopment ? __dirname : userDataPath, 'commander.db')
       .replace('app.asar', 'app.asar.unpacked'),
     sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {

@@ -1,5 +1,5 @@
 {
-  "name": "battletech-commander",
+  "name": "mechtactics-commander",
   "version": "0.0.4",
   "description": "BattleTech strategy map",
   "main": "./dist/app/core/main.js",

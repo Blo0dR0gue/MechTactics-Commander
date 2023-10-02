@@ -1,6 +1,7 @@
 import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
+import { Modal } from 'bootstrap';
 
 class ActionBarHandler {
   private navButtons: NodeListOf<HTMLDivElement>;
@@ -10,6 +11,9 @@ class ActionBarHandler {
   private affiliationNameArea: HTMLElement;
   private wikiLinkArea: HTMLLinkElement;
 
+  private disclaimer: HTMLDivElement;
+  private disclaimerModal: Modal;
+
   private selectedPlanet: Planet | null;
 
   public constructor() {
@@ -18,6 +22,15 @@ class ActionBarHandler {
     this.planetNameArea = document.getElementById('planet-name');
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
+    this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
+    this.disclaimerModal = new Modal(
+      document.getElementById('disclaimer-modal'),
+      {
+        backdrop: true,
+        keyboard: false,
+        focus: true,
+      }
+    );
   }
 
   public init(camera: CameraController) {
@@ -32,7 +45,13 @@ class ActionBarHandler {
       );
     });
 
+    this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
+
     camera.selectionChangeEvent.subscribe(this.planetChanged.bind(this));
+  }
+
+  private showDisclaimer() {
+    this.disclaimerModal.show();
   }
 
   private planetChanged(planetChanged: SelectionChangeEvent) {

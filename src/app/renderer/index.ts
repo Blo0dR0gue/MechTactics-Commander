@@ -4,9 +4,6 @@ import { Universe } from './ui/Universe';
 import './styles/main.scss';
 import { CameraController } from './controller/CameraController';
 
-// Import all of Bootstrap's JS
-// import * as bootstrap from 'bootstrap';
-
 const canvasElement = document.getElementById('universe') as HTMLCanvasElement;
 
 const universe = new Universe(canvasElement);

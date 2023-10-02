@@ -6,6 +6,57 @@
     <title>MechTactics-Commander</title>
   </head>
   <body class="overflow-hidden">
+    <header class="bg-transparent">
+      <div class="btn link link-info" id="disclaimer">disclaimer</div>
+    </header>
+
+    <div class="modal text-white" id="disclaimer-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Disclaimer</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            This is a non-profit open source project for the BattleTech
+            universe. <br />
+            It uses data from the public
+            <a href="www.sarna.net">Sarna Wiki</a> and from the fan created map
+            by
+            <a href="www.gruese.de/innersphere/Christoph"
+              >Wassermann and Wraith_81</a
+            >
+            for the computer game BATTLETECH by Harebrained Schemes (published
+            by Paradox Interactive). <br />
+            The author is not affiliated with Harebrained Schemes and intends no
+            copyright or trademark infringement. All content from these sources
+            are used with the utmost respect for intellectual property rights
+            and is incorporated into this project for informational and
+            non-commercial purposes only. <br />
+            <a
+              class="link link-info"
+              href="https://github.com/Blo0dR0gue/MechTactics-Commander"
+              >Source on GitHub</a
+            >
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="m-0 p-0">
       <canvas id="universe"></canvas>
 

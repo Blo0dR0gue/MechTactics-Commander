@@ -11,6 +11,7 @@ class ActionBarHandler {
   private affiliationNameArea: HTMLElement;
   private wikiLinkArea: HTMLLinkElement;
 
+  // TODO: Move to index???
   private disclaimer: HTMLDivElement;
   private disclaimerModal: Modal;
 

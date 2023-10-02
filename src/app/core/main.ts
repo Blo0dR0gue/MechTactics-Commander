@@ -13,6 +13,7 @@ import electronReload from 'electron-reload';
 
 import sqlite3 = require('sqlite3');
 import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
+import ElectronStore = require('electron-store');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -22,6 +23,16 @@ if (require('electron-squirrel-startup')) {
 
 if (isDevelopment) {
   electronReload(path.join(__dirname, '../'), {});
+}
+
+const store = new ElectronStore({
+  cwd: isDevelopment
+    ? path.join(__dirname, '../', '../')
+    : app.getPath('userData'),
+});
+
+if (store.size == 0) {
+  store.set('version', app.getVersion());
 }
 
 function createWindow() {

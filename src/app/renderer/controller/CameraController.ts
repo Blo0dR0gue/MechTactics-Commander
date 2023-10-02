@@ -104,6 +104,15 @@ class CameraController {
     this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
   }
 
+  public centerOnPlanet(planet: Planet) {
+    this.universe.setCameraOffset(
+      new Vector(
+        window.innerWidth / 2 - planet.coord.getX(),
+        window.innerHeight / 2 - planet.coord.getY()
+      )
+    );
+  }
+
   public getSelectedPlanet(): Planet | null {
     return this.selectedPlanet;
   }

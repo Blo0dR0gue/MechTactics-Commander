@@ -1,9 +1,9 @@
-import { BiBreadthFirstSearch } from '../../utils/pathfinding/BiBreadthFirstSearch';
-import { Pathfinding } from '../../utils/pathfinding/Pathfinding';
-import { Universe } from '../map/Universe';
-import { Planet } from '../object/Planet';
+import { BiBreadthFirstSearch } from '../utils/pathfinding/BiBreadthFirstSearch';
+import { Pathfinding } from '../utils/pathfinding/Pathfinding';
+import { Universe } from '../ui/Universe';
+import { Planet } from '../models/Planet';
 
-class RouteManager {
+class RouteController {
   private universe: Universe;
   private pathfinding: Pathfinding<Planet>;
 
@@ -109,4 +109,4 @@ class RouteManager {
   }
 }
 
-export { RouteManager };
+export { RouteController };

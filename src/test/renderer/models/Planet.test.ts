@@ -1,4 +1,4 @@
-import { Planet } from '../../../../app/renderer/models/object/Planet';
+import { Planet } from '../../../app/renderer/models/Planet';
 
 describe.each([
   [

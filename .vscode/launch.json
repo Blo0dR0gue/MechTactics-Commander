@@ -16,7 +16,7 @@
       "runtimeArgs": [
         "--remote-debugging-port=9223" //open debugging port for renderer process
       ],
-      "args": ["./dist/app/main.js"],
+      "args": ["./dist/app/core/main.js"],
       "env": {
         "NODE_ENV": "development"
       },

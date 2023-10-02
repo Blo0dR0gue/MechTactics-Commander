@@ -1,9 +1,9 @@
-import { Planet } from '../object/Planet';
-import { Quadtree } from '../../utils/quadtree/Quadtree';
-import { Circle } from '../../utils/quadtree/Circle';
-import { CameraController } from '../player/CameraController';
-import { Vector } from './Vector';
-import { RouteManager } from '../player/RouteManager';
+import { Circle } from '../utils/quadtree/Circle';
+import { Quadtree } from '../utils/quadtree/Quadtree';
+import { Planet } from '../models/Planet';
+import { CameraController } from '../controller/CameraController';
+import { RouteController } from '../controller/RouteController';
+import { Vector } from '../models/Vector';
 
 // TODO: TESTS
 
@@ -49,7 +49,7 @@ class Universe {
   /**
    * The route planing manager
    */
-  private routeManager: RouteManager;
+  private routeManager: RouteController;
 
   /**
    * Creates a new universe
@@ -93,7 +93,7 @@ class Universe {
     this.cameraController = new CameraController(this.canvas, this);
     this.cameraController.init();
 
-    this.routeManager = new RouteManager(this);
+    this.routeManager = new RouteController(this);
   }
 
   /**

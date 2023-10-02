@@ -2,7 +2,6 @@ import { Circle } from '../utils/quadtree/Circle';
 import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Planet } from '../models/Planet';
 import { CameraController } from '../controller/CameraController';
-import { RouteController } from '../controller/RouteController';
 import { Vector } from '../models/Vector';
 
 // TODO: TESTS
@@ -46,10 +45,6 @@ class Universe {
    * The camera
    */
   private cameraController: CameraController;
-  /**
-   * The route planing manager
-   */
-  private routeManager: RouteController;
 
   /**
    * Creates a new universe
@@ -64,7 +59,9 @@ class Universe {
   /**
    * Setup the universe and start the rendering
    */
-  public init(): void {
+  public init(cameraController: CameraController): void {
+    this.cameraController = cameraController;
+
     // Init quadtree
     this.tree = new Quadtree({
       height: 5000,
@@ -74,6 +71,7 @@ class Universe {
 
     this.getPlanets().then(() => {
       this.draw();
+      /*
       // TODO: Tests (REMOVE HERE)
       this.routeManager.addTargetPlanet(
         this.planets.find((planet) => planet.getName() == 'Terra')
@@ -83,17 +81,17 @@ class Universe {
       );
       this.routeManager.calculateRoute(30);
       console.log(this.routeManager.getRoute());
+      */
     });
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.zoom = 1;
     this.cameraOffset.set(window.innerWidth / 2, window.innerHeight * 0.5);
+  }
 
-    this.cameraController = new CameraController(this.canvas, this);
-    this.cameraController.init();
-
-    this.routeManager = new RouteController(this);
+  public getCanvas(): HTMLCanvasElement {
+    return this.canvas;
   }
 
   /**

@@ -1,8 +1,14 @@
+import { CameraController } from '../controller/CameraController';
+import { Planet } from '../models/Planet';
+import { SelectionChangeEvent } from './events/SelectionChangedEvent';
+
 class ActionBarHandler {
   private navButtons: NodeListOf<HTMLDivElement>;
   private contentArea: HTMLDivElement;
 
   private planetNameArea: HTMLElement;
+
+  private selectedPlanet: Planet | null;
 
   public constructor() {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
@@ -10,7 +16,7 @@ class ActionBarHandler {
     this.planetNameArea = document.getElementById('planet-name');
   }
 
-  public init() {
+  public init(camera: CameraController) {
     this.navButtons.forEach((element) => {
       if (element.id === undefined || element.dataset.content === undefined)
         return;
@@ -21,6 +27,17 @@ class ActionBarHandler {
         }.bind(this)
       );
     });
+
+    camera.selectionChangeEvent.subscribe(this.planetChanged.bind(this));
+  }
+
+  private planetChanged(planetChanged: SelectionChangeEvent) {
+    this.selectedPlanet = planetChanged.planet;
+    if (this.selectedPlanet === null) {
+      this.updateText(this.planetNameArea, 'None');
+    } else {
+      this.updateText(this.planetNameArea, this.selectedPlanet.getName());
+    }
   }
 
   private showTab(tabName) {

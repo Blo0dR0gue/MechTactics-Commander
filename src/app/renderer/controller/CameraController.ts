@@ -1,6 +1,9 @@
 import { Vector } from '../models/Vector';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
+import { EventHandler } from '../handler/EventHandler';
+import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
+import { RouteController } from './RouteController';
 
 // TODO: COMMENT, TESTS
 
@@ -9,8 +12,10 @@ class CameraController {
   readonly MIN_ZOOM = 0.7;
   readonly SCROLL_SENSITIVITY = 0.0005;
 
-  private element: HTMLElement;
+  private element: HTMLCanvasElement;
   private universe: Universe;
+
+  public selectionChangeEvent: EventHandler<SelectionChangeEvent>;
 
   private selectedPlanet: Planet | null;
 
@@ -18,12 +23,20 @@ class CameraController {
   private isClicked = false;
   private dragStart = new Vector(0, 0);
 
-  public constructor(element: HTMLElement, universe: Universe) {
-    this.element = element;
-    this.universe = universe;
+  /**
+   * The route planing manager
+   */
+  private routeManager: RouteController;
+
+  public constructor() {
+    this.selectionChangeEvent = new EventHandler();
   }
 
-  public init() {
+  public init(universe: Universe) {
+    this.universe = universe;
+    this.element = this.universe.getCanvas();
+    this.routeManager = new RouteController(universe);
+
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -88,6 +101,7 @@ class CameraController {
     } else {
       this.selectedPlanet = null;
     }
+    this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
   }
 
   public getSelectedPlanet(): Planet | null {

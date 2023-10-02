@@ -21,7 +21,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 if (isDevelopment) {
-  electronReload(__dirname, {});
+  electronReload(path.join(__dirname, '../'), {});
 }
 
 function createWindow() {

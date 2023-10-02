@@ -7,6 +7,8 @@ class ActionBarHandler {
   private contentArea: HTMLDivElement;
 
   private planetNameArea: HTMLElement;
+  private affiliationNameArea: HTMLElement;
+  private wikiLinkArea: HTMLLinkElement;
 
   private selectedPlanet: Planet | null;
 
@@ -14,6 +16,8 @@ class ActionBarHandler {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
     this.planetNameArea = document.getElementById('planet-name');
+    this.affiliationNameArea = document.getElementById('affiliation-name');
+    this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
   }
 
   public init(camera: CameraController) {
@@ -33,10 +37,19 @@ class ActionBarHandler {
 
   private planetChanged(planetChanged: SelectionChangeEvent) {
     this.selectedPlanet = planetChanged.planet;
+    // TODO: simplify
     if (this.selectedPlanet === null) {
       this.updateText(this.planetNameArea, 'None');
+      this.updateText(this.affiliationNameArea, 'None');
+      this.wikiLinkArea.href = '#';
     } else {
       this.updateText(this.planetNameArea, this.selectedPlanet.getName());
+      this.updateText(
+        this.affiliationNameArea,
+        this.selectedPlanet.getAffiliationName()
+      );
+      // TODO: Open in new window on click
+      this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
     }
   }
 

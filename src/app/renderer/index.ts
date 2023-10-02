@@ -1,4 +1,4 @@
-import { ActionBarHandler } from './manager/ActionBarHandler';
+import { ActionBarHandler } from './handler/ActionBarHandler';
 import { Universe } from './ui/Universe';
 // Import custom CSS to load bootstrap and override variables
 import './styles/main.scss';

@@ -2,9 +2,12 @@ class ActionBarHandler {
   private navButtons: NodeListOf<HTMLDivElement>;
   private contentArea: HTMLDivElement;
 
+  private planetNameArea: HTMLElement;
+
   public constructor() {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
+    this.planetNameArea = document.getElementById('planet-name');
   }
 
   public init() {
@@ -32,6 +35,10 @@ class ActionBarHandler {
     const selectedTab = document.getElementById(tabName);
     if (selectedTab === null) return;
     selectedTab.classList.remove('hide');
+  }
+
+  private updateText(element: HTMLElement, text: string) {
+    element.textContent = text;
   }
 }
 

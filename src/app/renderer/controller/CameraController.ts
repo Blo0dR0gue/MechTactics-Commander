@@ -45,6 +45,7 @@ class CameraController {
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
+    // TODO: Move to extra controller?
     window.addEventListener('keydown', this.handleKeyPress.bind(this));
   }
 

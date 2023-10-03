@@ -125,24 +125,19 @@ class Universe {
 
     this.planets.forEach((planet: Planet) => {
       if (
-        this.cameraController.getSelectedPlanet() &&
-        this.cameraController.getSelectedPlanet() === planet
+        (this.cameraController.getSelectedPlanet() &&
+          this.cameraController.getSelectedPlanet() === planet) ||
+        this.cameraController.getRouteManager().routeContainsPlanet(planet)
       )
         return;
       // Render all planets
       this.drawPlanet(planet, 4);
     });
 
-    if (this.cameraController.getSelectedPlanet()) {
-      // Draw the selected planets in the foreground
-      this.drawPlanet(this.cameraController.getSelectedPlanet(), 7, '#07d9c7');
-      this.drawPlanet(this.cameraController.getSelectedPlanet(), 4);
-    }
-
     // FIXME: Use events instead!
     if (this.cameraController.getRouteManager().getRoute().length > 0) {
       this.context.strokeStyle = 'rgba(255, 255, 255, 1)';
-      this.context.lineWidth = 1;
+      this.context.lineWidth = 3 / this.zoom;
       const route = this.cameraController.getRouteManager().getRoute();
       for (let i = 0; i < route.length - 1; i++) {
         this.context.beginPath();
@@ -154,6 +149,18 @@ class Universe {
         this.context.stroke();
         this.context.closePath();
       }
+      for (let i = 0; i < route.length; i++) {
+        if (this.cameraController.getSelectedPlanet() !== route[i]) {
+          this.drawPlanet(route[i], 7, 'rgb(136, 255, 0)');
+          this.drawPlanet(route[i], 4);
+        }
+      }
+    }
+
+    if (this.cameraController.getSelectedPlanet()) {
+      // Draw the selected planets in the foreground
+      this.drawPlanet(this.cameraController.getSelectedPlanet(), 7, '#07d9c7');
+      this.drawPlanet(this.cameraController.getSelectedPlanet(), 4);
     }
 
     if (this.zoom > 2) {

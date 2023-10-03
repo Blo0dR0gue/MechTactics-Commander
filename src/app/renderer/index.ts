@@ -21,6 +21,7 @@ async function setTitle() {
 }
 setTitle();
 
+// Setup the app
 const canvasElement = document.getElementById('universe') as HTMLCanvasElement;
 
 const universe = new Universe(canvasElement);

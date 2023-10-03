@@ -36,10 +36,29 @@ class RouteController {
   }
 
   /**
+   * Clears the route planing array
+   */
+  public clearRoute(): void {
+    this.route = [];
+  }
+
+  /**
    * Removes the first occurrence of a planet in the route planing array.
    * @param planet The planet to remove
    */
   public removeTargetPlanet(planet: Planet): void {
+    const index = this.targetPlanets.indexOf(planet);
+    this.removeIndexOfTargetPlanet(index);
+  }
+
+  /**
+   * Removes the first occurrence of a planet in the route planing array by its Name.
+   * @param planetName The planet to remove
+   */
+  public removeTargetPlanetByName(planetName: string): void {
+    const planet = this.targetPlanets.find(
+      (planet) => planet.getName() === planetName
+    );
     const index = this.targetPlanets.indexOf(planet);
     this.removeIndexOfTargetPlanet(index);
   }
@@ -50,7 +69,7 @@ class RouteController {
    */
   public removeIndexOfTargetPlanet(index: number): void {
     if (index >= this.targetPlanets.length || index < 0) return;
-    this.targetPlanets.slice(index, 1);
+    this.targetPlanets.splice(index, 1);
   }
 
   /**

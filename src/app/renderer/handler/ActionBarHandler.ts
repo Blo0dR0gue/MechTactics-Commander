@@ -14,6 +14,7 @@ class ActionBarHandler {
   private affiliationNameArea: HTMLElement;
   private wikiLinkArea: HTMLLinkElement;
   private coordinatesArea: HTMLElement;
+  private centerOnPlanetBtn: HTMLButtonElement;
 
   // TODO: Move to index???
   private disclaimer: HTMLDivElement;
@@ -33,6 +34,10 @@ class ActionBarHandler {
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
     this.coordinatesArea = document.getElementById('coordinates');
+    this.centerOnPlanetBtn = document.getElementById(
+      'centerOnPlanet'
+    ) as HTMLButtonElement;
+
     this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
     this.disclaimerModal = new Modal(
       document.getElementById('disclaimer-modal'),
@@ -56,6 +61,11 @@ class ActionBarHandler {
       );
     });
 
+    this.centerOnPlanetBtn.addEventListener(
+      'click',
+      this.centerOnPlanetClicked.bind(this)
+    );
+
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
     this.cameraController = camera;
 
@@ -66,6 +76,12 @@ class ActionBarHandler {
       this.routeChanged.bind(this)
     );
     this.routeController = camera.getRouteManager();
+  }
+
+  private centerOnPlanetClicked() {
+    if (this.selectedPlanet !== null) {
+      this.cameraController.centerOnPlanet(this.selectedPlanet);
+    }
   }
 
   private showDisclaimer() {

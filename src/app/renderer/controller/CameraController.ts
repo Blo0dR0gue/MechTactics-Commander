@@ -42,6 +42,7 @@ class CameraController {
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
+    this.element.addEventListener('keydown', this.handleKeyPress.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -102,6 +103,10 @@ class CameraController {
       this.selectedPlanet = null;
     }
     this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
+  }
+
+  private handleKeyPress(evt: KeyboardEvent) {
+    console.log(evt);
   }
 
   public centerOnPlanet(planet: Planet) {

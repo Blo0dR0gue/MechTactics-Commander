@@ -84,5 +84,9 @@ header {
   margin-right: 20px; /* Add some margin for spacing */
 }
 
+canvas:focus {
+  outline-width: 0;
+}
+
 // Import all of Bootstrap's CSS
 @import '~bootstrap/scss/bootstrap';

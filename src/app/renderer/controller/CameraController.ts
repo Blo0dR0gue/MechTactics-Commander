@@ -4,6 +4,7 @@ import { Planet } from '../models/Planet';
 import { EventHandler } from '../handler/EventHandler';
 import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
 import { RouteController } from './RouteController';
+import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
 
 // TODO: COMMENT, TESTS
 
@@ -16,8 +17,9 @@ class CameraController {
   private universe: Universe;
 
   public selectionChangeEvent: EventHandler<SelectionChangeEvent>;
+  public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
-  private selectedPlanet: Planet | null;
+  private selectedPlanet: Planet | null = null;
 
   private isMoved = false;
   private isClicked = false;
@@ -30,6 +32,7 @@ class CameraController {
 
   public constructor() {
     this.selectionChangeEvent = new EventHandler();
+    this.updateRouteEvent = new EventHandler();
   }
 
   public init(universe: Universe) {
@@ -106,7 +109,20 @@ class CameraController {
   }
 
   private handleKeyPress(evt: KeyboardEvent) {
-    console.log(evt);
+    if (evt.key === 'f') {
+      if (
+        this.selectedPlanet !== null &&
+        !this.routeManager.containsPlanet(this.selectedPlanet)
+      ) {
+        this.routeManager.addTargetPlanet(this.selectedPlanet);
+        this.updateRouteEvent.invoke({
+          planet: this.selectedPlanet,
+          add: true,
+          numberPlanets: this.routeManager.lengthOfTargetPlanets(),
+        });
+        alert(`Added ${this.selectedPlanet.getName()} to the route!`);
+      }
+    }
   }
 
   public centerOnPlanet(planet: Planet) {
@@ -120,6 +136,10 @@ class CameraController {
 
   public getSelectedPlanet(): Planet | null {
     return this.selectedPlanet;
+  }
+
+  public getRouteManager() {
+    return this.routeManager;
   }
 }
 

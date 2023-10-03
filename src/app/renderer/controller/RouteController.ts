@@ -65,6 +65,24 @@ class RouteController {
   }
 
   /**
+   * Checks if a planet is inside the target planets
+   * @param planet The planet to check
+   * @returns True, if the planet is already inside the target planets
+   */
+  public containsPlanet(planet: Planet): boolean {
+    return this.targetPlanets.indexOf(planet) !== -1;
+  }
+
+  /**
+   * Returns the last planet in the target planet (destination)
+   * @returns The destination planet or null
+   */
+  public getLastPlanet(): Planet | null {
+    if (this.targetPlanets.length === 0) return null;
+    return this.targetPlanets[this.targetPlanets.length - 1];
+  }
+
+  /**
    * Calculates the whole route to each planet in the route planing array.
    * @param jumpRange The max range a ship can jump in light years.
    */
@@ -78,6 +96,10 @@ class RouteController {
       const route = this.findRoute(p1, p2, jumpRange);
       this.route = this.route.concat(route);
     }
+  }
+
+  public lengthOfTargetPlanets(): number {
+    return this.targetPlanets.length;
   }
 
   public getRoute(): Planet[] {

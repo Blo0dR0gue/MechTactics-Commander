@@ -2,10 +2,13 @@ import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { Modal } from 'bootstrap';
+import { UpdateRouteEvent } from './events/UpdateRouteVent';
+import { RouteController } from '../controller/RouteController';
 
 class ActionBarHandler {
   private navButtons: NodeListOf<HTMLDivElement>;
   private contentArea: HTMLDivElement;
+  private routeItemsContainer: HTMLElement;
 
   private planetNameArea: HTMLElement;
   private affiliationNameArea: HTMLElement;
@@ -17,9 +20,13 @@ class ActionBarHandler {
 
   private selectedPlanet: Planet | null;
 
+  // TODO: Rework (remove here)
+  private routeController: RouteController;
+
   public constructor() {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
+    this.routeItemsContainer = document.getElementById('route-container');
     this.planetNameArea = document.getElementById('planet-name');
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
@@ -41,7 +48,7 @@ class ActionBarHandler {
       element.addEventListener(
         'click',
         function () {
-          this.showTab(element.dataset.content);
+          this.showTab(element.dataset.content, element);
         }.bind(this)
       );
     });
@@ -49,6 +56,8 @@ class ActionBarHandler {
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
 
     camera.selectionChangeEvent.subscribe(this.planetChanged.bind(this));
+    camera.updateRouteEvent.subscribe(this.routeChanged.bind(this));
+    this.routeController = camera.getRouteManager();
   }
 
   private showDisclaimer() {
@@ -73,7 +82,14 @@ class ActionBarHandler {
     }
   }
 
-  private showTab(tabName) {
+  private routeChanged(routeChanged: UpdateRouteEvent) {
+    if (routeChanged.planet !== undefined && routeChanged.add) {
+      if (routeChanged.numberPlanets > 1) this.createRouteJumpCard(4);
+      this.createPlanetRouteCard(routeChanged.planet);
+    }
+  }
+
+  private showTab(tabName, button) {
     // Hide all tab contents
     const tabContents = this.contentArea
       .children as HTMLCollectionOf<HTMLDivElement>;
@@ -85,10 +101,69 @@ class ActionBarHandler {
     const selectedTab = document.getElementById(tabName);
     if (selectedTab === null) return;
     selectedTab.classList.remove('hide');
+
+    this.navButtons.forEach((element) => {
+      if (element === button) {
+        element.classList.add('bg-selected');
+      } else {
+        element.classList.remove('bg-selected');
+      }
+    });
   }
 
   private updateText(element: HTMLElement, text: string) {
     element.textContent = text;
+  }
+
+  private createPlanetRouteCard(planet: Planet) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card text-white my-auto';
+    cardDiv.style.width = '13rem';
+
+    const cardBodyDiv = document.createElement('div');
+    cardBodyDiv.className = 'card-body p-2';
+
+    const cardTitle = document.createElement('h5');
+    cardTitle.className = 'card-title text-center';
+    cardTitle.textContent = planet.getName();
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn btn-danger btn-sm';
+    deleteButton.textContent = 'x';
+
+    const cardText = document.createElement('p');
+    cardText.className = 'card-text text-center';
+    cardText.textContent = `${planet.coord.getX()} | ${planet.coord.getY()}`;
+
+    const editButton = document.createElement('button');
+    editButton.className = 'btn btn-info btn-sm';
+    editButton.textContent = 'o';
+
+    // Append the elements to build the card
+    cardTitle.appendChild(deleteButton);
+    cardText.appendChild(editButton);
+    cardBodyDiv.appendChild(cardTitle);
+    cardBodyDiv.appendChild(cardText);
+    cardDiv.appendChild(cardBodyDiv);
+
+    cardDiv.id = planet.getName() + '-route-card';
+    this.routeItemsContainer.appendChild(cardDiv);
+  }
+
+  private createRouteJumpCard(jumps: number) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className =
+      'text-center my-auto d-flex flex-column align-items-center text-white';
+
+    const arrowDiv = document.createElement('div');
+    arrowDiv.textContent = '→';
+
+    const jumpsDiv = document.createElement('div');
+    jumpsDiv.textContent = `${jumps} Jumps`;
+
+    cardDiv.appendChild(arrowDiv);
+    cardDiv.appendChild(jumpsDiv);
+    this.routeItemsContainer.appendChild(cardDiv);
   }
 }
 

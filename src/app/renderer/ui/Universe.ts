@@ -139,6 +139,23 @@ class Universe {
       this.drawPlanet(this.cameraController.getSelectedPlanet(), 4);
     }
 
+    // FIXME: Use events instead!
+    if (this.cameraController.getRouteManager().getRoute().length > 0) {
+      this.context.strokeStyle = 'rgba(255, 255, 255, 1)';
+      this.context.lineWidth = 1;
+      const route = this.cameraController.getRouteManager().getRoute();
+      for (let i = 0; i < route.length - 1; i++) {
+        this.context.beginPath();
+        this.context.moveTo(route[i].coord.getX(), route[i].coord.getY());
+        this.context.lineTo(
+          route[i + 1].coord.getX(),
+          route[i + 1].coord.getY()
+        );
+        this.context.stroke();
+        this.context.closePath();
+      }
+    }
+
     if (this.zoom > 2) {
       // Render only at a Zoom of 2 or bigger
       if (this.hoveredPlanet) {

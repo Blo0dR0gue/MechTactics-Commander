@@ -94,8 +94,10 @@ class RouteController {
       const p1 = this.targetPlanets[i];
       const p2 = this.targetPlanets[i + 1];
       const route = this.findRoute(p1, p2, jumpRange);
+      if (i > 0) this.route.pop();
       this.route = this.route.concat(route);
     }
+    console.log(this.route);
   }
 
   public lengthOfTargetPlanets(): number {
@@ -108,6 +110,23 @@ class RouteController {
 
   public getNumberOfJumps(): number {
     return this.route.length - 1;
+  }
+
+  public getNumberOfJumpsBetween(start: Planet, destination: Planet): number {
+    const indexStart = this.route.indexOf(start);
+    const indexDestination = this.route.indexOf(destination);
+    return indexDestination - indexStart;
+  }
+
+  public getNumberOfJumpsBetweenIDs(
+    start: number,
+    destination: number
+  ): number {
+    const indexStart = this.route.indexOf(this.targetPlanets[start]);
+    const indexDestination = this.route.indexOf(
+      this.targetPlanets[destination]
+    );
+    return indexDestination - indexStart;
   }
 
   /**

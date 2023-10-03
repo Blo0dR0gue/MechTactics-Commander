@@ -84,7 +84,16 @@ class ActionBarHandler {
 
   private routeChanged(routeChanged: UpdateRouteEvent) {
     if (routeChanged.planet !== undefined && routeChanged.add) {
-      if (routeChanged.numberPlanets > 1) this.createRouteJumpCard(4);
+      if (routeChanged.numberPlanets > 1) {
+        // TODO: Rework that. Only for first function tests!
+        this.routeController.calculateRoute(30);
+        this.createRouteJumpCard(
+          this.routeController.getNumberOfJumpsBetweenIDs(
+            routeChanged.numberPlanets - 2,
+            routeChanged.numberPlanets - 1
+          )
+        );
+      }
       this.createPlanetRouteCard(routeChanged.planet);
     }
   }

@@ -112,7 +112,7 @@ class ActionBarHandler {
    * Handler to center the camera on the selected planet on button click.
    */
   private centerOnPlanetClicked() {
-    if (this.selectedPlanet !== null) {
+    if (this.selectedPlanet != null) {
       this.cameraController.centerOnPlanet(this.selectedPlanet);
     }
   }
@@ -123,7 +123,7 @@ class ActionBarHandler {
   private addToRouteClicked() {
     // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
     if (
-      this.selectedPlanet !== null &&
+      this.selectedPlanet != null &&
       !this.routeController.containsPlanet(this.selectedPlanet)
     ) {
       this.routeController.addTargetPlanet(this.selectedPlanet);

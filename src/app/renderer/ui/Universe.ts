@@ -86,7 +86,7 @@ class Universe {
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.zoom = 1;
+    this.zoom = 2.4;
     this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
   }
 

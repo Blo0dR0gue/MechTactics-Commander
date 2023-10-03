@@ -125,14 +125,19 @@ class ActionBarHandler {
 
   private generateJumpCards(): void {
     // TODO: Rework that. Only for first function tests!
-    if (!this.routeController.calculateRoute(30)) return;
-    const jumps = this.routeController.getNumberOfJumpsBetween();
+    const routeGenerated = this.routeController.calculateRoute(30);
 
+    const jumps = this.routeController.getNumberOfJumpsBetween();
     // Remove all existing jump cards
     const jumpCards = document.querySelectorAll('[data-jump-card]');
     jumpCards.forEach((card) => {
       card.remove();
     });
+
+    if (!routeGenerated) {
+      this.routeController.clearRoute();
+      return;
+    }
 
     const planetCards = document.querySelectorAll('[data-planet-card]');
     let i = 0;

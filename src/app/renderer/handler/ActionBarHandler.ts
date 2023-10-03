@@ -117,8 +117,8 @@ class ActionBarHandler {
 
   private createPlanetRouteCard(planet: Planet) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card text-white my-auto';
-    cardDiv.style.width = '13rem';
+    cardDiv.className = 'card text-white my-auto flex-shrink-0';
+    cardDiv.style.width = '180px';
 
     const cardBodyDiv = document.createElement('div');
     cardBodyDiv.className = 'card-body p-2';

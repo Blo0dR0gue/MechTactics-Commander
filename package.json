@@ -18,10 +18,11 @@
     "build:all:prod": "npm run build:static && npm run build:ts && npm run build:webpack:prod",
     "lint": "eslint . --ext .ts",
     "postinstall": "electron-builder install-app-deps",
-    "build:exe": "rimraf ./dist/ && rimraf ./release/ && npm run build:all:prod && npm run postinstall && electron-builder --win --publish never",
-    "publish": "electron-builder --win --publish always",
+    "build:exe": "npm run clear:output && npm run build:all:prod && npm run postinstall && electron-builder --win --publish never",
+    "publish": "npm run clear:output && npm run build:all:prod && npm run postinstall && electron-builder --win --publish always",
     "test:unit": "jest",
-    "test": "npm run test:unit"
+    "test": "npm run test:unit",
+    "clear:output": "rimraf ./dist/ && rimraf ./release/"
   },
   "repository": {
     "type": "git",

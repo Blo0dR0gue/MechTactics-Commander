@@ -41,10 +41,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: npm install and build
+      - name: npm install
         run: |
           npm install
-          npm run build:all:prod
 
       - name: 'Publish new release'
         run: |

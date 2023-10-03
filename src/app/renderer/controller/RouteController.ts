@@ -94,6 +94,15 @@ class RouteController {
   }
 
   /**
+   * Checks if a planet is inside the routes
+   * @param planet The planet to check
+   * @returns True, if the planet is inside the route
+   */
+  public routeContainsPlanet(planet: Planet): boolean {
+    return this.route.indexOf(planet) !== -1;
+  }
+
+  /**
    * Returns the last planet in the target planet (destination)
    * @returns The destination planet or null
    */

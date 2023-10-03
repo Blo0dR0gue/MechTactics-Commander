@@ -3,6 +3,7 @@ import { Pathfinding } from '../utils/pathfinding/Pathfinding';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
 
+// TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {
   private universe: Universe;
   private pathfinding: Pathfinding<Planet>;
@@ -94,8 +95,11 @@ class RouteController {
       const p1 = this.targetPlanets[i];
       const p2 = this.targetPlanets[i + 1];
       const route = this.findRoute(p1, p2, jumpRange);
-      if (i > 0) this.route.pop();
-      this.route = this.route.concat(route);
+
+      if (route !== undefined) {
+        if (i > 0) this.route.pop();
+        this.route = this.route.concat(route);
+      }
     }
     console.log(this.route);
   }
@@ -126,6 +130,7 @@ class RouteController {
     const indexDestination = this.route.indexOf(
       this.targetPlanets[destination]
     );
+    if (indexStart === -1 || indexDestination === -1) return Infinity;
     return indexDestination - indexStart;
   }
 

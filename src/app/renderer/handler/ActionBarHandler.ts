@@ -13,6 +13,7 @@ class ActionBarHandler {
   private planetNameArea: HTMLElement;
   private affiliationNameArea: HTMLElement;
   private wikiLinkArea: HTMLLinkElement;
+  private coordinatesArea: HTMLElement;
 
   // TODO: Move to index???
   private disclaimer: HTMLDivElement;
@@ -31,6 +32,7 @@ class ActionBarHandler {
     this.planetNameArea = document.getElementById('planet-name');
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
+    this.coordinatesArea = document.getElementById('coordinates');
     this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
     this.disclaimerModal = new Modal(
       document.getElementById('disclaimer-modal'),
@@ -76,12 +78,17 @@ class ActionBarHandler {
     if (this.selectedPlanet === null) {
       this.updateText(this.planetNameArea, 'None');
       this.updateText(this.affiliationNameArea, 'None');
+      this.updateText(this.coordinatesArea, `x: None, y: None`);
       this.wikiLinkArea.href = '#';
     } else {
       this.updateText(this.planetNameArea, this.selectedPlanet.getName());
       this.updateText(
         this.affiliationNameArea,
         this.selectedPlanet.getAffiliationName()
+      );
+      this.updateText(
+        this.coordinatesArea,
+        `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
       // TODO: Open in new window on click
       this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();

@@ -90,17 +90,31 @@ class ActionBarHandler {
 
   private routeChanged(routeChanged: UpdateRouteEvent) {
     if (routeChanged.planet !== undefined && routeChanged.add) {
+      this.createRoutePlanetCard(routeChanged.planet);
       if (routeChanged.numberPlanets > 1) {
         // TODO: Rework that. Only for first function tests!
         this.routeController.calculateRoute(30);
-        this.createRouteJumpCard(
-          this.routeController.getNumberOfJumpsBetweenIDs(
-            routeChanged.numberPlanets - 2,
-            routeChanged.numberPlanets - 1
-          )
-        );
+        const jumps = this.routeController.getNumberOfJumpsBetween();
+
+        // Remove all existing jump cards
+        const jumpCards = document.querySelectorAll('[data-jump-card]');
+        jumpCards.forEach((card) => {
+          card.remove();
+        });
+
+        const planetCards = document.querySelectorAll('[data-planet-card]');
+        let i = 0;
+        let nextPlanetCard = planetCards[i];
+
+        jumps.forEach((jump) => {
+          const card = this.createRouteJumpCard(jump);
+          this.routeItemsContainer.insertBefore(
+            card,
+            nextPlanetCard.nextSibling
+          );
+          nextPlanetCard = planetCards[++i];
+        });
       }
-      this.createPlanetRouteCard(routeChanged.planet);
     }
   }
 
@@ -130,11 +144,11 @@ class ActionBarHandler {
     element.textContent = text;
   }
 
-  private createPlanetRouteCard(planet: Planet) {
+  private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card text-white my-auto flex-shrink-0';
-    cardDiv.style.width = '180px';
-    cardDiv.dataset.planetName = planet.getName();
+    cardDiv.style.width = '200px';
+    cardDiv.dataset.planetCard = planet.getName();
 
     const cardBodyDiv = document.createElement('div');
     cardBodyDiv.className = 'card-body p-2';
@@ -146,6 +160,7 @@ class ActionBarHandler {
     const deleteButton = document.createElement('button');
     deleteButton.className = 'btn btn-danger btn-sm';
     deleteButton.textContent = 'x';
+    deleteButton.onclick = () => {};
 
     const cardText = document.createElement('p');
     cardText.className = 'card-text text-center';
@@ -155,7 +170,7 @@ class ActionBarHandler {
     centerButton.className = 'btn btn-info btn-sm';
     centerButton.textContent = 'o';
     centerButton.onclick = () => {
-      this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetName);
+      this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
     };
 
     // Append the elements to build the card
@@ -173,6 +188,7 @@ class ActionBarHandler {
     const cardDiv = document.createElement('div');
     cardDiv.className =
       'text-center my-auto d-flex flex-column align-items-center text-white';
+    cardDiv.dataset.jumpCard = 'route-jump-card';
 
     const arrowDiv = document.createElement('div');
     arrowDiv.textContent = '→';
@@ -182,7 +198,7 @@ class ActionBarHandler {
 
     cardDiv.appendChild(arrowDiv);
     cardDiv.appendChild(jumpsDiv);
-    this.routeItemsContainer.appendChild(cardDiv);
+    return cardDiv;
   }
 }
 

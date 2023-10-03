@@ -131,14 +131,15 @@ class RouteController {
     return this.route;
   }
 
-  public getNumberOfJumps(): number {
-    return this.route.length - 1;
-  }
-
-  public getNumberOfJumpsBetween(start: Planet, destination: Planet): number {
-    const indexStart = this.route.indexOf(start);
-    const indexDestination = this.route.indexOf(destination);
-    return indexDestination - indexStart;
+  public getNumberOfJumpsBetween(): number[] {
+    const jumps = [] as number[];
+    for (let i = 0; i < this.targetPlanets.length - 1; i++) {
+      const indexStart = this.route.indexOf(this.targetPlanets[i]);
+      const indexDestination = this.route.indexOf(this.targetPlanets[i + 1]);
+      if (indexStart === -1 || indexDestination === -1) jumps.push(Infinity);
+      else jumps.push(indexDestination - indexStart);
+    }
+    return jumps;
   }
 
   public getNumberOfJumpsBetweenIDs(

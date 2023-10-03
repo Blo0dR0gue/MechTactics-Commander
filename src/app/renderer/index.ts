@@ -4,6 +4,16 @@ import { Universe } from './ui/Universe';
 import './styles/main.scss';
 import { CameraController } from './controller/CameraController';
 
+import { Tooltip } from 'bootstrap';
+
+// Enable all Tooltips
+const tooltipTriggerList = document.querySelectorAll(
+  '[data-bs-toggle="tooltip"]'
+);
+[...tooltipTriggerList].map(
+  (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+);
+
 // Add app version in title
 async function setTitle() {
   const version = await window.app.version();

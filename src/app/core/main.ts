@@ -110,6 +110,12 @@ app.whenReady().then(() => {
     });
   });
 
+  ipcMain.handle('getAppData', () => {
+    return {
+      version: isDevelopment ? 'dev' : app.getVersion(),
+    };
+  });
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

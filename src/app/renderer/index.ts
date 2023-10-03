@@ -4,6 +4,13 @@ import { Universe } from './ui/Universe';
 import './styles/main.scss';
 import { CameraController } from './controller/CameraController';
 
+// Add app version in title
+async function setTitle() {
+  const version = await window.app.version();
+  document.title = document.title.concat(` ${version}`);
+}
+setTitle();
+
 const canvasElement = document.getElementById('universe') as HTMLCanvasElement;
 
 const universe = new Universe(canvasElement);

@@ -1,3 +1,4 @@
+// TODO: Make global events???
 class EventHandler<Type> {
   private listeners: ((data: Type) => void)[];
 

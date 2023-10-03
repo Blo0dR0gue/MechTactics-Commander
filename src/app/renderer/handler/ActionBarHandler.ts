@@ -15,6 +15,7 @@ class ActionBarHandler {
   private wikiLinkArea: HTMLLinkElement;
   private coordinatesArea: HTMLElement;
   private centerOnPlanetBtn: HTMLButtonElement;
+  private addToRouteBtn: HTMLButtonElement;
 
   // TODO: Move to index???
   private disclaimer: HTMLDivElement;
@@ -35,7 +36,10 @@ class ActionBarHandler {
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
     this.coordinatesArea = document.getElementById('coordinates');
     this.centerOnPlanetBtn = document.getElementById(
-      'centerOnPlanet'
+      'center-on-planet'
+    ) as HTMLButtonElement;
+    this.addToRouteBtn = document.getElementById(
+      'add-to-route'
     ) as HTMLButtonElement;
 
     this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
@@ -66,6 +70,11 @@ class ActionBarHandler {
       this.centerOnPlanetClicked.bind(this)
     );
 
+    this.addToRouteBtn.addEventListener(
+      'click',
+      this.addToRouteClicked.bind(this)
+    );
+
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
     this.cameraController = camera;
 
@@ -81,6 +90,21 @@ class ActionBarHandler {
   private centerOnPlanetClicked() {
     if (this.selectedPlanet !== null) {
       this.cameraController.centerOnPlanet(this.selectedPlanet);
+    }
+  }
+
+  private addToRouteClicked() {
+    if (
+      this.selectedPlanet !== null &&
+      !this.routeController.containsPlanet(this.selectedPlanet)
+    ) {
+      this.routeController.addTargetPlanet(this.selectedPlanet);
+      // TODO: Rework. Don't invoke event of other class!!!
+      this.cameraController.updateRouteEvent.invoke({
+        planet: this.selectedPlanet,
+        add: true,
+        numberPlanets: this.routeController.lengthOfTargetPlanets(),
+      });
     }
   }
 
@@ -117,6 +141,8 @@ class ActionBarHandler {
       if (routeChanged.numberPlanets > 1) {
         this.generateJumpCards();
       }
+      // TODO: Rework (use toast)
+      alert(`Added ${routeChanged.planet.getName()} to the route!`);
     }
   }
 

@@ -121,8 +121,6 @@ class CameraController {
           add: true,
           numberPlanets: this.routeManager.lengthOfTargetPlanets(),
         });
-        // TODO: Rework (use toast)
-        alert(`Added ${this.selectedPlanet.getName()} to the route!`);
       }
     }
   }

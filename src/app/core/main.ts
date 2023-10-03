@@ -1,18 +1,19 @@
 import {
-  app,
   BrowserWindow,
-  screen,
-  ipcMain,
-  dialog,
   MessageBoxOptions,
+  app,
+  dialog,
+  ipcMain,
+  screen,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import * as path from 'path';
-import * as fs from 'fs';
 import electronReload from 'electron-reload';
+import { autoUpdater } from 'electron-updater';
+import * as fs from 'fs';
+import * as path from 'path';
+import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
 
 import sqlite3 = require('sqlite3');
-import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
+import ElectronStore = require('electron-store');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -21,7 +22,17 @@ if (require('electron-squirrel-startup')) {
 }
 
 if (isDevelopment) {
-  electronReload(__dirname, {});
+  electronReload(path.join(__dirname, '../'), {});
+}
+
+const store = new ElectronStore({
+  cwd: isDevelopment
+    ? path.join(__dirname, '../', '../')
+    : app.getPath('userData'),
+});
+
+if (store.size == 0) {
+  store.set('version', app.getVersion());
 }
 
 function createWindow() {
@@ -31,6 +42,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     height: size.height,
     width: size.width,
+    minHeight: 600,
+    minWidth: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       devTools: isDevelopment ? true : false,

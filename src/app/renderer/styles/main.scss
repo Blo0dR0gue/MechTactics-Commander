@@ -1,8 +1,13 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+
 $body-bg: #333232;
 
-$theme-colors: (
+$custom-colors: (
   'actionBar': rgba(0, 0, 0, 0.7),
 );
+
+$theme-colors: map-merge($theme-colors, $custom-colors);
 
 /*
 TODO: Comment 
@@ -77,6 +82,10 @@ header {
 .settings-button {
   float: right; /* Float the button to the right within the header */
   margin-right: 20px; /* Add some margin for spacing */
+}
+
+canvas:focus {
+  outline-width: 0;
 }
 
 // Import all of Bootstrap's CSS

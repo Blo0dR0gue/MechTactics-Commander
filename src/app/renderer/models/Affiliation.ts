@@ -10,6 +10,10 @@ class Affiliation {
   public getColor() {
     return this.color;
   }
+
+  public getName() {
+    return this.name;
+  }
 }
 
 export { Affiliation };

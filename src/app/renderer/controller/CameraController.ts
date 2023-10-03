@@ -1,6 +1,10 @@
 import { Vector } from '../models/Vector';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
+import { EventHandler } from '../handler/EventHandler';
+import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
+import { RouteController } from './RouteController';
+import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
 
 // TODO: COMMENT, TESTS
 
@@ -9,26 +13,40 @@ class CameraController {
   readonly MIN_ZOOM = 0.7;
   readonly SCROLL_SENSITIVITY = 0.0005;
 
-  private element: HTMLElement;
+  private element: HTMLCanvasElement;
   private universe: Universe;
 
-  private selectedPlanet: Planet | null;
+  public selectionChangeEvent: EventHandler<SelectionChangeEvent>;
+  public updateRouteEvent: EventHandler<UpdateRouteEvent>;
+
+  private selectedPlanet: Planet | null = null;
 
   private isMoved = false;
   private isClicked = false;
   private dragStart = new Vector(0, 0);
 
-  public constructor(element: HTMLElement, universe: Universe) {
-    this.element = element;
-    this.universe = universe;
+  /**
+   * The route planing manager
+   */
+  private routeManager: RouteController;
+
+  public constructor() {
+    this.selectionChangeEvent = new EventHandler();
+    this.updateRouteEvent = new EventHandler();
   }
 
-  public init() {
+  public init(universe: Universe) {
+    this.universe = universe;
+    this.element = this.universe.getCanvas();
+    this.routeManager = new RouteController(universe);
+
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
+    // TODO: Move to extra controller?
+    window.addEventListener('keydown', this.handleKeyPress.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -88,10 +106,47 @@ class CameraController {
     } else {
       this.selectedPlanet = null;
     }
+    this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
+  }
+
+  private handleKeyPress(evt: KeyboardEvent) {
+    if (evt.key === 'f') {
+      if (
+        this.selectedPlanet !== null &&
+        !this.routeManager.containsPlanet(this.selectedPlanet)
+      ) {
+        this.routeManager.addTargetPlanet(this.selectedPlanet);
+        this.updateRouteEvent.invoke({
+          planet: this.selectedPlanet,
+          add: true,
+          numberPlanets: this.routeManager.lengthOfTargetPlanets(),
+        });
+        // TODO: Rework (use toast)
+        alert(`Added ${this.selectedPlanet.getName()} to the route!`);
+      }
+    }
+  }
+
+  public centerOnPlanetByName(planetName: string) {
+    const planet = this.universe.getGetPlanetByName(planetName);
+    this.centerOnPlanet(planet);
+  }
+
+  public centerOnPlanet(planet: Planet) {
+    this.universe.setCameraOffset(
+      new Vector(
+        window.innerWidth / 2 - planet.coord.getX(),
+        window.innerHeight / 2 - planet.coord.getY()
+      )
+    );
   }
 
   public getSelectedPlanet(): Planet | null {
     return this.selectedPlanet;
+  }
+
+  public getRouteManager() {
+    return this.routeManager;
   }
 }
 

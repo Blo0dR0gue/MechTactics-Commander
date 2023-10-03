@@ -6,8 +6,59 @@
     <title>MechTactics-Commander</title>
   </head>
   <body class="overflow-hidden">
+    <header class="bg-transparent">
+      <div class="btn link link-info" id="disclaimer">disclaimer</div>
+    </header>
+
+    <div class="modal text-white" id="disclaimer-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Disclaimer</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            This is a non-profit open source project for the BattleTech
+            universe. <br />
+            It uses data from the public
+            <a href="www.sarna.net">Sarna Wiki</a> and from the fan created map
+            by
+            <a href="www.gruese.de/innersphere/Christoph"
+              >Wassermann and Wraith_81</a
+            >
+            for the computer game BATTLETECH by Harebrained Schemes (published
+            by Paradox Interactive). <br />
+            The author is not affiliated with Harebrained Schemes and intends no
+            copyright or trademark infringement. All content from these sources
+            are used with the utmost respect for intellectual property rights
+            and is incorporated into this project for informational and
+            non-commercial purposes only. <br />
+            <a
+              class="link link-info"
+              href="https://github.com/Blo0dR0gue/MechTactics-Commander"
+              >Source on GitHub</a
+            >
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="m-0 p-0">
-      <canvas id="universe"></canvas>
+      <canvas id="universe" tabindex="1"></canvas>
 
       <!-- Action Bar -->
       <div
@@ -18,7 +69,7 @@
           <div class="row justify-content-end">
             <div class="col-sm-2 p-0">
               <div
-                class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 bg-selected transform-skew--15 border border-light border-2 bg-selected"
+                class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 transform-skew--15 border border-light border-2 bg-selected"
                 id="planet-details-tab"
                 data-content="planet-details-tab-content"
               >
@@ -31,6 +82,7 @@
               <div
                 class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 transform-skew--15 border border-light border-2"
                 id="routing-tab"
+                data-content="routing-tab-content"
               >
                 <div class="text-white text-center transform-skew-15 flex-fill">
                   Routing
@@ -53,7 +105,7 @@
                 id="settings-tab"
               >
                 <div class="text-white text-center transform-skew-15 flex-fill">
-                  Routing
+                  Settings
                 </div>
               </div>
             </div>
@@ -62,24 +114,37 @@
 
         <!-- Content-Area -->
         <div
-          class="w-100 h-100 p-1 bg-actionBar bg-opacity-75"
+          class="w-100 p-1 bg-actionBar bg-opacity-75"
+          style="height: 120px"
           id="content-box"
         >
-          <div id="planet-details-tab-content" class="w-100 h-100">
+          <div id="planet-details-tab-content" class="w-100">
             <div class="row">
-              <div class="col d-flex align-items-center flex-column">
+              <div class="col-md-4 d-flex align-items-center flex-column">
                 <h2 class="m-0 text-white" id="planet-name">None</h2>
                 <div class="m-0 text-white d-flex align-items-center">
                   <p class="m-0 me-2 p-0">Affiliation:</p>
                   <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
                 </div>
+                <p class="m-0 text-white" id="coordinates">x: None, y: None</p>
                 <p class="m-0 text-white">
-                  <a href="https://example.com/wiki">Wiki</a>
+                  <a href="#" id="wiki-link">Wiki</a>
+                  <button class="btn btn-sm btn-info" id="centerOnPlanet">
+                    o
+                  </button>
                 </p>
               </div>
               <div class="col d-flex align-items-center flex-column"></div>
               <div class="col d-flex align-items-center flex-column"></div>
             </div>
+          </div>
+
+          <div id="routing-tab-content" class="w-100 h-100 hide">
+            <div
+              class="h-100 d-flex flex-row flex-nowrap text-nowrap"
+              style="overflow-x: auto"
+              id="route-container"
+            ></div>
           </div>
         </div>
       </div>

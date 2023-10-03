@@ -39,7 +39,7 @@ class Planet extends Circle {
    * Gets the name of this planet
    * @returns The name of the planet
    */
-  public getName() {
+  public getName(): string {
     return this.name;
   }
 
@@ -47,8 +47,16 @@ class Planet extends Circle {
    * Gets the color of the affiliation
    * @returns The color for this planet (affiliation)
    */
-  public getColor() {
+  public getColor(): string {
     return this.affiliation.getColor();
+  }
+
+  public getAffiliationName(): string {
+    return this.affiliation.getName();
+  }
+
+  public getWikiURL(): string {
+    return this.link;
   }
 }
 

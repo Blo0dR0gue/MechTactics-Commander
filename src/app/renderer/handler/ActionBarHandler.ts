@@ -5,6 +5,9 @@ import { Modal } from 'bootstrap';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
 
+/**
+ * Responsible for the action bar
+ */
 class ActionBarHandler {
   private navButtons: NodeListOf<HTMLDivElement>;
   private contentArea: HTMLDivElement;
@@ -15,6 +18,7 @@ class ActionBarHandler {
   private wikiLinkArea: HTMLLinkElement;
   private coordinatesArea: HTMLElement;
   private centerOnPlanetBtn: HTMLButtonElement;
+  private addToRouteBtn: HTMLButtonElement;
 
   // TODO: Move to index???
   private disclaimer: HTMLDivElement;
@@ -26,6 +30,9 @@ class ActionBarHandler {
   private routeController: RouteController;
   private cameraController: CameraController;
 
+  /**
+   * Setup of all dom element references
+   */
   public constructor() {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
@@ -35,9 +42,13 @@ class ActionBarHandler {
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
     this.coordinatesArea = document.getElementById('coordinates');
     this.centerOnPlanetBtn = document.getElementById(
-      'centerOnPlanet'
+      'center-on-planet'
+    ) as HTMLButtonElement;
+    this.addToRouteBtn = document.getElementById(
+      'add-to-route'
     ) as HTMLButtonElement;
 
+    // Create Modal
     this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
     this.disclaimerModal = new Modal(
       document.getElementById('disclaimer-modal'),
@@ -49,7 +60,14 @@ class ActionBarHandler {
     );
   }
 
+  /**
+   * Init the handler
+   *
+   * @param camera The camera controller, to use for center
+   */
   public init(camera: CameraController) {
+    // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
+    // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
     this.navButtons.forEach((element) => {
       if (element.id === undefined || element.dataset.content === undefined)
         return;
@@ -61,33 +79,75 @@ class ActionBarHandler {
       );
     });
 
+    // Add a click listener to the button to center on the selected planet.
     this.centerOnPlanetBtn.addEventListener(
       'click',
       this.centerOnPlanetClicked.bind(this)
     );
 
-    this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
-    this.cameraController = camera;
+    // Add a click listener to the button to add the selected planet to the route.
+    this.addToRouteBtn.addEventListener(
+      'click',
+      this.addToRouteClicked.bind(this)
+    );
 
+    // Add click listener to show the disclaimer modal
+    this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
+
+    // Setup the camera event listeners
+    this.cameraController = camera;
     this.cameraController.selectionChangeEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
     this.cameraController.updateRouteEvent.subscribe(
       this.routeChanged.bind(this)
     );
-    this.routeController = camera.getRouteManager();
+
+    // Get the route manager from the camera
+    // TODO: remove here???
+    this.routeController = this.cameraController.getRouteManager();
   }
 
+  /**
+   * Handler to center the camera on the selected planet on button click.
+   */
   private centerOnPlanetClicked() {
-    if (this.selectedPlanet !== null) {
+    if (this.selectedPlanet != null) {
       this.cameraController.centerOnPlanet(this.selectedPlanet);
     }
   }
 
+  /**
+   * Handler to add the selected planet to the route on button click.
+   */
+  private addToRouteClicked() {
+    // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
+    if (
+      this.selectedPlanet != null &&
+      !this.routeController.containsPlanet(this.selectedPlanet)
+    ) {
+      this.routeController.addTargetPlanet(this.selectedPlanet);
+      // TODO: Rework. Don't invoke event of other class!!!
+      this.cameraController.updateRouteEvent.invoke({
+        planet: this.selectedPlanet,
+        add: true,
+        numberPlanets: this.routeController.lengthOfTargetPlanets(),
+      });
+    }
+  }
+
+  /**
+   * Helper to show the disclaimer modal.
+   */
   private showDisclaimer() {
     this.disclaimerModal.show();
   }
 
+  /**
+   * Listener function, which is called, if the camera selects a other planet!
+   *
+   * @param planetChanged The event data
+   */
   private planetSelectionChanged(planetChanged: SelectionChangeEvent) {
     this.selectedPlanet = planetChanged.planet;
     // TODO: simplify
@@ -111,15 +171,30 @@ class ActionBarHandler {
     }
   }
 
+  /**
+   * Listener function, which is called, if a planet is added to the route (via event).
+   *
+   * @param routeChanged The event data
+   */
   private routeChanged(routeChanged: UpdateRouteEvent) {
     if (routeChanged.planet !== undefined && routeChanged.add) {
+      // Create the planet card in the routing area and add it to it.
       this.createRoutePlanetCard(routeChanged.planet);
       if (routeChanged.numberPlanets > 1) {
+        // Iff we have more then 1 planet in the target planets, also generate the jump cards to display how many jumps are needed.
         this.generateJumpCards();
       }
+      // TODO: Rework (use toast)
+      alert(`Added ${routeChanged.planet.getName()} to the route!`);
     }
   }
 
+  /**
+   * Helper function, to enable a specific content in the action bar content are. The others are getting disabled
+   *
+   * @param tabName The tab to show
+   * @param button The button, which got clicked
+   */
   private showTab(tabName, button) {
     // Hide all tab contents
     const tabContents = this.contentArea
@@ -142,10 +217,19 @@ class ActionBarHandler {
     });
   }
 
+  /**
+   * Helper function to update the text of an DOM-element
+   *
+   * @param element The element to update
+   * @param text The new text
+   */
   private updateText(element: HTMLElement, text: string) {
     element.textContent = text;
   }
 
+  /**
+   * Function, to generate all jump cards. It removes all first, calculates the route to all planets and added the jump cards between the corresponding planet cards.
+   */
   private generateJumpCards(): void {
     // TODO: Rework that. Only for first function tests!
     const routeGenerated = this.routeController.calculateRoute(30);
@@ -158,14 +242,17 @@ class ActionBarHandler {
     });
 
     if (!routeGenerated) {
+      // Clear the route, if no route got generated
       this.routeController.clearRoute();
       return;
     }
 
+    // Get all planet cards
     const planetCards = document.querySelectorAll('[data-planet-card]');
     let i = 0;
     let nextPlanetCard = planetCards[i];
 
+    // Add all jump cards between the planet cards
     jumps.forEach((jump) => {
       const card = this.createRouteJumpCard(jump);
       this.routeItemsContainer.insertBefore(card, nextPlanetCard.nextSibling);
@@ -173,6 +260,11 @@ class ActionBarHandler {
     });
   }
 
+  /**
+   * Cheats a new planet card and adds it to the content area.
+   *
+   * @param planet The planet to add.
+   */
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card text-white my-auto flex-shrink-0';
@@ -217,6 +309,12 @@ class ActionBarHandler {
     this.routeItemsContainer.appendChild(cardDiv);
   }
 
+  /**
+   * Helper function to create a new jump card
+   *
+   * @param jumps The amount of jumps
+   * @returns The dom jump card element
+   */
   private createRouteJumpCard(jumps: number) {
     const cardDiv = document.createElement('div');
     cardDiv.className =

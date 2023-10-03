@@ -121,7 +121,12 @@
           <div id="planet-details-tab-content" class="w-100">
             <div class="row">
               <div class="col-md-4 d-flex align-items-center flex-column">
-                <h2 class="m-0 text-white" id="planet-name">None</h2>
+                <div class="m-0 text-white d-flex align-items-center">
+                  <h2 class="m-0 text-white" id="planet-name">None</h2>
+                  <button class="btn btn-sm btn-info" id="center-on-planet">
+                    o
+                  </button>
+                </div>
                 <div class="m-0 text-white d-flex align-items-center">
                   <p class="m-0 me-2 p-0">Affiliation:</p>
                   <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
@@ -129,8 +134,8 @@
                 <p class="m-0 text-white" id="coordinates">x: None, y: None</p>
                 <p class="m-0 text-white">
                   <a href="#" id="wiki-link">Wiki</a>
-                  <button class="btn btn-sm btn-info" id="centerOnPlanet">
-                    o
+                  <button class="btn btn-sm btn-success" id="add-to-route">
+                    +
                   </button>
                 </p>
               </div>

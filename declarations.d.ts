@@ -4,4 +4,7 @@ interface Window {
       import('./src/app/types/PlanetAffiliation').PlanetAffiliationJSON[]
     >;
   };
+  app: {
+    version: () => Promise<string>;
+  };
 }

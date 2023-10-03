@@ -110,6 +110,12 @@ app.whenReady().then(() => {
     });
   });
 
+  ipcMain.handle('getAppData', () => {
+    return {
+      version: isDevelopment ? 'dev' : app.getVersion(),
+    };
+  });
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -120,8 +126,8 @@ autoUpdater.on('update-available', () => {
     type: 'info',
     buttons: ['Ok'],
     title: 'Application Update',
-    message: 'A new version is being downloaded',
-    details: 'A new version is being downloaded',
+    message: 'Downloading a new version',
+    details: 'Downloading a new version',
   } as MessageBoxOptions;
   dialog.showMessageBox(dialogOpts);
 });
@@ -131,7 +137,7 @@ autoUpdater.on('update-downloaded', () => {
     type: 'info',
     buttons: ['Restart', 'Later'],
     title: 'Application Update',
-    message: 'A new version is being downloaded',
+    message: 'A new version has been downloaded',
     details:
       'A new version has been downloaded. Restart the application to apply the updates.',
   } as MessageBoxOptions;

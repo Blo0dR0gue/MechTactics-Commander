@@ -58,7 +58,7 @@ class ActionBarHandler {
     this.cameraController = camera;
 
     this.cameraController.selectionChangeEvent.subscribe(
-      this.planetChanged.bind(this)
+      this.planetSelectionChanged.bind(this)
     );
     this.cameraController.updateRouteEvent.subscribe(
       this.routeChanged.bind(this)
@@ -70,7 +70,7 @@ class ActionBarHandler {
     this.disclaimerModal.show();
   }
 
-  private planetChanged(planetChanged: SelectionChangeEvent) {
+  private planetSelectionChanged(planetChanged: SelectionChangeEvent) {
     this.selectedPlanet = planetChanged.planet;
     // TODO: simplify
     if (this.selectedPlanet === null) {
@@ -92,28 +92,7 @@ class ActionBarHandler {
     if (routeChanged.planet !== undefined && routeChanged.add) {
       this.createRoutePlanetCard(routeChanged.planet);
       if (routeChanged.numberPlanets > 1) {
-        // TODO: Rework that. Only for first function tests!
-        this.routeController.calculateRoute(30);
-        const jumps = this.routeController.getNumberOfJumpsBetween();
-
-        // Remove all existing jump cards
-        const jumpCards = document.querySelectorAll('[data-jump-card]');
-        jumpCards.forEach((card) => {
-          card.remove();
-        });
-
-        const planetCards = document.querySelectorAll('[data-planet-card]');
-        let i = 0;
-        let nextPlanetCard = planetCards[i];
-
-        jumps.forEach((jump) => {
-          const card = this.createRouteJumpCard(jump);
-          this.routeItemsContainer.insertBefore(
-            card,
-            nextPlanetCard.nextSibling
-          );
-          nextPlanetCard = planetCards[++i];
-        });
+        this.generateJumpCards();
       }
     }
   }
@@ -144,6 +123,28 @@ class ActionBarHandler {
     element.textContent = text;
   }
 
+  private generateJumpCards(): void {
+    // TODO: Rework that. Only for first function tests!
+    if (!this.routeController.calculateRoute(30)) return;
+    const jumps = this.routeController.getNumberOfJumpsBetween();
+
+    // Remove all existing jump cards
+    const jumpCards = document.querySelectorAll('[data-jump-card]');
+    jumpCards.forEach((card) => {
+      card.remove();
+    });
+
+    const planetCards = document.querySelectorAll('[data-planet-card]');
+    let i = 0;
+    let nextPlanetCard = planetCards[i];
+
+    jumps.forEach((jump) => {
+      const card = this.createRouteJumpCard(jump);
+      this.routeItemsContainer.insertBefore(card, nextPlanetCard.nextSibling);
+      nextPlanetCard = planetCards[++i];
+    });
+  }
+
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card text-white my-auto flex-shrink-0';
@@ -160,7 +161,11 @@ class ActionBarHandler {
     const deleteButton = document.createElement('button');
     deleteButton.className = 'btn btn-danger btn-sm';
     deleteButton.textContent = 'x';
-    deleteButton.onclick = () => {};
+    deleteButton.onclick = () => {
+      this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
+      cardDiv.remove();
+      this.generateJumpCards();
+    };
 
     const cardText = document.createElement('p');
     cardText.className = 'card-text text-center';

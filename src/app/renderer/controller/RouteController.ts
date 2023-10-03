@@ -105,9 +105,10 @@ class RouteController {
   /**
    * Calculates the whole route to each planet in the route planing array.
    * @param jumpRange The max range a ship can jump in light years.
+   * @returns true, if a route got generated
    */
-  public calculateRoute(jumpRange: number): void {
-    if (this.targetPlanets.length < 2) return;
+  public calculateRoute(jumpRange: number): boolean {
+    if (this.targetPlanets.length < 2) return false;
     this.route = [];
 
     for (let i = 0; i < this.targetPlanets.length - 1; i++) {
@@ -121,6 +122,7 @@ class RouteController {
       }
     }
     console.log(this.route);
+    return true;
   }
 
   public lengthOfTargetPlanets(): number {

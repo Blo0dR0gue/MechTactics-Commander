@@ -320,6 +320,16 @@ class Universe {
   public highlightPlanet(planet: Planet | null): void {
     this.hoveredPlanet = planet;
   }
+
+  /**
+   * Get a planet object by its name.
+   *
+   * @param planetName The name of the planet to find
+   * @returns The planet object or null
+   */
+  public getGetPlanetByName(planetName: string): Planet {
+    return this.planets.find((planet) => planet.getName() === planetName);
+  }
 }
 
 export { Universe };

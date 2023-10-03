@@ -125,6 +125,11 @@ class CameraController {
     }
   }
 
+  public centerOnPlanetByName(planetName: string) {
+    const planet = this.universe.getGetPlanetByName(planetName);
+    this.centerOnPlanet(planet);
+  }
+
   public centerOnPlanet(planet: Planet) {
     this.universe.setCameraOffset(
       new Vector(

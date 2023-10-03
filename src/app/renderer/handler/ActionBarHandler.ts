@@ -22,6 +22,7 @@ class ActionBarHandler {
 
   // TODO: Rework (remove here)
   private routeController: RouteController;
+  private cameraController: CameraController;
 
   public constructor() {
     this.navButtons = document.querySelectorAll('.btn-actionBar');
@@ -54,9 +55,14 @@ class ActionBarHandler {
     });
 
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
+    this.cameraController = camera;
 
-    camera.selectionChangeEvent.subscribe(this.planetChanged.bind(this));
-    camera.updateRouteEvent.subscribe(this.routeChanged.bind(this));
+    this.cameraController.selectionChangeEvent.subscribe(
+      this.planetChanged.bind(this)
+    );
+    this.cameraController.updateRouteEvent.subscribe(
+      this.routeChanged.bind(this)
+    );
     this.routeController = camera.getRouteManager();
   }
 
@@ -128,6 +134,7 @@ class ActionBarHandler {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card text-white my-auto flex-shrink-0';
     cardDiv.style.width = '180px';
+    cardDiv.dataset.planetName = planet.getName();
 
     const cardBodyDiv = document.createElement('div');
     cardBodyDiv.className = 'card-body p-2';
@@ -144,13 +151,16 @@ class ActionBarHandler {
     cardText.className = 'card-text text-center';
     cardText.textContent = `${planet.coord.getX()} | ${planet.coord.getY()}`;
 
-    const editButton = document.createElement('button');
-    editButton.className = 'btn btn-info btn-sm';
-    editButton.textContent = 'o';
+    const centerButton = document.createElement('button');
+    centerButton.className = 'btn btn-info btn-sm';
+    centerButton.textContent = 'o';
+    centerButton.onclick = () => {
+      this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetName);
+    };
 
     // Append the elements to build the card
     cardTitle.appendChild(deleteButton);
-    cardText.appendChild(editButton);
+    cardText.appendChild(centerButton);
     cardBodyDiv.appendChild(cardTitle);
     cardBodyDiv.appendChild(cardText);
     cardDiv.appendChild(cardBodyDiv);

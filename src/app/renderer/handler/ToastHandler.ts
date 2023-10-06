@@ -10,12 +10,16 @@ class ToastHandler {
     this.toastContainer = document.getElementById('toast-container');
   }
 
-  public createAndShowToast(title: string, text: string) {
+  public createAndShowToast(
+    title: string,
+    text: string,
+    type = ToastType.Default
+  ) {
     if (this.currentToasts.length >= ToastHandler.maxElements) {
       this.removeToastByIndex(0);
     }
 
-    const toast = new ToastItem(title, text, 3000, () => {
+    const toast = new ToastItem(title, text, 3000, type, () => {
       this.removeToast(toast);
     });
     this.toastContainer.appendChild(toast.getToastDOMElement());
@@ -35,6 +39,13 @@ class ToastHandler {
   }
 }
 
+enum ToastType {
+  Default = '',
+  Danger = 'bg-danger',
+  Warning = 'bg-warning',
+  Info = 'bg-info',
+}
+
 /**
  * Represents one toast item
  */
@@ -51,6 +62,7 @@ class ToastItem {
     title: string,
     text: string,
     displayTime: number,
+    type = ToastType.Default,
     onClose?: () => void
   ) {
     // Create toast dom element
@@ -82,6 +94,7 @@ class ToastItem {
     // Create toast body
     const toastBody = document.createElement('div');
     toastBody.classList.add('toast-body');
+    if (type.length > 0) toastBody.classList.add(type);
     toastBody.textContent = text;
 
     // Add header and body to toast element
@@ -92,7 +105,7 @@ class ToastItem {
 
     // Create toast object
     this.toast = new Toast(this.domElement, {
-      autohide: true,
+      autohide: false,
       delay: displayTime,
       animation: true,
     });
@@ -127,4 +140,4 @@ class ToastItem {
   }
 }
 
-export { ToastHandler };
+export { ToastHandler, ToastType };

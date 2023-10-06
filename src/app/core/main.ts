@@ -127,7 +127,7 @@ autoUpdater.on('update-available', () => {
     buttons: ['Ok'],
     title: 'Application Update',
     message: 'Downloading a new version',
-    details: 'Downloading a new version',
+    detail: 'Downloading a new version',
   } as MessageBoxOptions;
   dialog.showMessageBox(dialogOpts);
 });
@@ -138,7 +138,7 @@ autoUpdater.on('update-downloaded', () => {
     buttons: ['Restart', 'Later'],
     title: 'Application Update',
     message: 'A new version has been downloaded',
-    details:
+    detail:
       'A new version has been downloaded. Restart the application to apply the updates.',
   } as MessageBoxOptions;
   dialog.showMessageBox(dialogOpts).then((returnValue) => {

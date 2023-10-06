@@ -33,4 +33,4 @@ const headerHandler = new HeaderHandler();
 camera.init(universe);
 universe.init(camera);
 actionBarHandler.init(camera);
-headerHandler.init();
+headerHandler.init(camera, universe);

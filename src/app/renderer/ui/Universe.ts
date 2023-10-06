@@ -337,6 +337,13 @@ class Universe {
   public getGetPlanetByName(planetName: string): Planet {
     return this.planets.find((planet) => planet.getName() === planetName);
   }
+
+  /**
+   * Focus the universe canvas
+   */
+  public focus() {
+    this.canvas.focus();
+  }
 }
 
 export { Universe };

@@ -1,10 +1,9 @@
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 
-$body-bg: #08001f;
-
 $custom-colors: (
-  'actionBar': rgba(0, 0, 0, 0.7),
+  'actionBar': rgba(24, 24, 24, 0.7),
+  'background': #08001f,
 );
 
 $theme-colors: map-merge($theme-colors, $custom-colors);

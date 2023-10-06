@@ -6,6 +6,7 @@ import { CameraController } from './controller/CameraController';
 
 import { Tooltip } from 'bootstrap';
 import { HeaderHandler } from './handler/HeaderHandler';
+import { ToastHandler } from './handler/ToastHandler';
 
 // Enable all Tooltips
 const tooltipTriggerList = document.querySelectorAll(
@@ -29,8 +30,9 @@ const universe = new Universe(canvasElement);
 const camera = new CameraController();
 const actionBarHandler = new ActionBarHandler();
 const headerHandler = new HeaderHandler();
+const toastHandler = new ToastHandler();
 
 camera.init(universe);
 universe.init(camera);
-actionBarHandler.init(camera);
+actionBarHandler.init(camera, toastHandler);
 headerHandler.init(camera, universe);

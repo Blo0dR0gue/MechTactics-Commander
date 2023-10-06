@@ -143,8 +143,10 @@ class ActionBarHandler {
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
-      // TODO: Open in new window on click
       this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
+      // Select first button (Planet Details)
+      // FIXME: Make dynamic
+      this.showTab(this.navButtons[0].dataset.content, this.navButtons[0]);
     }
   }
 

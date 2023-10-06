@@ -35,4 +35,4 @@ const toastHandler = new ToastHandler();
 camera.init(universe);
 universe.init(camera);
 actionBarHandler.init(camera, toastHandler);
-headerHandler.init(camera, universe);
+headerHandler.init(camera, universe, toastHandler);

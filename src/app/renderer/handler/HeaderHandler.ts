@@ -1,6 +1,7 @@
 import { Modal } from 'bootstrap';
 import { CameraController } from '../controller/CameraController';
 import { Universe } from '../ui/Universe';
+import { ToastHandler, ToastType } from './ToastHandler';
 
 /**
  * Responsible for handling the header elements
@@ -31,6 +32,11 @@ class HeaderHandler {
   private universe: Universe;
 
   /**
+   * The toast handler
+   */
+  private toastHandler: ToastHandler;
+
+  /**
    * Creates a new HeaderHandler
    */
   public constructor() {
@@ -54,9 +60,14 @@ class HeaderHandler {
   /**
    * Init the handler
    */
-  public init(cameraController: CameraController, universe: Universe) {
+  public init(
+    cameraController: CameraController,
+    universe: Universe,
+    toastHandler: ToastHandler
+  ) {
     this.cameraController = cameraController;
     this.universe = universe;
+    this.toastHandler = toastHandler;
 
     // Add click listener to show the disclaimer modal
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
@@ -80,7 +91,13 @@ class HeaderHandler {
     const search = this.searchBar.value;
     if (search.length < 3) return;
     const planet = this.universe.getGetPlanetByName(search);
-    if (planet === undefined) return;
+    if (planet === undefined) {
+      this.toastHandler.createAndShowToast(
+        'Search',
+        `Planet <b>${search}</b> not found`,
+        ToastType.Warning
+      );
+    }
     this.cameraController.centerOnPlanetAndSelect(planet);
     this.universe.focus();
   }

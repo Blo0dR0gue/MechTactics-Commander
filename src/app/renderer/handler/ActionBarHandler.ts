@@ -1,7 +1,6 @@
 import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
-import { Modal } from 'bootstrap';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
 
@@ -19,10 +18,6 @@ class ActionBarHandler {
   private coordinatesArea: HTMLElement;
   private centerOnPlanetBtn: HTMLButtonElement;
   private addToRouteBtn: HTMLButtonElement;
-
-  // TODO: Move to index???
-  private disclaimer: HTMLDivElement;
-  private disclaimerModal: Modal;
 
   private selectedPlanet: Planet | null;
 
@@ -47,17 +42,6 @@ class ActionBarHandler {
     this.addToRouteBtn = document.getElementById(
       'add-to-route'
     ) as HTMLButtonElement;
-
-    // Create Modal
-    this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
-    this.disclaimerModal = new Modal(
-      document.getElementById('disclaimer-modal'),
-      {
-        backdrop: true,
-        keyboard: false,
-        focus: true,
-      }
-    );
   }
 
   /**
@@ -90,9 +74,6 @@ class ActionBarHandler {
       'click',
       this.addToRouteClicked.bind(this)
     );
-
-    // Add click listener to show the disclaimer modal
-    this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
 
     // Setup the camera event listeners
     this.cameraController = camera;
@@ -135,14 +116,6 @@ class ActionBarHandler {
       });
     }
   }
-
-  /**
-   * Helper to show the disclaimer modal.
-   */
-  private showDisclaimer() {
-    this.disclaimerModal.show();
-  }
-
   /**
    * Listener function, which is called, if the camera selects a other planet!
    *

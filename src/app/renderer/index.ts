@@ -5,6 +5,7 @@ import './styles/main.scss';
 import { CameraController } from './controller/CameraController';
 
 import { Tooltip } from 'bootstrap';
+import { HeaderHandler } from './handler/HeaderHandler';
 
 // Enable all Tooltips
 const tooltipTriggerList = document.querySelectorAll(
@@ -27,7 +28,9 @@ const canvasElement = document.getElementById('universe') as HTMLCanvasElement;
 const universe = new Universe(canvasElement);
 const camera = new CameraController();
 const actionBarHandler = new ActionBarHandler();
+const headerHandler = new HeaderHandler();
 
 camera.init(universe);
 universe.init(camera);
 actionBarHandler.init(camera);
+headerHandler.init();

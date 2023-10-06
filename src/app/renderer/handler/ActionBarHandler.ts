@@ -247,7 +247,7 @@ class ActionBarHandler {
    */
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card text-white my-auto flex-shrink-0';
+    cardDiv.className = 'card text-white my-auto flex-shrink-0 bg-dark';
     cardDiv.style.width = '200px';
     cardDiv.dataset.planetCard = planet.getName();
 
@@ -259,7 +259,7 @@ class ActionBarHandler {
     cardTitle.textContent = planet.getName();
 
     const deleteButton = document.createElement('button');
-    deleteButton.className = 'btn btn-danger btn-sm';
+    deleteButton.className = 'btn btn-danger btn-sm ms-1';
     deleteButton.textContent = 'x';
     deleteButton.onclick = () => {
       this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
@@ -272,7 +272,7 @@ class ActionBarHandler {
     cardText.textContent = `${planet.coord.getX()} | ${planet.coord.getY()}`;
 
     const centerButton = document.createElement('button');
-    centerButton.className = 'btn btn-info btn-sm';
+    centerButton.className = 'btn btn-info btn-sm ms-1';
     centerButton.textContent = 'o';
     centerButton.onclick = () => {
       this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
@@ -298,7 +298,7 @@ class ActionBarHandler {
   private createRouteJumpCard(jumps: number) {
     const cardDiv = document.createElement('div');
     cardDiv.className =
-      'text-center my-auto d-flex flex-column align-items-center text-white';
+      'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
     cardDiv.dataset.jumpCard = 'route-jump-card';
 
     const arrowDiv = document.createElement('div');

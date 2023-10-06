@@ -3,6 +3,7 @@ import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
+import { ToastHandler } from './ToastHandler';
 
 /**
  * Responsible for the action bar
@@ -24,6 +25,7 @@ class ActionBarHandler {
   // TODO: Rework (remove here)
   private routeController: RouteController;
   private cameraController: CameraController;
+  private toastHandler: ToastHandler;
 
   /**
    * Setup of all dom element references
@@ -47,9 +49,12 @@ class ActionBarHandler {
   /**
    * Init the handler
    *
-   * @param camera The camera controller, to use for center
+   * @param cameraController The camera controller, to use for center
    */
-  public init(camera: CameraController) {
+  public init(cameraController: CameraController, toastHandler: ToastHandler) {
+    this.toastHandler = toastHandler;
+    this.cameraController = cameraController;
+
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
     this.navButtons.forEach((element) => {
@@ -76,7 +81,6 @@ class ActionBarHandler {
     );
 
     // Setup the camera event listeners
-    this.cameraController = camera;
     this.cameraController.selectionChangeEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
@@ -158,7 +162,10 @@ class ActionBarHandler {
         this.generateJumpCards();
       }
       // TODO: Rework (use toast)
-      alert(`Added ${routeChanged.planet.getName()} to the route!`);
+      this.toastHandler.createAndShowToast(
+        'Route',
+        `Added ${routeChanged.planet.getName()} to route.`
+      );
     }
   }
 

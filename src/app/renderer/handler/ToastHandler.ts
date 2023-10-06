@@ -40,7 +40,7 @@ class ToastHandler {
 }
 
 enum ToastType {
-  Default = '',
+  Default = 'bg-secondary',
   Danger = 'bg-danger',
   Warning = 'bg-warning',
   Info = 'bg-info',
@@ -76,6 +76,7 @@ class ToastItem {
     const toastHeader = document.createElement('div');
     toastHeader.classList.add('toast-header');
     toastHeader.classList.add('text-white');
+    toastHeader.classList.add('bg-secondary');
 
     const toastTitle = document.createElement('strong');
     toastTitle.classList.add('me-auto');
@@ -95,7 +96,7 @@ class ToastItem {
     const toastBody = document.createElement('div');
     toastBody.classList.add('toast-body');
     if (type.length > 0) toastBody.classList.add(type);
-    toastBody.textContent = text;
+    toastBody.innerHTML = text;
 
     // Add header and body to toast element
     toastElem.appendChild(toastHeader);
@@ -105,7 +106,7 @@ class ToastItem {
 
     // Create toast object
     this.toast = new Toast(this.domElement, {
-      autohide: false,
+      autohide: true,
       delay: displayTime,
       animation: true,
     });

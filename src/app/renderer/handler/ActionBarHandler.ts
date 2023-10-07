@@ -4,6 +4,7 @@ import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
 import { ToastHandler } from './ToastHandler';
+import { Config } from '../utils/Config';
 
 /**
  * Responsible for the action bar
@@ -21,6 +22,10 @@ class ActionBarHandler {
   private addToRouteBtn: HTMLButtonElement;
 
   private selectedPlanet: Planet | null;
+
+  // Settings
+  private settingsRange30: HTMLInputElement;
+  private settingsRange60: HTMLInputElement;
 
   // TODO: Rework (remove here)
   private routeController: RouteController;
@@ -44,6 +49,14 @@ class ActionBarHandler {
     this.addToRouteBtn = document.getElementById(
       'add-to-route'
     ) as HTMLButtonElement;
+
+    // Settings Elements
+    this.settingsRange30 = document.getElementById(
+      'settings-range-30'
+    ) as HTMLInputElement;
+    this.settingsRange60 = document.getElementById(
+      'settings-range-60'
+    ) as HTMLInputElement;
   }
 
   /**
@@ -54,6 +67,10 @@ class ActionBarHandler {
   public init(cameraController: CameraController, toastHandler: ToastHandler) {
     this.toastHandler = toastHandler;
     this.cameraController = cameraController;
+
+    // Get the route manager from the camera
+    // TODO: remove here???
+    this.routeController = this.cameraController.getRouteManager();
 
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
@@ -88,9 +105,24 @@ class ActionBarHandler {
       this.routeChanged.bind(this)
     );
 
-    // Get the route manager from the camera
-    // TODO: remove here???
-    this.routeController = this.cameraController.getRouteManager();
+    this.setupSettingsTab();
+  }
+
+  private setupSettingsTab() {
+    const jumpRange = Config.getInstance().get('jumpRange') as number;
+    if (jumpRange === 60) this.settingsRange60.checked = true;
+    else this.settingsRange30.checked = true;
+
+    this.settingsRange60.addEventListener('change', () => {
+      Config.getInstance().set('jumpRange', 60);
+      // TODO: Use Event???
+      this.generateJumpCards();
+    });
+    this.settingsRange30.addEventListener('change', () => {
+      Config.getInstance().set('jumpRange', 30);
+      // TODO: Use Event???
+      this.generateJumpCards();
+    });
   }
 
   /**
@@ -214,7 +246,9 @@ class ActionBarHandler {
    */
   private generateJumpCards(): void {
     // TODO: Rework that. Only for first function tests!
-    const routeGenerated = this.routeController.calculateRoute(30);
+    const routeGenerated = this.routeController.calculateRoute(
+      Config.getInstance().get('jumpRange') as number
+    );
 
     const jumps = this.routeController.getNumberOfJumpsBetween();
     // Remove all existing jump cards

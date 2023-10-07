@@ -3,6 +3,7 @@ import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Planet } from '../models/Planet';
 import { CameraController } from '../controller/CameraController';
 import { Vector } from '../models/Vector';
+import { Config } from '../utils/Config';
 
 // TODO: TESTS
 
@@ -167,12 +168,11 @@ class Universe {
       // Render only at a Zoom of 2 or bigger
       if (this.hoveredPlanet) {
         // Highlight the jump range of 30
-        // TODO: Allow to change range in settings to 60
         this.context.beginPath();
         this.context.arc(
           this.hoveredPlanet.coord.getX(),
           this.hoveredPlanet.coord.getY(),
-          30, // Jump Range
+          Config.getInstance().get('jumpRange') as number, // Jump Range
           0,
           Math.PI * 2
         );

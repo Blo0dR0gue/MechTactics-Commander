@@ -126,6 +126,7 @@
               <div
                 class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 transform-skew--15 border border-light border-2"
                 id="settings-tab"
+                data-content="settings-tab-content"
               >
                 <div class="text-white text-center transform-skew-15 flex-fill">
                   Settings
@@ -141,6 +142,7 @@
           style="height: 120px"
           id="content-box"
         >
+          <!--Planet details content-->
           <div id="planet-details-tab-content" class="w-100">
             <div class="row">
               <div class="col-md-4 d-flex align-items-center flex-column">
@@ -178,13 +180,102 @@
               <div class="col d-flex align-items-center flex-column"></div>
             </div>
           </div>
-
+          <!--Routing content-->
           <div id="routing-tab-content" class="w-100 h-100 hide">
             <div
               class="h-100 d-flex flex-row flex-nowrap text-nowrap"
               style="overflow-x: auto"
               id="route-container"
             ></div>
+          </div>
+          <!--Settings content-->
+          <div id="settings-tab-content" class="w-100 h-100 hide">
+            <div class="row">
+              <!--Col 1 (Jump Range)-->
+              <div class="col-md-1 d-flex align-items-center flex-column">
+                <div class="form-group position-relative mb-1">
+                  <!--Jump Range Settings-->
+                  <label for="jump-range" class="text-white">Jump Range</label>
+                  <div id="jump-range">
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="options-jump-range"
+                      id="settings-range-30"
+                      autocomplete="off"
+                      value="30"
+                    />
+                    <label
+                      class="btn btn-sm btn-outline-primary"
+                      for="settings-range-30"
+                      >30</label
+                    >
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="options-jump-range"
+                      id="settings-range-60"
+                      autocomplete="off"
+                      value="60"
+                    />
+                    <label
+                      class="btn btn-sm btn-outline-primary"
+                      for="settings-range-60"
+                      >60</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <!--Col 2 (Jump Settings)-->
+              <div class="col-md-3 d-flex align-items-center flex-column">
+                <div class="form-group position-relative mb-1">
+                  <!--Jump Settings-->
+                  <label for="jump-settings" class="text-white"
+                    >Allowed Affiliation</label
+                  >
+                  <div id="jump-settings">
+                    <div class="row">
+                      <!--Col 1 (Jump Settings - Allowed Affiliations)-->
+                      <div class="col">
+                        <div>
+                          <!--One affiliation select element-->
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            id="flexSwitchCheckChecked"
+                            checked
+                          />
+                          <label
+                            class="form-check-label text-white"
+                            for="flexSwitchCheckChecked"
+                            >Capellan Confederation</label
+                          >
+                        </div>
+                      </div>
+                      <!--Col 2 (Jump Settings - Allowed Affiliations)-->
+                      <div class="col">
+                        <div>
+                          <!--One affiliation select element-->
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            id="flexSwitchCheckChecked"
+                            checked
+                          />
+                          <label
+                            class="form-check-label text-white"
+                            for="flexSwitchCheckChecked"
+                            >Capellan Confederation</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

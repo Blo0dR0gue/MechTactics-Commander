@@ -6,5 +6,7 @@ interface Window {
   };
   app: {
     version: () => Promise<string>;
+    setConfigData: (key: string, value: unknown) => void;
+    getConfigCache: () => Promise<Record<string, unknown>>;
   };
 }

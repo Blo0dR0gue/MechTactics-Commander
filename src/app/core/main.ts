@@ -110,6 +110,14 @@ app.whenReady().then(() => {
     });
   });
 
+  ipcMain.handle('getConfigCache', () => {
+    return store.store;
+  });
+
+  ipcMain.handle('setConfigData', (event, key: string, value: unknown) => {
+    return store.set(key, value);
+  });
+
   ipcMain.handle('getAppData', () => {
     return {
       version: isDevelopment ? 'dev' : app.getVersion(),

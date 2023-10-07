@@ -7,6 +7,7 @@ import { CameraController } from './controller/CameraController';
 import { Tooltip } from 'bootstrap';
 import { HeaderHandler } from './handler/HeaderHandler';
 import { ToastHandler } from './handler/ToastHandler';
+import { Config } from './utils/Config';
 
 // Enable all Tooltips
 const tooltipTriggerList = document.querySelectorAll(
@@ -23,16 +24,23 @@ async function setTitle() {
 }
 setTitle();
 
-// Setup the app
-const canvasElement = document.getElementById('universe') as HTMLCanvasElement;
+// Build cache then start app
+Config.getInstance()
+  .buildCache()
+  .then(() => {
+    // Setup the app
+    const canvasElement = document.getElementById(
+      'universe'
+    ) as HTMLCanvasElement;
 
-const universe = new Universe(canvasElement);
-const camera = new CameraController();
-const actionBarHandler = new ActionBarHandler();
-const headerHandler = new HeaderHandler();
-const toastHandler = new ToastHandler();
+    const universe = new Universe(canvasElement);
+    const camera = new CameraController();
+    const actionBarHandler = new ActionBarHandler();
+    const headerHandler = new HeaderHandler();
+    const toastHandler = new ToastHandler();
 
-camera.init(universe);
-universe.init(camera);
-actionBarHandler.init(camera, toastHandler);
-headerHandler.init(camera, universe, toastHandler);
+    camera.init(universe);
+    universe.init(camera);
+    actionBarHandler.init(camera, toastHandler);
+    headerHandler.init(camera, universe, toastHandler);
+  });

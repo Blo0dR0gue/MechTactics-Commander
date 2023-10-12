@@ -133,7 +133,7 @@ class ActionBarHandler {
     const rowParent = this.excludedAffiliationsParent.children[0];
     const col1 = rowParent.children[0];
     const col2 = rowParent.children[1];
-
+    // TODO: We need all Affiliation-Objects
     col1.appendChild(
       this.createExcludeAffiliationToggle(
         new Affiliation(0, 'test', '#ff'),

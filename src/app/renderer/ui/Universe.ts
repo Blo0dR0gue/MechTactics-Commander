@@ -102,6 +102,8 @@ class Universe {
     this.planets = [];
     const planetAffiliationData = await window.sql.planets();
     planetAffiliationData.forEach((element) => {
+      // TODO: Separate affiliation, planet setup
+      // TODO: Store affiliations in array
       const planet = new Planet(element);
       this.planets.push(planet);
       this.tree.insert(planet);

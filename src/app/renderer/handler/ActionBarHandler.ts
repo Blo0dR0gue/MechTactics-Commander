@@ -5,6 +5,7 @@ import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
 import { ToastHandler } from './ToastHandler';
 import { Config } from '../utils/Config';
+import { Affiliation } from '../models/Affiliation';
 
 /**
  * Responsible for the action bar
@@ -26,6 +27,7 @@ class ActionBarHandler {
   // Settings
   private settingsRange30: HTMLInputElement;
   private settingsRange60: HTMLInputElement;
+  private excludedAffiliationsParent: HTMLElement;
 
   // TODO: Rework (remove here)
   private routeController: RouteController;
@@ -57,6 +59,9 @@ class ActionBarHandler {
     this.settingsRange60 = document.getElementById(
       'settings-range-60'
     ) as HTMLInputElement;
+    this.excludedAffiliationsParent = document.getElementById(
+      'jump-settings-excluded-affiliations'
+    );
   }
 
   /**
@@ -123,6 +128,30 @@ class ActionBarHandler {
       // TODO: Use Event???
       this.generateJumpCards();
     });
+
+    // Setup exclude affiliations toggles
+    const rowParent = this.excludedAffiliationsParent.children[0];
+    const col1 = rowParent.children[0];
+    const col2 = rowParent.children[1];
+
+    col1.appendChild(
+      this.createExcludeAffiliationToggle(
+        new Affiliation('test', '#ff'),
+        true,
+        function () {
+          console.log(this.checked);
+        }
+      )
+    );
+    col2.appendChild(
+      this.createExcludeAffiliationToggle(
+        new Affiliation('test', '#ff'),
+        true,
+        function () {
+          console.log(this.checked);
+        }
+      )
+    );
   }
 
   /**
@@ -346,6 +375,34 @@ class ActionBarHandler {
     cardDiv.appendChild(arrowDiv);
     cardDiv.appendChild(jumpsDiv);
     return cardDiv;
+  }
+
+  private createExcludeAffiliationToggle(
+    affiliation: Affiliation,
+    checked: boolean,
+    handler: () => void
+  ) {
+    const parent = document.createElement('div');
+
+    const input = document.createElement('input');
+    input.classList.add('form-check-input');
+    input.type = 'checkbox';
+    input.role = 'switch';
+    input.id =
+      affiliation.getName().toLowerCase().replace(' ', '-') + '-route-toggle';
+    input.checked = checked;
+    input.addEventListener('click', handler.bind(input));
+
+    const label = document.createElement('label');
+    label.classList.add('form-check-label');
+    label.classList.add('text-white');
+    label.htmlFor = input.id;
+    label.textContent = affiliation.getName();
+
+    parent.appendChild(input);
+    parent.appendChild(label);
+
+    return parent;
   }
 }
 

@@ -2,6 +2,7 @@ import { BiBreadthFirstSearch } from '../utils/pathfinding/BiBreadthFirstSearch'
 import { Pathfinding } from '../utils/pathfinding/Pathfinding';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
+import { Affiliation } from '../models/Affiliation';
 
 // TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {
@@ -10,6 +11,7 @@ class RouteController {
 
   private targetPlanets: Planet[];
   private route: Planet[];
+  private excludeAffiliation: Set<Affiliation>;
 
   public constructor(universe: Universe) {
     this.universe = universe;
@@ -109,6 +111,22 @@ class RouteController {
   public getLastPlanet(): Planet | null {
     if (this.targetPlanets.length === 0) return null;
     return this.targetPlanets[this.targetPlanets.length - 1];
+  }
+
+  /**
+   * Adds an affiliation the the excluded list.
+   * @param affiliation The affiliation to add
+   */
+  public addExcludedAffiliation(affiliation: Affiliation) {
+    this.excludeAffiliation.add(affiliation);
+  }
+
+  /**
+   * Removes an affiliation from the excluded list.
+   * @param affiliation The affiliation to add
+   */
+  public removeExcludedAffiliation(affiliation: Affiliation) {
+    this.excludeAffiliation.add(affiliation);
   }
 
   /**

@@ -18,6 +18,7 @@ class RouteController {
     this.pathfinding = new BiBreadthFirstSearch();
     this.targetPlanets = [];
     this.route = [];
+    this.excludeAffiliation = new Set();
   }
 
   /**
@@ -126,7 +127,7 @@ class RouteController {
    * @param affiliation The affiliation to add
    */
   public removeExcludedAffiliation(affiliation: Affiliation) {
-    this.excludeAffiliation.add(affiliation);
+    this.excludeAffiliation.delete(affiliation);
   }
 
   /**
@@ -196,7 +197,15 @@ class RouteController {
       planetA,
       planetB,
       (element: Planet) =>
-        this.universe.getAllInRange(element.coord, jumpRange),
+        this.universe
+          .getAllInRange(element.coord, jumpRange)
+          // Filter out excluded affiliations
+          .filter(
+            (planet) =>
+              !Array.from(this.excludeAffiliation)
+                .map((affiliation) => affiliation.getID())
+                .includes(planet.getAffiliationID())
+          ),
       (elementA: Planet, elementB: Planet) =>
         elementA.coord.distance(elementB.coord)
     );

@@ -136,7 +136,7 @@ class ActionBarHandler {
 
     col1.appendChild(
       this.createExcludeAffiliationToggle(
-        new Affiliation('test', '#ff'),
+        new Affiliation(0, 'test', '#ff'),
         true,
         function () {
           console.log(this.checked);
@@ -145,7 +145,7 @@ class ActionBarHandler {
     );
     col2.appendChild(
       this.createExcludeAffiliationToggle(
-        new Affiliation('test', '#ff'),
+        new Affiliation(0, 'test', '#ff'),
         true,
         function () {
           console.log(this.checked);

@@ -32,7 +32,11 @@ class Planet extends Circle {
     this.name = probs.planetName;
     this.affiliationId = probs.affiliationId;
     this.link = probs.link;
-    this.affiliation = new Affiliation(probs.nameAffiliation, probs.color);
+    this.affiliation = new Affiliation(
+      probs.affiliationId,
+      probs.nameAffiliation,
+      probs.color
+    );
   }
 
   /**
@@ -49,6 +53,10 @@ class Planet extends Circle {
    */
   public getColor(): string {
     return this.affiliation.getColor();
+  }
+
+  public getAffiliationID(): number {
+    return this.affiliationId;
   }
 
   public getAffiliationName(): string {

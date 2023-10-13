@@ -35,10 +35,10 @@ class CameraController {
     this.updateRouteEvent = new EventHandler();
   }
 
-  public init(universe: Universe) {
+  public init(universe: Universe, routeController: RouteController) {
     this.universe = universe;
     this.element = this.universe.getCanvas();
-    this.routeManager = new RouteController(universe);
+    this.routeManager = routeController;
 
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));

@@ -73,15 +73,13 @@ class ActionBarHandler {
   public init(
     cameraController: CameraController,
     toastHandler: ToastHandler,
-    universe: Universe
+    universe: Universe,
+    routeController: RouteController
   ) {
     this.toastHandler = toastHandler;
     this.cameraController = cameraController;
     this.universe = universe;
-
-    // Get the route manager from the camera
-    // TODO: remove here???
-    this.routeController = this.cameraController.getRouteManager();
+    this.routeController = routeController;
 
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
@@ -140,14 +138,22 @@ class ActionBarHandler {
     const col1 = rowParent.children[0];
     const col2 = rowParent.children[1];
 
+    const affCapConf = this.universe.getAffiliationWithName(
+      'Capellan Confederation'
+    );
+
     col1.appendChild(
-      this.createExcludeAffiliationToggle('', true, function () {
-        console.log(this.checked);
-      })
+      this.createExcludeAffiliationToggle(
+        affCapConf.getName(),
+        true,
+        (checked: boolean) => {
+          console.log(checked);
+        }
+      )
     );
     col2.appendChild(
-      this.createExcludeAffiliationToggle('', true, function () {
-        console.log(this.checked);
+      this.createExcludeAffiliationToggle('Test', true, (checked: boolean) => {
+        console.log(checked);
       })
     );
   }
@@ -222,7 +228,6 @@ class ActionBarHandler {
         // Iff we have more then 1 planet in the target planets, also generate the jump cards to display how many jumps are needed.
         this.generateJumpCards();
       }
-      // TODO: Rework (use toast)
       this.toastHandler.createAndShowToast(
         'Route',
         `Added ${routeChanged.planet.getName()} to route.`
@@ -378,7 +383,7 @@ class ActionBarHandler {
   private createExcludeAffiliationToggle(
     name: string,
     checked: boolean,
-    handler: () => void
+    handler: (checked: boolean) => void
   ) {
     const parent = document.createElement('div');
 
@@ -388,7 +393,7 @@ class ActionBarHandler {
     input.role = 'switch';
     input.id = name + '-route-toggle';
     input.checked = checked;
-    input.addEventListener('click', handler.bind(input));
+    input.addEventListener('click', handler.bind(this, input.checked));
 
     const label = document.createElement('label');
     label.classList.add('form-check-label');

@@ -13,7 +13,13 @@ class RouteController {
   private route: Planet[];
   private excludeAffiliation: Set<Affiliation>;
 
-  public constructor(universe: Universe) {
+  public constructor() {}
+
+  /**
+   * Start the controller
+   * @param universe
+   */
+  public init(universe: Universe): void {
     this.universe = universe;
     this.pathfinding = new BiBreadthFirstSearch();
     this.targetPlanets = [];
@@ -80,7 +86,7 @@ class RouteController {
    * @param planet The planet to remove
    */
   public removeTargetPlanetAll(planet: Planet): void {
-    let index = this.targetPlanets.indexOf(planet);
+    let index = this.targetPlanets?.indexOf(planet);
     while (index >= 0) {
       this.removeIndexOfTargetPlanet(index);
       index = this.targetPlanets.indexOf(planet);
@@ -93,7 +99,7 @@ class RouteController {
    * @returns True, if the planet is already inside the target planets
    */
   public containsPlanet(planet: Planet): boolean {
-    return this.targetPlanets.indexOf(planet) !== -1;
+    return this.targetPlanets?.indexOf(planet) !== -1 || false;
   }
 
   /**
@@ -102,7 +108,7 @@ class RouteController {
    * @returns True, if the planet is inside the route
    */
   public routeContainsPlanet(planet: Planet): boolean {
-    return this.route.indexOf(planet) !== -1;
+    return this.route?.indexOf(planet) !== -1 || false;
   }
 
   /**
@@ -110,7 +116,7 @@ class RouteController {
    * @returns The destination planet or null
    */
   public getLastPlanet(): Planet | null {
-    if (this.targetPlanets.length === 0) return null;
+    if (this.targetPlanets?.length === 0) return null;
     return this.targetPlanets[this.targetPlanets.length - 1];
   }
 
@@ -154,11 +160,11 @@ class RouteController {
   }
 
   public lengthOfTargetPlanets(): number {
-    return this.targetPlanets.length;
+    return this.targetPlanets?.length || 0;
   }
 
   public getRoute(): Planet[] {
-    return this.route;
+    return this.route || [];
   }
 
   public getNumberOfJumpsBetween(): number[] {

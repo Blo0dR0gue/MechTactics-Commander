@@ -1,5 +1,5 @@
 type AffiliationJSON = {
-  rowid?: number;
+  rowID?: number;
   name: string;
   color: string;
 };

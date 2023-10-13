@@ -4,6 +4,7 @@ import { Planet } from '../models/Planet';
 import { CameraController } from '../controller/CameraController';
 import { Vector } from '../models/Vector';
 import { Config } from '../utils/Config';
+import { Affiliation } from '../models/Affiliation';
 
 // TODO: TESTS
 
@@ -24,6 +25,10 @@ class Universe {
    * The array which contains all planets
    */
   private planets: Planet[];
+  /**
+   * The array which contains all affiliations
+   */
+  private affiliations: Affiliation[];
   /**
    * The search tree (quadtree) to get all close planets to a specific point (Faster lookup)
    */
@@ -70,19 +75,8 @@ class Universe {
       maxObjects: 4,
     });
 
-    this.getPlanets().then(() => {
+    this.getPlanetsAndAffiliations().then(() => {
       this.draw();
-      /*
-      // TODO: Tests (REMOVE HERE)
-      this.routeManager.addTargetPlanet(
-        this.planets.find((planet) => planet.getName() == 'Terra')
-      );
-      this.routeManager.addTargetPlanet(
-        this.planets.find((planet) => planet.getName() == 'Main Street')
-      );
-      this.routeManager.calculateRoute(30);
-      console.log(this.routeManager.getRoute());
-      */
     });
 
     this.canvas.width = window.innerWidth;
@@ -96,15 +90,46 @@ class Universe {
   }
 
   /**
-   * Retrieves all planets from the backend database and stores them in the local array
+   * Retrieves all planets & affiliations from the backend database and stores them in the corresponding local array
    */
-  private getPlanets = async () => {
+  private getPlanetsAndAffiliations = async () => {
     this.planets = [];
-    const planetAffiliationData = await window.sql.planets();
-    planetAffiliationData.forEach((element) => {
-      // TODO: Separate affiliation, planet setup
-      // TODO: Store affiliations in array
-      const planet = new Planet(element);
+    this.affiliations = [];
+
+    const affiliationJSONData = await window.sql.getAllAffiliations();
+    affiliationJSONData.forEach((affiliationJSON) => {
+      // Create object and add to affiliations array
+      const affiliation = new Affiliation(
+        affiliationJSON.rowID,
+        affiliationJSON.name,
+        affiliationJSON.color
+      );
+      this.affiliations.push(affiliation);
+    });
+
+    const planetJSONData = await window.sql.getAllPlanets();
+    planetJSONData.forEach((planetJSON) => {
+      // Find the affiliation for this planet
+      const planetAffiliation = this.affiliations.find(
+        (affiliation) => affiliation.getID() === planetJSON.affiliationID
+      );
+
+      if (planetAffiliation === undefined) {
+        console.log(
+          `Affiliation with id=${planetJSON.affiliationID} not found!`
+        );
+        return; // TODO: Error Handling
+      }
+
+      // Create object and add to planets array and quadtree
+      const planet = new Planet(
+        planetJSON.rowID,
+        planetJSON.name,
+        planetJSON.x,
+        planetJSON.y,
+        planetJSON.link,
+        planetAffiliation
+      );
       this.planets.push(planet);
       this.tree.insert(planet);
     });

@@ -41,6 +41,6 @@ Config.getInstance()
 
     camera.init(universe);
     universe.init(camera);
-    actionBarHandler.init(camera, toastHandler);
+    actionBarHandler.init(camera, toastHandler, universe);
     headerHandler.init(camera, universe, toastHandler);
   });

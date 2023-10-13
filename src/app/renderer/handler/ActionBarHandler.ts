@@ -6,6 +6,7 @@ import { RouteController } from '../controller/RouteController';
 import { ToastHandler } from './ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';
+import { Affiliation } from '../models/Affiliation';
 
 /**
  * Responsible for the action bar
@@ -138,24 +139,57 @@ class ActionBarHandler {
     const col1 = rowParent.children[0];
     const col2 = rowParent.children[1];
 
-    const affCapConf = this.universe.getAffiliationWithName(
-      'Capellan Confederation'
-    );
+    // Get Affiliations to exclude
+    // TODO: Rework to make it more dynamic (Add others)
+    const sepExcluded = [] as Affiliation[];
+    // Max 4 elements per col
+    const perCol = 4;
 
-    col1.appendChild(
-      this.createExcludeAffiliationToggle(
-        affCapConf.getName(),
-        true,
-        (checked: boolean) => {
-          console.log(checked);
-        }
-      )
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Capellan Confederation')
     );
-    col2.appendChild(
-      this.createExcludeAffiliationToggle('Test', true, (checked: boolean) => {
-        console.log(checked);
-      })
+    sepExcluded.push(this.universe.getAffiliationWithName('Draconis Combine'));
+    sepExcluded.push(this.universe.getAffiliationWithName('Federated Suns'));
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Free Worlds League')
     );
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Lyran Commonwealth')
+    );
+    sepExcluded.push(this.universe.getAffiliationWithName('No record'));
+    sepExcluded.push(this.universe.getAffiliationWithName('Inhabited system'));
+
+    const excludedAffiliationIDs =
+      (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
+
+    for (let i = 0; i < sepExcluded.length; i++) {
+      // Only allow 2 cols with each perCol elements
+      if (i >= perCol * 2) break;
+      const affiliation = sepExcluded[i];
+      const col = i < perCol ? col1 : col2;
+      col.appendChild(
+        this.createExcludeAffiliationToggle(
+          affiliation.getName(),
+          !excludedAffiliationIDs.includes(affiliation.getID()),
+          (input: HTMLInputElement) => {
+            if (input.checked) {
+              Config.getInstance().remove(
+                'excludedAffiliationIDs',
+                affiliation.getID()
+              );
+              this.routeController.removeExcludedAffiliation(affiliation);
+            } else {
+              Config.getInstance().add(
+                'excludedAffiliationIDs',
+                affiliation.getID()
+              );
+              this.routeController.addExcludedAffiliation(affiliation);
+            }
+            this.generateJumpCards();
+          }
+        )
+      );
+    }
   }
 
   /**
@@ -383,7 +417,7 @@ class ActionBarHandler {
   private createExcludeAffiliationToggle(
     name: string,
     checked: boolean,
-    handler: (checked: boolean) => void
+    handler: (input: HTMLInputElement) => void
   ) {
     const parent = document.createElement('div');
 
@@ -393,7 +427,7 @@ class ActionBarHandler {
     input.role = 'switch';
     input.id = name + '-route-toggle';
     input.checked = checked;
-    input.addEventListener('click', handler.bind(this, input.checked));
+    input.addEventListener('click', handler.bind(this, input));
 
     const label = document.createElement('label');
     label.classList.add('form-check-label');

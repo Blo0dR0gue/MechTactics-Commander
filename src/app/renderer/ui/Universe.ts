@@ -397,6 +397,14 @@ class Universe {
         affiliation.getName().toLowerCase() === name.toLowerCase()
     );
   }
+
+  /**
+   * Gets all affiliations
+   * @returns All available affiliations
+   */
+  public getAllAffiliations(): Affiliation[] {
+    return this.affiliations;
+  }
 }
 
 export { Universe };

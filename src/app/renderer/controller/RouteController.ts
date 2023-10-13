@@ -193,24 +193,26 @@ class RouteController {
   /**
    * Calculates the shortest route from planet a to planet b
    *
-   * @param planetA The start planet
-   * @param planetB The destination planet
+   * @param start The start planet
+   * @param goal The destination planet
    * @param jumpRange The max range a ship can jump
    * @returns The route from planet a to planet b
    */
-  private findRoute(planetA: Planet, planetB: Planet, jumpRange): Planet[] {
+  private findRoute(start: Planet, goal: Planet, jumpRange): Planet[] {
     const result = this.pathfinding.search(
-      planetA,
-      planetB,
+      start,
+      goal,
       (element: Planet) =>
         this.universe
           .getAllInRange(element.coord, jumpRange)
-          // Filter out excluded affiliations
+          // Filter out excluded affiliations but not start and finish
           .filter(
             (planet) =>
               !Array.from(this.excludeAffiliation)
                 .map((affiliation) => affiliation.getID())
-                .includes(planet.getAffiliationID())
+                .includes(planet.getAffiliationID()) ||
+              planet === start ||
+              planet === goal
           ),
       (elementA: Planet, elementB: Planet) =>
         elementA.coord.distance(elementB.coord)

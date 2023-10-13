@@ -10,10 +10,11 @@ import electronReload from 'electron-reload';
 import { autoUpdater } from 'electron-updater';
 import * as fs from 'fs';
 import * as path from 'path';
-import { PlanetAffiliationJSON } from '../types/PlanetAffiliation';
 
 import sqlite3 = require('sqlite3');
 import ElectronStore = require('electron-store');
+import { PlanetJSON } from '../types/PlanetJson';
+import { AffiliationJSON } from '../types/AffiliationJson';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -96,10 +97,25 @@ app.whenReady().then(() => {
   );
 
   ipcMain.handle('getAllPlanets', () => {
-    return new Promise<PlanetAffiliationJSON[]>(function (resolve, reject) {
+    return new Promise<PlanetJSON[]>(function (resolve, reject) {
       db.all(
-        'SELECT p.name as planetName, x, y, affiliation as affiliationId, link, a.name as nameAffiliation, color FROM Planet as p JOIN Affiliation as a ON p.affiliation = a.rowid',
-        (err, rows: PlanetAffiliationJSON[]) => {
+        'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet',
+        (err, rows: PlanetJSON[]) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  });
+
+  ipcMain.handle('getAllAffiliations', () => {
+    return new Promise<AffiliationJSON[]>(function (resolve, reject) {
+      db.all(
+        'SELECT rowid as rowID, name, color FROM affiliation',
+        (err, rows: AffiliationJSON[]) => {
           if (err) {
             reject(err);
           } else {

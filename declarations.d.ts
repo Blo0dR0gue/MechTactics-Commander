@@ -1,7 +1,10 @@
 interface Window {
   sql: {
-    planets: () => Promise<
-      import('./src/app/types/PlanetAffiliation').PlanetAffiliationJSON[]
+    getAllPlanets: () => Promise<
+      import('./src/app/types/PlanetJson').PlanetJSON[]
+    >;
+    getAllAffiliations: () => Promise<
+      import('./src/app/types/AffiliationJson').AffiliationJSON[]
     >;
   };
   app: {

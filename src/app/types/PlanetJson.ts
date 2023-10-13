@@ -1,11 +1,10 @@
-import { Vector } from '../renderer/models/Vector';
-
 type PlanetJSON = {
+  rowID: number;
   name: string;
-  coord: Vector;
-  affiliation: number;
+  x: number;
+  y: number;
+  affiliationID: number;
   link: string;
-  r?: number;
 };
 
 export { PlanetJSON };

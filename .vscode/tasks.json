@@ -4,9 +4,9 @@
     {
       "label": "Sleepdelay",
       "type": "shell",
-      "command": "sleep 15",
+      "command": "sleep 10",
       "windows": {
-        "command": "ping 127.0.0.1 -n 15"
+        "command": "ping 127.0.0.1 -n 10"
       },
       "group": "none",
       "presentation": {

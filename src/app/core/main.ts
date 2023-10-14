@@ -10,100 +10,111 @@ import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
 import { WindowBase } from './window/WindowBase';
 
-// TODO: To main class
+class Main {
+  private isDevelopment: boolean;
+  private currentWindow: WindowBase;
+  private database: sqlite3.Database;
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
-let currentWindow: WindowBase;
+  private config: CoreConfig;
 
-// TODO: To separate class
-let db: sqlite3.Database;
-
-// TODO: Update process for DB
-// Store db to userData on production.
-if (!IS_DEVELOPMENT) {
-  // Define the source and destination paths for the database
-  const sourcePath = path.join(__dirname, 'commander.db');
-  const destinationPath = path.join(app.getPath('userData'), 'commander.db');
-  // Check if the database file already exists in userData. iff not override!
-  if (!fs.existsSync(destinationPath)) {
-    // Copy the database file to userData
-    fs.copyFileSync(sourcePath, destinationPath);
+  public constructor() {
+    this.isDevelopment = process.env.NODE_ENV === 'development';
+    // TODO: Use Instance instead???
+    this.config = new CoreConfig(this.isDevelopment);
   }
-}
 
-if (require('electron-squirrel-startup')) {
-  process.exit(0);
-}
-
-if (IS_DEVELOPMENT) {
-  electronReload(path.join(__dirname, '../'), {});
-}
-
-// Use Instance instead???
-const CONFIG = new CoreConfig(IS_DEVELOPMENT);
-
-// Set initial config params
-if (CONFIG.size() == 0) {
-  CONFIG.set('version', app.getVersion());
-  CONFIG.set('jumpRange', 30);
-  CONFIG.set('excludedAffiliationIDs', []);
-}
-
-function setWindow(newWindow: WindowBase) {
-  if (currentWindow) {
-    currentWindow.close();
-    currentWindow = newWindow;
-    currentWindow.open();
-  } else {
-    currentWindow = newWindow;
-    currentWindow.open();
-  }
-}
-
-function openMainWindow() {
-  const window = new MainWindow(IS_DEVELOPMENT, db, CONFIG);
-  setWindow(window);
-}
-
-function openUpdaterWindow() {
-  const window = new UpdateWindow(IS_DEVELOPMENT);
-  setWindow(window);
-}
-
-app.whenReady().then(() => {
-  db = new sqlite3.Database(
-    path
-      .join(
-        IS_DEVELOPMENT ? __dirname : app.getPath('userData'),
+  public init() {
+    // TODO: Update process for DB
+    // Store db to userData on production.
+    if (!this.isDevelopment) {
+      // Define the source and destination paths for the database
+      const sourcePath = path.join(__dirname, 'commander.db');
+      const destinationPath = path.join(
+        app.getPath('userData'),
         'commander.db'
-      )
-      .replace('app.asar', 'app.asar.unpacked'),
-    sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-    (err) => {
-      if (err) console.log(err);
-      // TODO: Error Handling
+      );
+      // Check if the database file already exists in userData. iff not override!
+      if (!fs.existsSync(destinationPath)) {
+        // Copy the database file to userData
+        fs.copyFileSync(sourcePath, destinationPath);
+      }
     }
-  );
 
-  const UPDATER = new Updater(openMainWindow, openUpdaterWindow);
-  UPDATER.checkForUpdates();
+    if (require('electron-squirrel-startup')) {
+      process.exit(0);
+    }
 
-  if (IS_DEVELOPMENT) {
-    const window = new MainWindow(IS_DEVELOPMENT, db, CONFIG);
-    setWindow(window);
+    if (this.isDevelopment) {
+      electronReload(path.join(__dirname, '../'), {});
+    }
+
+    // Set initial config params
+    if (this.config.size() == 0) {
+      this.config.set('version', app.getVersion());
+      this.config.set('jumpRange', 30);
+      this.config.set('excludedAffiliationIDs', []);
+    }
+    this.initHandlers();
+    return this;
   }
-});
 
-app.on('activate', function () {
-  console.log('activate');
-  if (BrowserWindow.getAllWindows().length === 0) {
-    const window = new MainWindow(IS_DEVELOPMENT, db, CONFIG);
-    setWindow(window);
-  }
-});
+  private initHandlers() {
+    app.whenReady().then(() => {
+      this.database = new sqlite3.Database(
+        path
+          .join(
+            this.isDevelopment ? __dirname : app.getPath('userData'),
+            'commander.db'
+          )
+          .replace('app.asar', 'app.asar.unpacked'),
+        sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+        (err) => {
+          if (err) console.log(err);
+          // TODO: Error Handling
+        }
+      );
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+      const UPDATER = new Updater(
+        () => {
+          this.setWindow(
+            new MainWindow(this.isDevelopment, this.database, this.config)
+          );
+        },
+        () => {
+          this.setWindow(new UpdateWindow(this.isDevelopment));
+        }
+      );
+      UPDATER.checkForUpdates();
+
+      if (this.isDevelopment) {
+        this.setWindow(
+          new MainWindow(this.isDevelopment, this.database, this.config)
+        );
+      }
+    });
+
+    app.on('activate', function () {
+      console.log('activate');
+      if (BrowserWindow.getAllWindows().length === 0) {
+        this.setWindow(this.mainWindow);
+      }
+    });
+
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    });
   }
-});
+
+  private setWindow(newWindow: WindowBase) {
+    if (this.currentWindow) {
+      this.currentWindow.close();
+      this.currentWindow = newWindow;
+    } else {
+      this.currentWindow = newWindow;
+    }
+  }
+}
+
+new Main().init();

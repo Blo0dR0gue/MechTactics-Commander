@@ -1,14 +1,15 @@
-import { ActionBarHandler } from './handler/ActionBarHandler';
-import { Universe } from './ui/Universe';
 // Import custom CSS to load bootstrap and override variables
 import './styles/main.scss';
-import { CameraController } from './controller/CameraController';
 
-import { Tooltip } from 'bootstrap';
+import { CameraController } from './controller/CameraController';
+import { RouteController } from './controller/RouteController';
+import { ActionBarHandler } from './handler/ActionBarHandler';
 import { HeaderHandler } from './handler/HeaderHandler';
 import { ToastHandler } from './handler/ToastHandler';
+import { Universe } from './ui/Universe';
 import { Config } from './utils/Config';
-import { RouteController } from './controller/RouteController';
+
+import { Tooltip } from 'bootstrap';
 
 // Enable all Tooltips
 const tooltipTriggerList = document.querySelectorAll(

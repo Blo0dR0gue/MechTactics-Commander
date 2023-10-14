@@ -1,5 +1,10 @@
 import { MessageBoxOptions, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import {
+  ProgressInfo,
+  UpdateDownloadedEvent,
+  UpdateInfo,
+  autoUpdater,
+} from 'electron-updater';
 
 class Updater {
   public constructor(onNoUpdate: () => void, onUpdate: () => void) {
@@ -20,7 +25,7 @@ class Updater {
       onNoUpdate();
     });
 
-    autoUpdater.on('update-available', () => {
+    autoUpdater.on('update-available', (info: UpdateInfo) => {
       const dialogOpts = {
         type: 'info',
         buttons: ['Ok'],
@@ -29,10 +34,15 @@ class Updater {
         detail: 'Downloading a new version',
       } as MessageBoxOptions;
       onUpdate();
+      // TODO: Use update page and info data
       dialog.showMessageBox(dialogOpts);
     });
 
-    autoUpdater.on('update-downloaded', () => {
+    autoUpdater.on('download-progress', (info: ProgressInfo) => {
+      // TODO: Use update page and progress data
+    });
+
+    autoUpdater.on('update-downloaded', (event: UpdateDownloadedEvent) => {
       const dialogOpts = {
         type: 'info',
         buttons: ['Restart', 'Later'],
@@ -41,6 +51,7 @@ class Updater {
         detail:
           'A new version has been downloaded. Restart the application to apply the updates.',
       } as MessageBoxOptions;
+      // TODO: Use update page and the event data
       dialog.showMessageBox(dialogOpts).then((returnValue) => {
         if (returnValue.response === 0) autoUpdater.quitAndInstall();
       });

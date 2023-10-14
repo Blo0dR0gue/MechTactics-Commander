@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "npm run watch:all",
+      "command": "npm run watch:required",
       "name": "Electron: Watch",
       "request": "launch",
       "type": "node-terminal"

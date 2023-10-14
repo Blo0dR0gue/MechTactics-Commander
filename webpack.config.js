@@ -1,15 +1,18 @@
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
 
 module.exports = {
   watch: false,
   target: 'electron-renderer',
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: `./src/app/renderer/index.ts`,
+  entry: {
+    // Define your entry points here
+    index: './src/app/renderer/index.ts',
+    update: './src/app/renderer/update.ts', // Add the entry for your update.html
+  },
   output: {
     path: path.resolve(__dirname, 'dist/app/renderer'),
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

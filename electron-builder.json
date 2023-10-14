@@ -11,8 +11,10 @@
   },
   "files": [
     "!src/**/*",
-    "./dist/app/renderer/bundle.js",
+    "./dist/app/renderer/index.bundle.js",
     "./dist/app/renderer/pages/index.html",
+    "./dist/app/renderer/update.bundle.js",
+    "./dist/app/renderer/pages/update.html",
     "./dist/app/core/main.js",
     "./dist/app/core/preload.js",
     "./dist/app/core/commander.db"

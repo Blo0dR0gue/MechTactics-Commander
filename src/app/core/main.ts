@@ -26,6 +26,7 @@ if (isDevelopment) {
   electronReload(path.join(__dirname, '../'), {});
 }
 
+// TODO: Separate config class
 const store = new ElectronStore({
   cwd: isDevelopment
     ? path.join(__dirname, '../', '../')
@@ -36,7 +37,38 @@ if (store.size == 0) {
   store.set('version', app.getVersion());
 }
 
-function createWindow() {
+// TODO: Handling
+const updateRequired = false;
+
+function createUpdateWindow() {
+  const size = screen.getPrimaryDisplay().workAreaSize;
+
+  // TODO: preload for update progress
+  // Create the browser window.
+  const updateWindow = new BrowserWindow({
+    height: size.height,
+    width: size.width,
+    minHeight: 850,
+    minWidth: 1700,
+    webPreferences: {
+      devTools: isDevelopment ? true : false,
+    },
+  });
+
+  updateWindow.loadFile(path.join(__dirname, '../renderer/pages/update.html'));
+  updateWindow.maximize();
+
+  if (isDevelopment) {
+    // Open the DevTools.
+    setTimeout(() => {
+      updateWindow.webContents.openDevTools();
+    }, 1000);
+  } else {
+    updateWindow.removeMenu();
+  }
+}
+
+function createMainWindow() {
   const size = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -85,7 +117,6 @@ app.whenReady().then(() => {
     }
   }
 
-  createWindow();
   const db = new sqlite3.Database(
     path
       .join(isDevelopment ? __dirname : userDataPath, 'commander.db')
@@ -93,6 +124,7 @@ app.whenReady().then(() => {
     sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {
       console.log(err);
+      // TODO: Error Handling
     }
   );
 
@@ -140,9 +172,11 @@ app.whenReady().then(() => {
     };
   });
 
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  if (updateRequired) {
+    createUpdateWindow();
+  } else {
+    createMainWindow();
+  }
 });
 
 autoUpdater.on('update-available', () => {
@@ -168,6 +202,16 @@ autoUpdater.on('update-downloaded', () => {
   dialog.showMessageBox(dialogOpts).then((returnValue) => {
     if (returnValue.response === 0) autoUpdater.quitAndInstall();
   });
+});
+
+app.on('activate', function () {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    if (updateRequired) {
+      createUpdateWindow();
+    } else {
+      createMainWindow();
+    }
+  }
 });
 
 app.on('window-all-closed', () => {

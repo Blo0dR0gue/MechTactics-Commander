@@ -22,7 +22,7 @@ class MainWindow extends WindowBase {
 
   protected setupHandler() {
     ipcMain.handle('getAllPlanets', () => {
-      return new Promise<PlanetJSON[]>(function (resolve, reject) {
+      return new Promise<PlanetJSON[]>((resolve, reject) => {
         this.db.all(
           'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet',
           (err, rows: PlanetJSON[]) => {
@@ -37,7 +37,7 @@ class MainWindow extends WindowBase {
     });
 
     ipcMain.handle('getAllAffiliations', () => {
-      return new Promise<AffiliationJSON[]>(function (resolve, reject) {
+      return new Promise<AffiliationJSON[]>((resolve, reject) => {
         this.db.all(
           'SELECT rowid as rowID, name, color FROM affiliation',
           (err, rows: AffiliationJSON[]) => {

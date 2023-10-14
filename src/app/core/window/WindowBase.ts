@@ -20,6 +20,7 @@ abstract class WindowBase {
       width: size.width,
       minHeight: 850,
       minWidth: 1700,
+      show: false,
       webPreferences: {
         preload: path.join(preloadFileName),
         devTools: this.isDevelopment ? true : false,
@@ -39,6 +40,10 @@ abstract class WindowBase {
     }
 
     this.setupHandler();
+  }
+
+  public open(): void {
+    this.window.show();
   }
 
   public close(): void {

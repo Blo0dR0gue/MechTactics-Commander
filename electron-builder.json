@@ -18,6 +18,7 @@
     "./dist/app/core/main.js",
     "./dist/app/core/AppConstants.js",
     "./dist/app/core/CoreConfig.js",
+    "./dist/app/core/Updater.js",
     "./dist/app/core/commander.db",
     "./dist/app/core/window/**/*.js"
   ],

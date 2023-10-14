@@ -4,18 +4,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import sqlite3 = require('sqlite3');
-import { MainWindow } from './window/main/MainWindow';
-import { UpdateWindow } from './window/update/UpdateWindow';
 import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
-import { WindowBase } from './window/WindowBase';
+import { WindowController } from './window/WindowController';
 
 class Main {
   private isDevelopment: boolean;
-  private currentWindow: WindowBase;
   private database: sqlite3.Database;
 
   private config: CoreConfig;
+  private windowController: WindowController;
+  private updater: Updater;
 
   public constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
@@ -74,29 +73,24 @@ class Main {
         }
       );
 
-      const UPDATER = new Updater(
-        () => {
-          this.setWindow(
-            new MainWindow(this.isDevelopment, this.database, this.config)
-          );
-        },
-        () => {
-          this.setWindow(new UpdateWindow(this.isDevelopment));
-        }
+      this.windowController = new WindowController(
+        this.isDevelopment,
+        this.database,
+        this.config
       );
-      UPDATER.checkForUpdates();
+
+      this.updater = new Updater(this.windowController);
+      this.updater.checkForUpdates();
 
       if (this.isDevelopment) {
-        this.setWindow(
-          new MainWindow(this.isDevelopment, this.database, this.config)
-        );
+        this.windowController.openMainWindow();
       }
     });
 
-    app.on('activate', function () {
+    app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.setWindow(this.mainWindow);
+        this.windowController.openMainWindow();
       }
     });
 
@@ -105,15 +99,6 @@ class Main {
         app.quit();
       }
     });
-  }
-
-  private setWindow(newWindow: WindowBase) {
-    if (this.currentWindow) {
-      this.currentWindow.close();
-      this.currentWindow = newWindow;
-    } else {
-      this.currentWindow = newWindow;
-    }
   }
 }
 

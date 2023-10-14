@@ -1,45 +1,48 @@
-import { MessageBoxOptions, dialog } from 'electron';
+import { MessageBoxOptions, dialog, ipcMain } from 'electron';
 import {
   ProgressInfo,
   UpdateDownloadedEvent,
   UpdateInfo,
   autoUpdater,
 } from 'electron-updater';
+import { WindowController } from './window/WindowController';
 
 class Updater {
-  public constructor(onNoUpdate: () => void, onUpdate: () => void) {
-    this.setupHandlers(onNoUpdate, onUpdate);
+  private windowController: WindowController;
+
+  public constructor(windowController: WindowController) {
+    this.windowController = windowController;
+    this.setupHandlers();
   }
 
   public checkForUpdates() {
     autoUpdater.checkForUpdates();
   }
 
-  private setupHandlers(onNoUpdate: () => void, onUpdate: () => void) {
+  private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
       console.log('Checking');
     });
 
     autoUpdater.on('update-not-available', () => {
       console.log('No update available.');
-      onNoUpdate();
+      this.windowController.openMainWindow();
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      const dialogOpts = {
-        type: 'info',
-        buttons: ['Ok'],
-        title: 'Application Update',
-        message: 'Downloading a new version',
-        detail: 'Downloading a new version',
-      } as MessageBoxOptions;
-      onUpdate();
-      // TODO: Use update page and info data
-      dialog.showMessageBox(dialogOpts);
+      this.windowController.openUpdateWindow();
+      this.windowController.currentWindow.sendIpc(
+        'update-version',
+        info.version
+      );
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
       // TODO: Use update page and progress data
+      this.windowController.currentWindow.sendIpc(
+        'download-progress',
+        info.percent
+      );
     });
 
     autoUpdater.on('update-downloaded', (event: UpdateDownloadedEvent) => {

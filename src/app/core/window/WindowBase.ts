@@ -2,6 +2,8 @@ import { BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import { AppConstants } from '../AppConstants';
 
+// TODO: Use only one window and switch loaded files
+
 abstract class WindowBase {
   protected window: BrowserWindow;
   protected isDevelopment: boolean;

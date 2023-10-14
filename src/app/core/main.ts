@@ -10,6 +10,8 @@ import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
 import { WindowBase } from './window/WindowBase';
 
+// TODO: To main class
+
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 let currentWindow: WindowBase;
 

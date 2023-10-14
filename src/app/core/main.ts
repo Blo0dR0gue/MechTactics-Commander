@@ -4,7 +4,6 @@ import {
   app,
   dialog,
   ipcMain,
-  screen,
 } from 'electron';
 import electronReload from 'electron-reload';
 import { autoUpdater } from 'electron-updater';
@@ -15,20 +14,22 @@ import sqlite3 = require('sqlite3');
 import ElectronStore = require('electron-store');
 import { PlanetJSON } from '../types/PlanetJson';
 import { AffiliationJSON } from '../types/AffiliationJson';
+import { MainWindow } from './window/main/MainWindow';
+import { UpdateWindow } from './window/update/UpdateWindow';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 if (require('electron-squirrel-startup')) {
   process.exit(0);
 }
 
-if (isDevelopment) {
+if (IS_DEVELOPMENT) {
   electronReload(path.join(__dirname, '../'), {});
 }
 
 // TODO: Separate config class
 const store = new ElectronStore({
-  cwd: isDevelopment
+  cwd: IS_DEVELOPMENT
     ? path.join(__dirname, '../', '../')
     : app.getPath('userData'),
 });
@@ -41,64 +42,11 @@ if (store.size == 0) {
 const updateRequired = false;
 
 function createUpdateWindow() {
-  const size = screen.getPrimaryDisplay().workAreaSize;
-
-  // TODO: preload for update progress
-  // Create the browser window.
-  const updateWindow = new BrowserWindow({
-    height: size.height,
-    width: size.width,
-    minHeight: 850,
-    minWidth: 1700,
-    webPreferences: {
-      devTools: isDevelopment ? true : false,
-    },
-  });
-
-  updateWindow.loadFile(path.join(__dirname, '../renderer/pages/update.html'));
-  updateWindow.maximize();
-
-  if (isDevelopment) {
-    // Open the DevTools.
-    setTimeout(() => {
-      updateWindow.webContents.openDevTools();
-    }, 1000);
-  } else {
-    updateWindow.removeMenu();
-  }
+  return new UpdateWindow(IS_DEVELOPMENT);
 }
 
 function createMainWindow() {
-  const size = screen.getPrimaryDisplay().workAreaSize;
-
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    height: size.height,
-    width: size.width,
-    minHeight: 850,
-    minWidth: 1700,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      devTools: isDevelopment ? true : false,
-    },
-  });
-
-  mainWindow.loadFile(path.join(__dirname, '../renderer/pages/index.html'));
-  mainWindow.maximize();
-
-  if (isDevelopment) {
-    // Open the DevTools.
-    setTimeout(() => {
-      mainWindow.webContents.openDevTools();
-    }, 1000);
-  } else {
-    mainWindow.removeMenu();
-  }
-  mainWindow.once('ready-to-show', () => {
-    if (!isDevelopment) {
-      autoUpdater.checkForUpdatesAndNotify();
-    }
-  });
+  return new MainWindow(IS_DEVELOPMENT);
 }
 
 app.whenReady().then(() => {
@@ -106,7 +54,7 @@ app.whenReady().then(() => {
 
   // TODO: Update process for DB
   // Store db to userData on production.
-  if (!isDevelopment) {
+  if (!IS_DEVELOPMENT) {
     // Define the source and destination paths for the database
     const sourcePath = path.join(__dirname, 'commander.db');
     const destinationPath = path.join(userDataPath, 'commander.db');
@@ -119,7 +67,7 @@ app.whenReady().then(() => {
 
   const db = new sqlite3.Database(
     path
-      .join(isDevelopment ? __dirname : userDataPath, 'commander.db')
+      .join(IS_DEVELOPMENT ? __dirname : userDataPath, 'commander.db')
       .replace('app.asar', 'app.asar.unpacked'),
     sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {
@@ -168,12 +116,16 @@ app.whenReady().then(() => {
 
   ipcMain.handle('getAppData', () => {
     return {
-      version: isDevelopment ? 'dev' : app.getVersion(),
+      version: IS_DEVELOPMENT ? 'dev' : app.getVersion(),
     };
   });
 
   if (updateRequired) {
-    createUpdateWindow();
+    const updateWindow = createUpdateWindow();
+    setTimeout(() => {
+      createMainWindow();
+      updateWindow.close();
+    }, 10000);
   } else {
     createMainWindow();
   }

@@ -16,8 +16,10 @@
     "./dist/app/renderer/update.bundle.js",
     "./dist/app/renderer/pages/update.html",
     "./dist/app/core/main.js",
-    "./dist/app/core/preload.js",
-    "./dist/app/core/commander.db"
+    "./dist/app/core/AppConstants.js",
+    "./dist/app/core/CoreConfig.js",
+    "./dist/app/core/commander.db",
+    "./dist/app/core/window/**/*.js"
   ],
   "win": {
     "target": "nsis",

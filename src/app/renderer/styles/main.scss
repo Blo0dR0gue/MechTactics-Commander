@@ -16,7 +16,6 @@ TODO: USE BOOTSTRAP
 * {
   font-family: Arial, sans-serif !important;
 }
-/* Action-Bar */
 
 .right--10 {
   right: -10px;
@@ -85,6 +84,10 @@ header {
 
 canvas:focus {
   outline-width: 0;
+}
+
+.resize-none {
+  resize: none;
 }
 
 // Import all of Bootstrap's CSS

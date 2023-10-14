@@ -85,7 +85,7 @@ class Main {
       this.updater.checkForUpdates();
 
       if (this.isDevelopment) {
-        this.windowController.openUpdateWindow();
+        this.windowController.openMainWindow();
       }
     });
 

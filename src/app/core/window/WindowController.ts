@@ -3,6 +3,7 @@ import { WindowBase } from './WindowBase';
 import { MainWindow } from './main/MainWindow';
 import { CoreConfig } from '../CoreConfig';
 import { UpdateWindow } from './update/UpdateWindow';
+import { Updater } from '../Updater';
 
 class WindowController {
   public currentWindow: WindowBase;
@@ -10,15 +11,18 @@ class WindowController {
   private isDevelopment: boolean;
   private database: sqlite3.Database;
   private config: CoreConfig;
+  private updater: Updater;
 
   public constructor(
     isDevelopment: boolean,
     database: sqlite3.Database,
-    config: CoreConfig
+    config: CoreConfig,
+    updater: Updater
   ) {
     this.isDevelopment = isDevelopment;
     this.database = database;
     this.config = config;
+    this.updater = updater;
   }
 
   public openMainWindow() {
@@ -28,7 +32,7 @@ class WindowController {
   }
 
   public openUpdateWindow() {
-    this.setWindow(new UpdateWindow(this.isDevelopment));
+    this.setWindow(new UpdateWindow(this.isDevelopment, this.updater));
   }
 
   private setWindow(newWindow: WindowBase) {

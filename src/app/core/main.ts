@@ -73,17 +73,19 @@ class Main {
         }
       );
 
+      this.updater = new Updater(this.windowController);
+
       this.windowController = new WindowController(
         this.isDevelopment,
         this.database,
-        this.config
+        this.config,
+        this.updater
       );
 
-      this.updater = new Updater(this.windowController);
       this.updater.checkForUpdates();
 
       if (this.isDevelopment) {
-        this.windowController.openMainWindow();
+        this.windowController.openUpdateWindow();
       }
     });
 

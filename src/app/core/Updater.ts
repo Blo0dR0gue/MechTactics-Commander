@@ -1,4 +1,3 @@
-import { MessageBoxOptions, dialog, ipcMain } from 'electron';
 import {
   ProgressInfo,
   UpdateDownloadedEvent,
@@ -19,6 +18,10 @@ class Updater {
     autoUpdater.checkForUpdates();
   }
 
+  public restartAndUpdate() {
+    autoUpdater.quitAndInstall();
+  }
+
   private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
       console.log('Checking');
@@ -32,32 +35,26 @@ class Updater {
     autoUpdater.on('update-available', (info: UpdateInfo) => {
       this.windowController.openUpdateWindow();
       this.windowController.currentWindow.sendIpc(
-        'update-version',
-        info.version
+        'updateText',
+        `Downloading new update. Version: ${info.version}`,
+        false
       );
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
       // TODO: Use update page and progress data
       this.windowController.currentWindow.sendIpc(
-        'download-progress',
+        'downloadProgress',
         info.percent
       );
     });
 
     autoUpdater.on('update-downloaded', (event: UpdateDownloadedEvent) => {
-      const dialogOpts = {
-        type: 'info',
-        buttons: ['Restart', 'Later'],
-        title: 'Application Update',
-        message: 'A new version has been downloaded',
-        detail:
-          'A new version has been downloaded. Restart the application to apply the updates.',
-      } as MessageBoxOptions;
-      // TODO: Use update page and the event data
-      dialog.showMessageBox(dialogOpts).then((returnValue) => {
-        if (returnValue.response === 0) autoUpdater.quitAndInstall();
-      });
+      this.windowController.currentWindow.sendIpc(
+        'updateText',
+        `A new version (${event?.version}) has been downloaded. Restart the application to apply the updates.`,
+        true
+      );
     });
   }
 }

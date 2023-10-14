@@ -11,5 +11,16 @@ interface Window {
     version: () => Promise<string>;
     setConfigData: (key: string, value: unknown) => void;
     getConfigCache: () => Promise<Record<string, unknown>>;
+    addDownloadProgressListener: (
+      callback: (event: Electron.IpcRendererEvent, percent: number) => void
+    ) => void;
+    addUpdateTextListener: (
+      callback: (
+        event: Electron.IpcRendererEvent,
+        text: string,
+        finished: boolean
+      ) => void
+    ) => void;
+    restartAndUpdate: () => void;
   };
 }

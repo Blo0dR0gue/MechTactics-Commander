@@ -23,7 +23,6 @@ class Main {
   }
 
   public init() {
-    // TODO: Update process for DB
     // Store db to userData on production.
     if (!this.isDevelopment) {
       // Define the source and destination paths for the database

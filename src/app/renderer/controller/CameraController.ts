@@ -35,10 +35,10 @@ class CameraController {
     this.updateRouteEvent = new EventHandler();
   }
 
-  public init(universe: Universe) {
+  public init(universe: Universe, routeController: RouteController) {
     this.universe = universe;
     this.element = this.universe.getCanvas();
-    this.routeManager = new RouteController(universe);
+    this.routeManager = routeController;
 
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -46,7 +46,7 @@ class CameraController {
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
     // TODO: Move to extra controller?
-    window.addEventListener('keydown', this.handleKeyPress.bind(this));
+    this.element.addEventListener('keydown', this.handleKeyPress.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -137,6 +137,18 @@ class CameraController {
         window.innerHeight / 2 - planet.coord.getY()
       )
     );
+  }
+
+  public centerOnPlanetAndSelect(planet: Planet) {
+    this.universe.setCameraOffset(
+      new Vector(
+        window.innerWidth / 2 - planet.coord.getX(),
+        window.innerHeight / 2 - planet.coord.getY()
+      )
+    );
+    // TODO: Create private func
+    this.selectedPlanet = planet;
+    this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
   }
 
   public getSelectedPlanet(): Planet | null {

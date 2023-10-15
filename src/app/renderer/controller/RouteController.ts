@@ -2,6 +2,7 @@ import { BiBreadthFirstSearch } from '../utils/pathfinding/BiBreadthFirstSearch'
 import { Pathfinding } from '../utils/pathfinding/Pathfinding';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
+import { Affiliation } from '../models/Affiliation';
 
 // TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {
@@ -10,12 +11,20 @@ class RouteController {
 
   private targetPlanets: Planet[];
   private route: Planet[];
+  private excludeAffiliation: Set<Affiliation>;
 
-  public constructor(universe: Universe) {
+  public constructor() {}
+
+  /**
+   * Start the controller
+   * @param universe
+   */
+  public init(universe: Universe): void {
     this.universe = universe;
     this.pathfinding = new BiBreadthFirstSearch();
     this.targetPlanets = [];
     this.route = [];
+    this.excludeAffiliation = new Set();
   }
 
   /**
@@ -77,7 +86,7 @@ class RouteController {
    * @param planet The planet to remove
    */
   public removeTargetPlanetAll(planet: Planet): void {
-    let index = this.targetPlanets.indexOf(planet);
+    let index = this.targetPlanets?.indexOf(planet);
     while (index >= 0) {
       this.removeIndexOfTargetPlanet(index);
       index = this.targetPlanets.indexOf(planet);
@@ -90,7 +99,7 @@ class RouteController {
    * @returns True, if the planet is already inside the target planets
    */
   public containsPlanet(planet: Planet): boolean {
-    return this.targetPlanets.indexOf(planet) !== -1;
+    return this.targetPlanets?.indexOf(planet) !== -1 || false;
   }
 
   /**
@@ -99,7 +108,7 @@ class RouteController {
    * @returns True, if the planet is inside the route
    */
   public routeContainsPlanet(planet: Planet): boolean {
-    return this.route.indexOf(planet) !== -1;
+    return this.route?.indexOf(planet) !== -1 || false;
   }
 
   /**
@@ -107,8 +116,24 @@ class RouteController {
    * @returns The destination planet or null
    */
   public getLastPlanet(): Planet | null {
-    if (this.targetPlanets.length === 0) return null;
+    if (this.targetPlanets?.length === 0) return null;
     return this.targetPlanets[this.targetPlanets.length - 1];
+  }
+
+  /**
+   * Adds an affiliation the the excluded list.
+   * @param affiliation The affiliation to add
+   */
+  public addExcludedAffiliation(affiliation: Affiliation) {
+    this.excludeAffiliation.add(affiliation);
+  }
+
+  /**
+   * Removes an affiliation from the excluded list.
+   * @param affiliation The affiliation to add
+   */
+  public removeExcludedAffiliation(affiliation: Affiliation) {
+    this.excludeAffiliation.delete(affiliation);
   }
 
   /**
@@ -135,11 +160,11 @@ class RouteController {
   }
 
   public lengthOfTargetPlanets(): number {
-    return this.targetPlanets.length;
+    return this.targetPlanets?.length || 0;
   }
 
   public getRoute(): Planet[] {
-    return this.route;
+    return this.route || [];
   }
 
   public getNumberOfJumpsBetween(): number[] {
@@ -168,17 +193,27 @@ class RouteController {
   /**
    * Calculates the shortest route from planet a to planet b
    *
-   * @param planetA The start planet
-   * @param planetB The destination planet
+   * @param start The start planet
+   * @param goal The destination planet
    * @param jumpRange The max range a ship can jump
    * @returns The route from planet a to planet b
    */
-  private findRoute(planetA: Planet, planetB: Planet, jumpRange): Planet[] {
+  private findRoute(start: Planet, goal: Planet, jumpRange): Planet[] {
     const result = this.pathfinding.search(
-      planetA,
-      planetB,
+      start,
+      goal,
       (element: Planet) =>
-        this.universe.getAllInRange(element.coord, jumpRange),
+        this.universe
+          .getAllInRange(element.coord, jumpRange)
+          // Filter out excluded affiliations but not start and finish
+          .filter(
+            (planet) =>
+              !Array.from(this.excludeAffiliation)
+                .map((affiliation) => affiliation.getID())
+                .includes(planet.getAffiliationID()) ||
+              planet === start ||
+              planet === goal
+          ),
       (elementA: Planet, elementB: Planet) =>
         elementA.coord.distance(elementB.coord)
     );

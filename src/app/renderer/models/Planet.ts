@@ -1,6 +1,5 @@
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
-import { PlanetAffiliationJSON } from '../../types/PlanetAffiliation';
 
 /**
  * Represents a new planet
@@ -10,10 +9,6 @@ class Planet extends Circle {
    * The name of this planet
    */
   private name: string;
-  /**
-   * The id of the affiliation in the database
-   */
-  private affiliationId: number;
   /**
    * The link to the wiki page
    */
@@ -27,12 +22,18 @@ class Planet extends Circle {
    * Creates a new planet
    * @param probs Properties for this planet
    */
-  public constructor(probs: PlanetAffiliationJSON) {
-    super({ x: probs.x, y: probs.y, r: 0.01 });
-    this.name = probs.planetName;
-    this.affiliationId = probs.affiliationId;
-    this.link = probs.link;
-    this.affiliation = new Affiliation(probs.nameAffiliation, probs.color);
+  public constructor(
+    id: number,
+    name: string,
+    x: number,
+    y: number,
+    link: string,
+    affiliation: Affiliation
+  ) {
+    super({ x: x, y: y, r: 0.01 });
+    this.name = name;
+    this.link = link;
+    this.affiliation = affiliation;
   }
 
   /**
@@ -49,6 +50,10 @@ class Planet extends Circle {
    */
   public getColor(): string {
     return this.affiliation.getColor();
+  }
+
+  public getAffiliationID(): number {
+    return this.affiliation.getID();
   }
 
   public getAffiliationName(): string {

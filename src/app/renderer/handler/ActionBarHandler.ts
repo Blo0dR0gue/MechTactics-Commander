@@ -1,9 +1,12 @@
 import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
-import { Modal } from 'bootstrap';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
+import { ToastHandler } from './ToastHandler';
+import { Config } from '../utils/Config';
+import { Universe } from '../ui/Universe';
+import { Affiliation } from '../models/Affiliation';
 
 /**
  * Responsible for the action bar
@@ -20,15 +23,18 @@ class ActionBarHandler {
   private centerOnPlanetBtn: HTMLButtonElement;
   private addToRouteBtn: HTMLButtonElement;
 
-  // TODO: Move to index???
-  private disclaimer: HTMLDivElement;
-  private disclaimerModal: Modal;
-
   private selectedPlanet: Planet | null;
+
+  // Settings
+  private settingsRange30: HTMLInputElement;
+  private settingsRange60: HTMLInputElement;
+  private excludedAffiliationsParent: HTMLElement;
 
   // TODO: Rework (remove here)
   private routeController: RouteController;
   private cameraController: CameraController;
+  private toastHandler: ToastHandler;
+  private universe: Universe;
 
   /**
    * Setup of all dom element references
@@ -48,24 +54,34 @@ class ActionBarHandler {
       'add-to-route'
     ) as HTMLButtonElement;
 
-    // Create Modal
-    this.disclaimer = document.getElementById('disclaimer') as HTMLDivElement;
-    this.disclaimerModal = new Modal(
-      document.getElementById('disclaimer-modal'),
-      {
-        backdrop: true,
-        keyboard: false,
-        focus: true,
-      }
+    // Settings Elements
+    this.settingsRange30 = document.getElementById(
+      'settings-range-30'
+    ) as HTMLInputElement;
+    this.settingsRange60 = document.getElementById(
+      'settings-range-60'
+    ) as HTMLInputElement;
+    this.excludedAffiliationsParent = document.getElementById(
+      'jump-settings-excluded-affiliations'
     );
   }
 
   /**
    * Init the handler
    *
-   * @param camera The camera controller, to use for center
+   * @param cameraController The camera controller, to use for center
    */
-  public init(camera: CameraController) {
+  public init(
+    cameraController: CameraController,
+    toastHandler: ToastHandler,
+    universe: Universe,
+    routeController: RouteController
+  ) {
+    this.toastHandler = toastHandler;
+    this.cameraController = cameraController;
+    this.universe = universe;
+    this.routeController = routeController;
+
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
     this.navButtons.forEach((element) => {
@@ -91,11 +107,7 @@ class ActionBarHandler {
       this.addToRouteClicked.bind(this)
     );
 
-    // Add click listener to show the disclaimer modal
-    this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
-
     // Setup the camera event listeners
-    this.cameraController = camera;
     this.cameraController.selectionChangeEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
@@ -103,9 +115,81 @@ class ActionBarHandler {
       this.routeChanged.bind(this)
     );
 
-    // Get the route manager from the camera
-    // TODO: remove here???
-    this.routeController = this.cameraController.getRouteManager();
+    this.setupSettingsTab();
+  }
+
+  private setupSettingsTab() {
+    const jumpRange = Config.getInstance().get('jumpRange') as number;
+    if (jumpRange === 60) this.settingsRange60.checked = true;
+    else this.settingsRange30.checked = true;
+
+    this.settingsRange60.addEventListener('change', () => {
+      Config.getInstance().set('jumpRange', 60);
+      // TODO: Use Event???
+      this.generateJumpCards();
+    });
+    this.settingsRange30.addEventListener('change', () => {
+      Config.getInstance().set('jumpRange', 30);
+      // TODO: Use Event???
+      this.generateJumpCards();
+    });
+
+    // Setup exclude affiliations toggles
+    const rowParent = this.excludedAffiliationsParent.children[0];
+    const col1 = rowParent.children[0];
+    const col2 = rowParent.children[1];
+
+    // Get Affiliations to exclude
+    // TODO: Rework to make it more dynamic (Add others)
+    const sepExcluded = [] as Affiliation[];
+    // Max 4 elements per col
+    const perCol = 4;
+
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Capellan Confederation')
+    );
+    sepExcluded.push(this.universe.getAffiliationWithName('Draconis Combine'));
+    sepExcluded.push(this.universe.getAffiliationWithName('Federated Suns'));
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Free Worlds League')
+    );
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Lyran Commonwealth')
+    );
+    sepExcluded.push(this.universe.getAffiliationWithName('No record'));
+    sepExcluded.push(this.universe.getAffiliationWithName('Inhabited system'));
+
+    const excludedAffiliationIDs =
+      (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
+
+    for (let i = 0; i < sepExcluded.length; i++) {
+      // Only allow 2 cols with each perCol elements
+      if (i >= perCol * 2) break;
+      const affiliation = sepExcluded[i];
+      const col = i < perCol ? col1 : col2;
+      col.appendChild(
+        this.createExcludeAffiliationToggle(
+          affiliation.getName(),
+          !excludedAffiliationIDs.includes(affiliation.getID()),
+          (input: HTMLInputElement) => {
+            if (input.checked) {
+              Config.getInstance().remove(
+                'excludedAffiliationIDs',
+                affiliation.getID()
+              );
+              this.routeController.removeExcludedAffiliation(affiliation);
+            } else {
+              Config.getInstance().add(
+                'excludedAffiliationIDs',
+                affiliation.getID()
+              );
+              this.routeController.addExcludedAffiliation(affiliation);
+            }
+            this.generateJumpCards();
+          }
+        )
+      );
+    }
   }
 
   /**
@@ -135,14 +219,6 @@ class ActionBarHandler {
       });
     }
   }
-
-  /**
-   * Helper to show the disclaimer modal.
-   */
-  private showDisclaimer() {
-    this.disclaimerModal.show();
-  }
-
   /**
    * Listener function, which is called, if the camera selects a other planet!
    *
@@ -166,8 +242,10 @@ class ActionBarHandler {
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
-      // TODO: Open in new window on click
       this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
+      // Select first button (Planet Details)
+      // FIXME: Make dynamic
+      this.showTab(this.navButtons[0].dataset.content, this.navButtons[0]);
     }
   }
 
@@ -184,8 +262,10 @@ class ActionBarHandler {
         // Iff we have more then 1 planet in the target planets, also generate the jump cards to display how many jumps are needed.
         this.generateJumpCards();
       }
-      // TODO: Rework (use toast)
-      alert(`Added ${routeChanged.planet.getName()} to the route!`);
+      this.toastHandler.createAndShowToast(
+        'Route',
+        `Added ${routeChanged.planet.getName()} to route.`
+      );
     }
   }
 
@@ -232,7 +312,9 @@ class ActionBarHandler {
    */
   private generateJumpCards(): void {
     // TODO: Rework that. Only for first function tests!
-    const routeGenerated = this.routeController.calculateRoute(30);
+    const routeGenerated = this.routeController.calculateRoute(
+      Config.getInstance().get('jumpRange') as number
+    );
 
     const jumps = this.routeController.getNumberOfJumpsBetween();
     // Remove all existing jump cards
@@ -267,7 +349,7 @@ class ActionBarHandler {
    */
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card text-white my-auto flex-shrink-0';
+    cardDiv.className = 'card text-white my-auto flex-shrink-0 bg-dark';
     cardDiv.style.width = '200px';
     cardDiv.dataset.planetCard = planet.getName();
 
@@ -279,7 +361,7 @@ class ActionBarHandler {
     cardTitle.textContent = planet.getName();
 
     const deleteButton = document.createElement('button');
-    deleteButton.className = 'btn btn-danger btn-sm';
+    deleteButton.className = 'btn btn-danger btn-sm ms-1';
     deleteButton.textContent = 'x';
     deleteButton.onclick = () => {
       this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
@@ -292,7 +374,7 @@ class ActionBarHandler {
     cardText.textContent = `${planet.coord.getX()} | ${planet.coord.getY()}`;
 
     const centerButton = document.createElement('button');
-    centerButton.className = 'btn btn-info btn-sm';
+    centerButton.className = 'btn btn-info btn-sm ms-1';
     centerButton.textContent = 'o';
     centerButton.onclick = () => {
       this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
@@ -318,7 +400,7 @@ class ActionBarHandler {
   private createRouteJumpCard(jumps: number) {
     const cardDiv = document.createElement('div');
     cardDiv.className =
-      'text-center my-auto d-flex flex-column align-items-center text-white';
+      'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
     cardDiv.dataset.jumpCard = 'route-jump-card';
 
     const arrowDiv = document.createElement('div');
@@ -330,6 +412,33 @@ class ActionBarHandler {
     cardDiv.appendChild(arrowDiv);
     cardDiv.appendChild(jumpsDiv);
     return cardDiv;
+  }
+
+  private createExcludeAffiliationToggle(
+    name: string,
+    checked: boolean,
+    handler: (input: HTMLInputElement) => void
+  ) {
+    const parent = document.createElement('div');
+
+    const input = document.createElement('input');
+    input.classList.add('form-check-input');
+    input.type = 'checkbox';
+    input.role = 'switch';
+    input.id = name + '-route-toggle';
+    input.checked = checked;
+    input.addEventListener('click', handler.bind(this, input));
+
+    const label = document.createElement('label');
+    label.classList.add('form-check-label');
+    label.classList.add('text-white');
+    label.htmlFor = input.id;
+    label.textContent = name;
+
+    parent.appendChild(input);
+    parent.appendChild(label);
+
+    return parent;
   }
 }
 

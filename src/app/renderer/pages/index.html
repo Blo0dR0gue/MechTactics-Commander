@@ -1,16 +1,40 @@
 <!DOCTYPE html>
+<!-- TODO: Make more response and get rid of this high resolution limitations in main.ts -->
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MechTactics-Commander</title>
+    <script src="../index.bundle.js" defer></script>
   </head>
-  <body class="overflow-hidden">
-    <header class="bg-transparent">
-      <div class="btn link link-info" id="disclaimer">disclaimer</div>
+  <body class="overflow-hidden bg-background">
+    <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75"
+    >
+      <!--Left-->
+      <ul
+        class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+      >
+        <div class="btn link link-info" id="disclaimer">disclaimer</div>
+      </ul>
+      <!--Right-->
+      <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
+        <input
+          type="search"
+          class="form-control bg-white"
+          placeholder="Search..."
+          aria-label="Search"
+          id="planet-search"
+        />
+      </div>
     </header>
 
-    <div class="modal text-white" id="disclaimer-modal" tabindex="-1">
+    <div
+      class="toast-container top-0 end-0 p-3 text-white mt-5"
+      id="toast-container"
+    ></div>
+
+    <div class="modal" id="disclaimer-modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -66,7 +90,7 @@
         class="d-flex flex-column position-absolute bottom-0 align-items-end w-100"
       >
         <!-- Navigation-Bar -->
-        <div class="container right--10 me-0 pe-0 position-relative">
+        <div class="container me-0 pe-0 position-relative">
           <div class="row justify-content-end">
             <div class="col-sm-2 p-0">
               <div
@@ -90,20 +114,12 @@
                 </div>
               </div>
             </div>
-            <div class="col-sm-2 p-0">
-              <div
-                class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 transform-skew--15 border border-light border-2"
-                id="none1-tab"
-              >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Undefined
-                </div>
-              </div>
-            </div>
+
             <div class="col-sm-2 p-0">
               <div
                 class="btn btn-actionBar p-1 d-flex align-items-center rounded-0 bg-opacity-75 transform-skew--15 border border-light border-2"
                 id="settings-tab"
+                data-content="settings-tab-content"
               >
                 <div class="text-white text-center transform-skew-15 flex-fill">
                   Settings
@@ -119,6 +135,7 @@
           style="height: 120px"
           id="content-box"
         >
+          <!--Planet details content-->
           <div id="planet-details-tab-content" class="w-100">
             <div class="row">
               <div class="col-md-4 d-flex align-items-center flex-column">
@@ -152,11 +169,23 @@
                   </button>
                 </p>
               </div>
-              <div class="col d-flex align-items-center flex-column"></div>
-              <div class="col d-flex align-items-center flex-column"></div>
+              <div class="col-md-4 d-flex align-items-center flex-column">
+                <label
+                  for="planet-custom-textarea"
+                  class="form-label text-white"
+                  >Planet Custom Text</label
+                >
+                <textarea
+                  class="form-control resize-none"
+                  id="planet-custom-textarea"
+                  rows="2"
+                  disabled
+                ></textarea>
+              </div>
+              <div class="col-md-4 d-flex align-items-center flex-column"></div>
             </div>
           </div>
-
+          <!--Routing content-->
           <div id="routing-tab-content" class="w-100 h-100 hide">
             <div
               class="h-100 d-flex flex-row flex-nowrap text-nowrap"
@@ -164,10 +193,71 @@
               id="route-container"
             ></div>
           </div>
+          <!--Settings content-->
+          <div id="settings-tab-content" class="w-100 h-100 hide">
+            <div class="row">
+              <!--Col 1 (Jump Range)-->
+              <div class="col-md-1 d-flex align-items-center flex-column">
+                <div class="form-group position-relative mb-1">
+                  <!--Jump Range Settings-->
+                  <label for="jump-range" class="text-white">Jump Range</label>
+                  <div id="jump-range">
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="options-jump-range"
+                      id="settings-range-30"
+                      autocomplete="off"
+                      value="30"
+                    />
+                    <label
+                      class="btn btn-sm btn-outline-primary"
+                      for="settings-range-30"
+                      >30</label
+                    >
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="options-jump-range"
+                      id="settings-range-60"
+                      autocomplete="off"
+                      value="60"
+                    />
+                    <label
+                      class="btn btn-sm btn-outline-primary"
+                      for="settings-range-60"
+                      >60</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <!--Col 2 (Jump Settings)-->
+              <div class="col-md-3 d-flex align-items-center flex-column">
+                <div class="form-group position-relative mb-1 w-100">
+                  <!--Jump Settings-->
+                  <label
+                    for="jump-settings-excluded-affiliations"
+                    class="text-white"
+                    >Allowed Affiliation For Routing</label
+                  >
+                  <div id="jump-settings-excluded-affiliations">
+                    <div class="row">
+                      <!--Col 1 (Jump Settings - Allowed Affiliations)-->
+                      <div class="col">
+                        <!--Are created with code (ActionBarHandler)-->
+                      </div>
+                      <!--Col 2 (Jump Settings - Allowed Affiliations)-->
+                      <div class="col">
+                        <!--Are created with code (ActionBarHandler)-->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <script src="../bundle.js"></script>
   </body>
 </html>

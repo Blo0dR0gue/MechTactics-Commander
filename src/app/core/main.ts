@@ -73,26 +73,25 @@ class Main {
         }
       );
 
-      this.updater = new Updater(this.windowController);
+      this.windowController = new WindowController(this.isDevelopment);
 
-      this.windowController = new WindowController(
-        this.isDevelopment,
+      this.updater = new Updater(
+        this.windowController,
         this.database,
-        this.config,
-        this.updater
+        this.config
       );
 
       this.updater.checkForUpdates();
 
       if (this.isDevelopment) {
-        this.windowController.openMainWindow();
+        this.windowController.openMainWindow(this.database, this.config);
       }
     });
 
     app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.windowController.openMainWindow();
+        this.windowController.openMainWindow(this.database, this.config);
       }
     });
 

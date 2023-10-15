@@ -1,38 +1,26 @@
-import sqlite3 = require('sqlite3');
 import { WindowBase } from './WindowBase';
 import { MainWindow } from './main/MainWindow';
-import { CoreConfig } from '../CoreConfig';
+
 import { UpdateWindow } from './update/UpdateWindow';
 import { Updater } from '../Updater';
+import { CoreConfig } from '../CoreConfig';
+import sqlite3 = require('sqlite3');
 
 class WindowController {
   public currentWindow: WindowBase;
 
   private isDevelopment: boolean;
-  private database: sqlite3.Database;
-  private config: CoreConfig;
-  private updater: Updater;
 
-  public constructor(
-    isDevelopment: boolean,
-    database: sqlite3.Database,
-    config: CoreConfig,
-    updater: Updater
-  ) {
+  public constructor(isDevelopment: boolean) {
     this.isDevelopment = isDevelopment;
-    this.database = database;
-    this.config = config;
-    this.updater = updater;
   }
 
-  public openMainWindow() {
-    this.setWindow(
-      new MainWindow(this.isDevelopment, this.database, this.config)
-    );
+  public openMainWindow(database: sqlite3.Database, config: CoreConfig) {
+    this.setWindow(new MainWindow(this.isDevelopment, database, config));
   }
 
-  public openUpdateWindow() {
-    this.setWindow(new UpdateWindow(this.isDevelopment, this.updater));
+  public openUpdateWindow(updater: Updater) {
+    this.setWindow(new UpdateWindow(this.isDevelopment, updater));
   }
 
   private setWindow(newWindow: WindowBase) {

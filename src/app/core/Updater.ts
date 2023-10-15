@@ -5,12 +5,39 @@ import {
   autoUpdater,
 } from 'electron-updater';
 import { WindowController } from './window/WindowController';
+import { AppUpgradeInfo } from './AppUpgradeInfo';
+import sqlite3 = require('sqlite3');
+import { CoreConfig } from './CoreConfig';
+import { app } from 'electron';
 
 class Updater {
   private windowController: WindowController;
+  private database: sqlite3.Database;
+  private config: CoreConfig;
+  private upgradeRunning: boolean;
 
-  public constructor(windowController: WindowController) {
+  private readonly appUpgradeInfoMap: Record<string, AppUpgradeInfo> = {
+    '0.0.8': {
+      version: '0.0.8',
+      description: 'Added core features, route settings and planet search',
+      actions: [
+        async () => {
+          this.config.set('version', '0.0.8');
+          this.config.set('jumpRange', 30);
+          this.config.set('excludedAffiliationIDs', []);
+        },
+      ],
+    },
+  };
+
+  public constructor(
+    windowController: WindowController,
+    database: sqlite3.Database,
+    config: CoreConfig
+  ) {
     this.windowController = windowController;
+    this.database = database;
+    this.config = config;
     this.setupHandlers();
   }
 
@@ -18,22 +45,86 @@ class Updater {
     autoUpdater.checkForUpdates();
   }
 
+  private isUpgradeNeeded() {
+    const currentVersion = this.config.get('version');
+    for (const version in this.appUpgradeInfoMap) {
+      if (version > currentVersion) {
+        this.upgradeRunning = true;
+        return true; // Upgrade is needed
+      }
+    }
+    this.upgradeRunning = false;
+    return false; // No upgrades are needed
+  }
+
+  private async handleAppUpgrade() {
+    const currentVersion = this.config.get('version');
+    const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter(
+      (version) => version > currentVersion
+    );
+
+    const actionsLength = upgradeVersions
+      .map((value) => this.appUpgradeInfoMap[value].actions.length)
+      .reduce((acc, curr) => acc + curr, 0);
+
+    let executedActions = 0;
+
+    for (const version of upgradeVersions) {
+      const upgradeInfo = this.appUpgradeInfoMap[version];
+
+      this.windowController.currentWindow.sendIpc(
+        'updateText',
+        `Upgrading to version ${upgradeInfo.version} - ${upgradeInfo.description}`,
+        false
+      );
+
+      for (const action of upgradeInfo.actions) {
+        await action(); // Perform action and wait for it to finish
+        executedActions++;
+        // Send upgrade percentage
+        this.windowController.currentWindow.sendIpc(
+          'updatePercentage',
+          (executedActions / actionsLength) * 100
+        );
+      }
+    }
+    this.windowController.currentWindow.sendIpc(
+      'updateText',
+      `Upgrade finished. Restart the app.`,
+      true
+    );
+  }
+
   public restartAndUpdate() {
-    autoUpdater.quitAndInstall();
+    if (this.upgradeRunning) {
+      app.relaunch();
+      app.quit();
+    } else {
+      autoUpdater.quitAndInstall();
+    }
   }
 
   private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
-      console.log('Checking');
+      console.log('Checking for updates...');
     });
 
     autoUpdater.on('update-not-available', () => {
       console.log('No update available.');
-      this.windowController.openMainWindow();
+      console.log('Checking for upgrades...');
+      if (this.isUpgradeNeeded()) {
+        this.windowController.openUpdateWindow(this);
+        setTimeout(() => {
+          this.handleAppUpgrade();
+        }, 1000);
+      } else {
+        console.log('Everything up-to-date.');
+        this.windowController.openMainWindow(this.database, this.config);
+      }
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      this.windowController.openUpdateWindow();
+      this.windowController.openUpdateWindow(this);
       this.windowController.currentWindow.sendIpc(
         'updateText',
         `Downloading new update. Version: ${info.version}`,
@@ -44,7 +135,7 @@ class Updater {
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
       // TODO: Use update page and progress data
       this.windowController.currentWindow.sendIpc(
-        'downloadProgress',
+        'updatePercentage',
         info.percent
       );
     });

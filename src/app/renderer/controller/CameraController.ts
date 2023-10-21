@@ -25,6 +25,8 @@ class CameraController {
   private isClicked = false;
   private dragStart = new Vector(0, 0);
 
+  private ctrlPressed: boolean;
+
   /**
    * The route planing manager
    */
@@ -47,6 +49,7 @@ class CameraController {
     this.element.addEventListener('click', this.handleClick.bind(this));
     // TODO: Move to extra controller?
     this.element.addEventListener('keydown', this.handleKeyPress.bind(this));
+    this.element.addEventListener('keyup', this.handleKeyPress.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent) {
@@ -93,6 +96,12 @@ class CameraController {
     this.universe.setZoom(newZoom);
   }
 
+  /**
+   * Get the clicked canvas coordinate and check if a planet got clicked. If yes, select this planet and invoke the event. If not reset the clicked plant and invoke the event<br>
+   * Also handles to calculate the distance to a second planet clicked, if a planet got selected and ctrl is pressed.
+   *
+   * @param e The mouse event
+   */
   private handleClick(e: MouseEvent) {
     if (this.isMoved) return;
     const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
@@ -100,27 +109,47 @@ class CameraController {
       `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
     );
     const closest = this.universe.getClosestPlanet(clicked, 5);
+
     if (closest !== undefined && closest.dist < 4) {
-      this.selectedPlanet = closest.planet;
-      console.log(this.selectedPlanet);
-    } else {
+      if (
+        this.ctrlPressed &&
+        this.selectedPlanet !== null &&
+        this.selectedPlanet !== closest.planet
+      ) {
+        // Check the distance to the other planet
+        console.log(this.selectedPlanet.coord.distance(closest.planet.coord));
+      } else {
+        this.selectedPlanet = closest.planet;
+        console.log(this.selectedPlanet);
+      }
+    } else if (!this.ctrlPressed) {
+      // Only reset if ctrl is not pressed
       this.selectedPlanet = null;
     }
+
     this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
   }
 
   private handleKeyPress(evt: KeyboardEvent) {
-    if (evt.key === 'f') {
-      if (
-        this.selectedPlanet !== null &&
-        !this.routeManager.containsPlanet(this.selectedPlanet)
-      ) {
-        this.routeManager.addTargetPlanet(this.selectedPlanet);
-        this.updateRouteEvent.invoke({
-          planet: this.selectedPlanet,
-          add: true,
-          numberPlanets: this.routeManager.lengthOfTargetPlanets(),
-        });
+    if (evt.type === 'keydown') {
+      if (evt.key === 'f') {
+        if (
+          this.selectedPlanet !== null &&
+          !this.routeManager.containsPlanet(this.selectedPlanet)
+        ) {
+          this.routeManager.addTargetPlanet(this.selectedPlanet);
+          this.updateRouteEvent.invoke({
+            planet: this.selectedPlanet,
+            add: true,
+            numberPlanets: this.routeManager.lengthOfTargetPlanets(),
+          });
+        }
+      } else if (evt.key === 'Control') {
+        this.ctrlPressed = true;
+      }
+    } else if (evt.type === 'keyup') {
+      if (evt.key === 'Control') {
+        this.ctrlPressed = false;
       }
     }
   }

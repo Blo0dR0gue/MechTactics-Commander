@@ -8,14 +8,13 @@ import { WindowController } from './window/WindowController';
 import { AppUpgradeInfo } from './AppUpgradeInfo';
 import sqlite3 = require('sqlite3');
 import { CoreConfig } from './CoreConfig';
-import { app } from 'electron';
 
 class Updater {
   private windowController: WindowController;
   private database: sqlite3.Database;
   private config: CoreConfig;
-  private upgradeRunning: boolean;
 
+  // TODO: Use separate files to define the upgrades
   private readonly appUpgradeInfoMap: Record<string, AppUpgradeInfo> = {
     '0.0.8': {
       version: '0.0.8',
@@ -49,26 +48,27 @@ class Updater {
     const currentVersion = this.config.get('version');
     for (const version in this.appUpgradeInfoMap) {
       if (version > currentVersion) {
-        this.upgradeRunning = true;
         return true; // Upgrade is needed
       }
     }
-    this.upgradeRunning = false;
     return false; // No upgrades are needed
   }
 
   private async handleAppUpgrade() {
     const currentVersion = this.config.get('version');
+    // Get all upgrades todo
     const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter(
       (version) => version > currentVersion
     );
 
+    // Get the amount of actions todo
     const actionsLength = upgradeVersions
       .map((value) => this.appUpgradeInfoMap[value].actions.length)
       .reduce((acc, curr) => acc + curr, 0);
 
     let executedActions = 0;
 
+    // Execute actions per upgrade version one by one and update progress bar.
     for (const version of upgradeVersions) {
       const upgradeInfo = this.appUpgradeInfoMap[version];
 
@@ -88,21 +88,21 @@ class Updater {
         );
       }
     }
+
+    // Upgrade finished
     this.windowController.currentWindow.sendIpc(
       'updateText',
-      `Upgrade finished. Restart the app.`,
-      true
+      `Upgrade finished. Starting app please wait.`,
+      false
     );
+    // Wait 4 sec before starting the app.
+    setTimeout(() => {
+      this.windowController.openMainWindow(this.database, this.config);
+    }, 4000);
   }
 
   public restartAndUpdate() {
-    if (this.upgradeRunning) {
-      // TODO: Remove the need to restart after upgrade. just start app
-      app.relaunch();
-      app.quit();
-    } else {
-      autoUpdater.quitAndInstall();
-    }
+    autoUpdater.quitAndInstall();
   }
 
   private setupHandlers() {
@@ -115,6 +115,7 @@ class Updater {
       console.log('No update available.');
       console.log('Checking for upgrades...');
       if (this.isUpgradeNeeded()) {
+        // TODO: Remove timeout and detect if window is visible
         setTimeout(() => {
           this.windowController.currentWindow.sendIpc(
             'updateTitle',

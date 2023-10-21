@@ -117,6 +117,7 @@ class CameraController {
         this.selectedPlanet !== closest.planet
       ) {
         // Check the distance to the other planet
+        // TODO: Highlight the other planet and draw line. Reset if the selected planet gets changed. (Use existing event???)
         console.log(this.selectedPlanet.coord.distance(closest.planet.coord));
       } else {
         this.selectedPlanet = closest.planet;

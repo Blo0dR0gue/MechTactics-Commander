@@ -97,6 +97,7 @@ class Updater {
 
   public restartAndUpdate() {
     if (this.upgradeRunning) {
+      // TODO: Remove the need to restart after upgrade. just start app
       app.relaunch();
       app.quit();
     } else {
@@ -106,6 +107,7 @@ class Updater {
 
   private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
+      this.windowController.openUpdateWindow(this);
       console.log('Checking for updates...');
     });
 
@@ -113,8 +115,11 @@ class Updater {
       console.log('No update available.');
       console.log('Checking for upgrades...');
       if (this.isUpgradeNeeded()) {
-        this.windowController.openUpdateWindow(this);
         setTimeout(() => {
+          this.windowController.currentWindow.sendIpc(
+            'updateTitle',
+            `Upgrade in progress`
+          );
           this.handleAppUpgrade();
         }, 1000);
       } else {
@@ -124,7 +129,10 @@ class Updater {
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      this.windowController.openUpdateWindow(this);
+      this.windowController.currentWindow.sendIpc(
+        'updateTitle',
+        `Update in progress`
+      );
       this.windowController.currentWindow.sendIpc(
         'updateText',
         `Downloading new update. Version: ${info.version}`,
@@ -133,7 +141,6 @@ class Updater {
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
-      // TODO: Use update page and progress data
       this.windowController.currentWindow.sendIpc(
         'updatePercentage',
         info.percent

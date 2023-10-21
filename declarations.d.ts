@@ -21,6 +21,9 @@ interface Window {
         finished: boolean
       ) => void
     ) => void;
+    addUpdateTitleListener: (
+      callback: (event: Electron.IpcRendererEvent, text: string) => void
+    ) => void;
     restartAndUpdate: () => void;
   };
 }

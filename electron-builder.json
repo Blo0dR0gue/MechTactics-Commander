@@ -20,6 +20,7 @@
     "./dist/app/core/CoreConfig.js",
     "./dist/app/core/Updater.js",
     "./dist/app/core/AppUpgradeInfo.js",
+    "./dist/app/core/upgrades/*",
     "./dist/app/core/commander.db",
     "./dist/app/core/window/**/*.js"
   ],

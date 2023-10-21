@@ -5,9 +5,9 @@ import {
   autoUpdater,
 } from 'electron-updater';
 import { WindowController } from './window/WindowController';
-import { AppUpgradeInfo } from './AppUpgradeInfo';
 import sqlite3 = require('sqlite3');
 import { CoreConfig } from './CoreConfig';
+import appUpgradeInfos from './upgrades';
 
 class Updater {
   private windowController: WindowController;
@@ -15,19 +15,7 @@ class Updater {
   private config: CoreConfig;
 
   // TODO: Use separate files to define the upgrades
-  private readonly appUpgradeInfoMap: Record<string, AppUpgradeInfo> = {
-    '0.0.8': {
-      version: '0.0.8',
-      description: 'Added core features, route settings and planet search',
-      actions: [
-        async () => {
-          this.config.set('version', '0.0.8');
-          this.config.set('jumpRange', 30);
-          this.config.set('excludedAffiliationIDs', []);
-        },
-      ],
-    },
-  };
+  private readonly appUpgradeInfoMap = appUpgradeInfos;
 
   public constructor(
     windowController: WindowController,
@@ -60,17 +48,24 @@ class Updater {
     const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter(
       (version) => version > currentVersion
     );
-
+    // TODO: Rework to not create the upgrade objects here
     // Get the amount of actions todo
     const actionsLength = upgradeVersions
-      .map((value) => this.appUpgradeInfoMap[value].actions.length)
+      .map(
+        (value) =>
+          new this.appUpgradeInfoMap[value](this.config, this.database).actions
+            .length
+      )
       .reduce((acc, curr) => acc + curr, 0);
 
     let executedActions = 0;
 
     // Execute actions per upgrade version one by one and update progress bar.
     for (const version of upgradeVersions) {
-      const upgradeInfo = this.appUpgradeInfoMap[version];
+      const upgradeInfo = new this.appUpgradeInfoMap[version](
+        this.config,
+        this.database
+      );
 
       this.windowController.currentWindow.sendIpc(
         'updateText',

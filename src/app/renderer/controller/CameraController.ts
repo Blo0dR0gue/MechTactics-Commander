@@ -19,8 +19,6 @@ class CameraController {
   public selectionChangeEvent: EventHandler<SelectionChangeEvent>;
   public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
-  private selectedPlanet: Planet | null = null;
-
   private isMoved = false;
   private isClicked = false;
   private dragStart = new Vector(0, 0);
@@ -113,34 +111,38 @@ class CameraController {
     if (closest !== undefined && closest.dist < 4) {
       if (
         this.ctrlPressed &&
-        this.selectedPlanet !== null &&
-        this.selectedPlanet !== closest.planet
+        this.universe.getSelectedPlanet() !== null &&
+        this.universe.getSelectedPlanet() !== closest.planet
       ) {
         // Check the distance to the other planet
-        // TODO: Highlight the other planet and draw line. Reset if the selected planet gets changed. (Use existing event???)
-        console.log(this.selectedPlanet.coord.distance(closest.planet.coord));
+        // TODO: Highlight the other planet and draw line. Reset if the selected planet gets changed.
+        console.log(
+          this.universe.getSelectedPlanet().coord.distance(closest.planet.coord)
+        );
       } else {
-        this.selectedPlanet = closest.planet;
-        console.log(this.selectedPlanet);
+        this.universe.setSelectedPlanet(closest.planet);
+        console.log(closest.planet);
       }
     } else if (!this.ctrlPressed) {
       // Only reset if ctrl is not pressed
-      this.selectedPlanet = null;
+      this.universe.setSelectedPlanet(null);
     }
-
-    this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
+    // TODO: Remove event
+    this.selectionChangeEvent.invoke({
+      planet: this.universe.getSelectedPlanet(),
+    });
   }
 
   private handleKeyPress(evt: KeyboardEvent) {
     if (evt.type === 'keydown') {
       if (evt.key === 'f') {
         if (
-          this.selectedPlanet !== null &&
-          !this.routeManager.containsPlanet(this.selectedPlanet)
+          this.universe.getSelectedPlanet() !== null &&
+          !this.routeManager.containsPlanet(this.universe.getSelectedPlanet())
         ) {
-          this.routeManager.addTargetPlanet(this.selectedPlanet);
+          this.routeManager.addTargetPlanet(this.universe.getSelectedPlanet());
           this.updateRouteEvent.invoke({
-            planet: this.selectedPlanet,
+            planet: this.universe.getSelectedPlanet(),
             add: true,
             numberPlanets: this.routeManager.lengthOfTargetPlanets(),
           });
@@ -177,12 +179,8 @@ class CameraController {
       )
     );
     // TODO: Create private func
-    this.selectedPlanet = planet;
-    this.selectionChangeEvent.invoke({ planet: this.selectedPlanet });
-  }
-
-  public getSelectedPlanet(): Planet | null {
-    return this.selectedPlanet;
+    this.universe.setSelectedPlanet(planet);
+    this.selectionChangeEvent.invoke({ planet: planet });
   }
 
   public getRouteManager() {

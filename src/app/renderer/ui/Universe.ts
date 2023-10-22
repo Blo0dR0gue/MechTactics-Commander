@@ -1,7 +1,6 @@
 import { Circle } from '../utils/quadtree/Circle';
 import { Quadtree } from '../utils/quadtree/Quadtree';
 import { Planet } from '../models/Planet';
-import { CameraController } from '../controller/CameraController';
 import { Vector } from '../models/Vector';
 import { Config } from '../utils/Config';
 import { Affiliation } from '../models/Affiliation';
@@ -49,13 +48,14 @@ class Universe {
    */
   private cameraOffset = new Vector(1, 1);
   /**
-   * The camera
-   */
-  private cameraController: CameraController;
-  /**
    * The route controller
    */
   private routeController: RouteController;
+
+  /**
+   * The currently selected planet which gets highlighted
+   */
+  private selectedPlanet: Planet | null;
 
   /**
    * Creates a new universe
@@ -70,13 +70,10 @@ class Universe {
   /**
    * Setup the universe and start the rendering
    */
-  public async init(
-    cameraController: CameraController,
-    routeController: RouteController
-  ): Promise<void> {
+  public async init(routeController: RouteController): Promise<void> {
     return new Promise((resolve) => {
-      this.cameraController = cameraController;
       this.routeController = routeController;
+      this.selectedPlanet = null;
 
       // Init quadtree
       this.tree = new Quadtree({
@@ -91,7 +88,7 @@ class Universe {
       this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
 
       this.getPlanetsAndAffiliations().then(() => {
-        this.draw();
+        this.render();
         resolve();
       });
     });
@@ -150,7 +147,7 @@ class Universe {
   /**
    * The render function
    */
-  private draw() {
+  private render() {
     // Prepare canvas
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
@@ -165,8 +162,7 @@ class Universe {
 
     this.planets.forEach((planet: Planet) => {
       if (
-        (this.cameraController.getSelectedPlanet() &&
-          this.cameraController.getSelectedPlanet() === planet) ||
+        (this.selectedPlanet && this.selectedPlanet === planet) ||
         this.routeController.routeContainsPlanet(planet)
       )
         return;
@@ -190,17 +186,17 @@ class Universe {
         this.context.closePath();
       }
       for (let i = 0; i < route.length; i++) {
-        if (this.cameraController.getSelectedPlanet() !== route[i]) {
+        if (this.selectedPlanet !== route[i]) {
           this.drawPlanet(route[i], 7, 'rgb(136, 255, 0)');
           this.drawPlanet(route[i], 4);
         }
       }
     }
 
-    if (this.cameraController.getSelectedPlanet()) {
+    if (this.selectedPlanet !== null) {
       // Draw the selected planets in the foreground
-      this.drawPlanet(this.cameraController.getSelectedPlanet(), 7, '#07d9c7');
-      this.drawPlanet(this.cameraController.getSelectedPlanet(), 4);
+      this.drawPlanet(this.selectedPlanet, 7, '#07d9c7');
+      this.drawPlanet(this.selectedPlanet, 4);
     }
 
     if (this.zoom > 2) {
@@ -229,7 +225,7 @@ class Universe {
     }
 
     // Request a rerender
-    requestAnimationFrame(this.draw.bind(this));
+    requestAnimationFrame(this.render.bind(this));
   }
 
   /**
@@ -302,6 +298,24 @@ class Universe {
    */
   public getCameraOffset(): Vector {
     return this.cameraOffset;
+  }
+
+  /**
+   * Updates the sleeted planet which gets highlighted.
+   *
+   * @param planet The new planet to highlight
+   */
+  public setSelectedPlanet(planet: Planet | null): void {
+    this.selectedPlanet = planet;
+  }
+
+  /**
+   * Gets the currently selected planet object or null
+   *
+   * @returns The selected planet or null
+   */
+  public getSelectedPlanet(): Planet | null {
+    return this.selectedPlanet;
   }
 
   /**

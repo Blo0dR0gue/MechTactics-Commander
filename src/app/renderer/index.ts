@@ -42,7 +42,7 @@ Config.getInstance()
     const routeController = new RouteController();
 
     // Universe is the central element and needs to generate before the others can start
-    universe.init(camera, routeController).then(() => {
+    universe.init(routeController).then(() => {
       // Start the camera controller & the handlers
       camera.init(universe, routeController);
       routeController.init(universe);

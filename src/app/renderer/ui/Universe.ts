@@ -17,36 +17,38 @@ class Universe {
    * The canvas html element
    */
   private canvas: HTMLCanvasElement;
+
   /**
    * The context of the html element
    */
   private context: CanvasRenderingContext2D;
+
   /**
    * The array which contains all planets
    */
   private planets: Planet[];
+
   /**
    * The array which contains all affiliations
    */
   private affiliations: Affiliation[];
+
   /**
    * The search tree (quadtree) to get all close planets to a specific point (Faster lookup)
    */
   private tree: Quadtree<Planet | Circle>;
 
   /**
-   * Holds the current hovered planet
-   */
-  private hoveredPlanet: Planet | null;
-  /**
    * The current zoom amount <br>
    * A bigger number means we are closer to the surface
    */
   private zoom = 2;
+
   /**
    * The current offset of the camera to the default
    */
   private cameraOffset = new Vector(1, 1);
+
   /**
    * The route controller
    */
@@ -56,6 +58,16 @@ class Universe {
    * The currently selected planet which gets highlighted
    */
   private selectedPlanet: Planet | null;
+
+  /**
+   * Holds the current hovered planet
+   */
+  private hoveredPlanet: Planet | null;
+
+  /**
+   * Second planet to which the distance should be displayed
+   */
+  private distancePlanet: Planet | null;
 
   /**
    * Creates a new universe
@@ -74,6 +86,8 @@ class Universe {
     return new Promise((resolve) => {
       this.routeController = routeController;
       this.selectedPlanet = null;
+      this.distancePlanet = null;
+      this.hoveredPlanet = null;
 
       // Init quadtree
       this.tree = new Quadtree({
@@ -163,6 +177,7 @@ class Universe {
     this.planets.forEach((planet: Planet) => {
       if (
         (this.selectedPlanet && this.selectedPlanet === planet) ||
+        (this.distancePlanet && this.distancePlanet === planet) ||
         this.routeController.routeContainsPlanet(planet)
       )
         return;
@@ -172,18 +187,9 @@ class Universe {
 
     // FIXME: Use events instead!
     if (this.routeController.getRoute().length > 0) {
-      this.context.strokeStyle = 'rgba(255, 255, 255, 1)';
-      this.context.lineWidth = 3 / this.zoom;
       const route = this.routeController.getRoute();
       for (let i = 0; i < route.length - 1; i++) {
-        this.context.beginPath();
-        this.context.moveTo(route[i].coord.getX(), route[i].coord.getY());
-        this.context.lineTo(
-          route[i + 1].coord.getX(),
-          route[i + 1].coord.getY()
-        );
-        this.context.stroke();
-        this.context.closePath();
+        this.drawConnection(route[i].coord, route[i + 1].coord);
       }
       for (let i = 0; i < route.length; i++) {
         if (this.selectedPlanet !== route[i]) {
@@ -197,6 +203,33 @@ class Universe {
       // Draw the selected planets in the foreground
       this.drawPlanet(this.selectedPlanet, 7, '#07d9c7');
       this.drawPlanet(this.selectedPlanet, 4);
+      if (this.distancePlanet !== null) {
+        this.drawPlanet(this.distancePlanet, 7, '#ab7b0a');
+        this.drawPlanet(this.distancePlanet, 4);
+        this.drawConnection(
+          this.selectedPlanet.coord,
+          this.distancePlanet.coord
+        );
+        // Draw the distance text
+        const distance = this.selectedPlanet.coord
+          .distance(this.distancePlanet.coord)
+          .toFixed(2)
+          .toString();
+        const textWidth = this.context.measureText(distance).width;
+        const textX =
+          (this.selectedPlanet.coord.getX() +
+            this.distancePlanet.coord.getX() -
+            textWidth) /
+          2;
+        const textY =
+          (this.selectedPlanet.coord.getY() +
+            this.distancePlanet.coord.getY()) /
+            2 -
+          10;
+        this.drawText(new Vector(textX, textY), distance, 20);
+        this.drawPlanetName(this.selectedPlanet);
+        this.drawPlanetName(this.distancePlanet);
+      }
     }
 
     if (this.zoom > 2) {
@@ -219,8 +252,8 @@ class Universe {
 
     if (this.zoom > 3) {
       this.planets.forEach((planet: Planet) => {
-        // Render all planet texts
-        this.drawPlanetName(planet);
+        // Render all planet texts if no distancePlanet got selected
+        if (this.distancePlanet === null) this.drawPlanetName(planet);
       });
     }
 
@@ -255,13 +288,45 @@ class Universe {
    * @param planet The planet for which the planet name should be drawn
    */
   private drawPlanetName(planet: Planet) {
-    this.context.font = '3px serif';
-    this.context.fillStyle = '#D5D5D5';
-    this.context.fillText(
+    this.drawText(
+      new Vector(planet.coord.getX() + 2, planet.coord.getY()),
       planet.getName(),
-      planet.coord.getX() + 2,
-      planet.coord.getY()
+      14,
+      '#D5D5D5'
     );
+  }
+
+  private drawText(
+    pos: Vector,
+    text: string,
+    width = 15,
+    textColor = 'rgba(255, 255, 255, 1)'
+  ) {
+    const textWidth = Math.round(width / this.zoom);
+    this.context.font = `${textWidth}px serif`;
+    this.context.fillStyle = textColor;
+    this.context.fillText(text, pos.getX(), pos.getY()); // Adjust the vertical position as needed
+  }
+
+  /**
+   * Renders a line between to positions
+   *
+   * @param posA
+   * @param posB
+   * @param color (optional)
+   */
+  private drawConnection(
+    posA: Vector,
+    posB: Vector,
+    color = 'rgba(255, 255, 255, 1)'
+  ) {
+    this.context.strokeStyle = color;
+    this.context.lineWidth = 3 / this.zoom;
+    this.context.beginPath();
+    this.context.moveTo(posA.getX(), posA.getY());
+    this.context.lineTo(posB.getX(), posB.getY());
+    this.context.stroke();
+    this.context.closePath();
   }
 
   /**
@@ -302,10 +367,12 @@ class Universe {
 
   /**
    * Updates the sleeted planet which gets highlighted.
+   * Also resets the distance planet
    *
    * @param planet The new planet to highlight
    */
   public setSelectedPlanet(planet: Planet | null): void {
+    this.distancePlanet = null;
     this.selectedPlanet = planet;
   }
 
@@ -316,6 +383,15 @@ class Universe {
    */
   public getSelectedPlanet(): Planet | null {
     return this.selectedPlanet;
+  }
+
+  /**
+   * Displays the distance from the selected planet to a other selected planet
+   *
+   * @param planet
+   */
+  public showDistanceToPlanet(planet: Planet) {
+    this.distancePlanet = planet;
   }
 
   /**

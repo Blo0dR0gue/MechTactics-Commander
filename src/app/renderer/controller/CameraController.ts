@@ -114,18 +114,20 @@ class CameraController {
         this.universe.getSelectedPlanet() !== null &&
         this.universe.getSelectedPlanet() !== closest.planet
       ) {
-        // Check the distance to the other planet
-        // TODO: Highlight the other planet and draw line. Reset if the selected planet gets changed.
-        console.log(
-          this.universe.getSelectedPlanet().coord.distance(closest.planet.coord)
-        );
+        // Display distance to other planet
+        this.universe.showDistanceToPlanet(closest.planet);
       } else {
         this.universe.setSelectedPlanet(closest.planet);
         console.log(closest.planet);
       }
-    } else if (!this.ctrlPressed) {
-      // Only reset if ctrl is not pressed
-      this.universe.setSelectedPlanet(null);
+    } else {
+      // Reset the selected planet. If ctrl is pressed reset the distance planet. if not reset the selected planet.
+      // Resetting the selected planet also resets the distance planet
+      if (this.ctrlPressed) {
+        this.universe.showDistanceToPlanet(null);
+      } else {
+        this.universe.setSelectedPlanet(null);
+      }
     }
     // TODO: Remove event
     this.selectionChangeEvent.invoke({

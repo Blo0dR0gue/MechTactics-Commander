@@ -72,6 +72,9 @@ class Main {
         }
       );
 
+      // Enable FK Checks
+      this.database.get('PRAGMA foreign_keys = ON');
+
       this.windowController = new WindowController(this.isDevelopment);
 
       this.updater = new Updater(

@@ -8,6 +8,7 @@
     <script src="../index.bundle.js" defer></script>
   </head>
   <body class="overflow-hidden bg-background">
+    <!--Loading indicator start-->
     <div
       id="loader"
       class="d-flex justify-content-center align-items-center"
@@ -20,56 +21,16 @@
         <div></div>
       </div>
     </div>
-    <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75"
-    >
-      <!--Left-->
-      <ul
-        class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-      >
-        <div class="btn link link-info" id="disclaimer">disclaimer</div>
-      </ul>
-      <!--Center-->
-      <ul
-        class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-      >
-        <div class="dropdown" id="version-dropdown">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            id="dropdownMenuButton"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            Version: 3025
-          </button>
-          <div
-            class="dropdown-menu"
-            aria-labelledby="dropdownMenuButton"
-            id="version-dropdown-menu"
-          >
-            <a class="dropdown-item active" href="#">3025</a>
-          </div>
-        </div>
-      </ul>
-      <!--Right-->
-      <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
-        <input
-          type="search"
-          class="form-control bg-white"
-          placeholder="Search..."
-          aria-label="Search"
-          id="planet-search"
-        />
-      </div>
-    </header>
+    <!--Loading indicator end-->
 
+    <!--ToastContainer start-->
     <div
       class="toast-container top-0 end-0 p-3 text-white mt-5"
       id="toast-container"
     ></div>
+    <!--ToastContainer end-->
 
+    <!--Disclaimer modal start-->
     <div class="modal" id="disclaimer-modal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -117,11 +78,61 @@
         </div>
       </div>
     </div>
+    <!--Disclaimer modal end-->
 
+    <!--Content start-->
     <div class="m-0 p-0">
+      <!--Header start-->
+      <header
+        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75"
+      >
+        <!--Left-->
+        <ul
+          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+        >
+          <div class="btn link link-info" id="disclaimer">disclaimer</div>
+        </ul>
+        <!--Center-->
+        <ul
+          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+        >
+          <div class="dropdown" id="version-dropdown">
+            <button
+              class="btn btn-secondary dropdown-toggle"
+              type="button"
+              id="dropdownMenuButton"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Version: 3025
+            </button>
+            <div
+              class="dropdown-menu"
+              aria-labelledby="dropdownMenuButton"
+              id="version-dropdown-menu"
+            >
+              <a class="dropdown-item active" href="#">3025</a>
+            </div>
+          </div>
+        </ul>
+        <!--Right-->
+        <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
+          <input
+            type="search"
+            class="form-control bg-white"
+            placeholder="Search..."
+            aria-label="Search"
+            id="planet-search"
+          />
+        </div>
+      </header>
+      <!--Header end-->
+
+      <!--Renderer output-->
       <canvas id="universe" tabindex="1"></canvas>
 
-      <!-- Action Bar -->
+      <!--Action Bar (Footer)-->
       <div
         class="d-flex flex-column position-absolute bottom-0 align-items-end w-100"
       >
@@ -295,5 +306,6 @@
         </div>
       </div>
     </div>
+    <!--Content end-->
   </body>
 </html>

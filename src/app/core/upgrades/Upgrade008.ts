@@ -1,9 +1,9 @@
 import { AppUpgradeInfo } from '../AppUpgradeInfo';
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { CoreConfig } from '../CoreConfig';
 
 class Upgrade008 extends AppUpgradeInfo {
-  public constructor(config: CoreConfig, database: sqlite3.Database) {
+  public constructor(config: CoreConfig, database: Database) {
     super(
       config,
       database,

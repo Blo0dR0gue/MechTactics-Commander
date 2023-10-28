@@ -1,4 +1,4 @@
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { WindowBase } from '../WindowBase';
 import * as path from 'path';
 import { app, ipcMain } from 'electron';
@@ -7,47 +7,39 @@ import { AffiliationJSON } from '../../../types/AffiliationJson';
 import { CoreConfig } from '../../CoreConfig';
 
 class MainWindow extends WindowBase {
-  private db: sqlite3.Database;
+  private database: Database;
   private config: CoreConfig;
 
   public constructor(
     isDevelopment: boolean,
-    database: sqlite3.Database,
+    database: Database,
     config: CoreConfig
   ) {
     super(isDevelopment, 'index.html', path.join(__dirname, 'preload.js'));
-    this.db = database;
+    this.database = database;
     this.config = config;
   }
 
   protected setupHandler() {
     ipcMain.handle('getAllPlanets', () => {
-      return new Promise<PlanetJSON[]>((resolve, reject) => {
-        this.db.all(
-          'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet',
-          (err, rows: PlanetJSON[]) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(rows);
-            }
-          }
-        );
+      return new Promise<PlanetJSON[]>((resolve) => {
+        this.database
+          .all<PlanetJSON[]>(
+            'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet'
+          )
+          .then((data) => {
+            resolve(data);
+          });
       });
     });
 
     ipcMain.handle('getAllAffiliations', () => {
-      return new Promise<AffiliationJSON[]>((resolve, reject) => {
-        this.db.all(
-          'SELECT rowid as rowID, name, color FROM affiliation',
-          (err, rows: AffiliationJSON[]) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(rows);
-            }
-          }
-        );
+      return new Promise<AffiliationJSON[]>((resolve) => {
+        this.database
+          .all('SELECT rowid as rowID, name, color FROM affiliation')
+          .then((data) => {
+            resolve(data);
+          });
       });
     });
 

@@ -5,13 +5,13 @@ import {
   autoUpdater,
 } from 'electron-updater';
 import { WindowController } from './window/WindowController';
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
 import appUpgradeInfos from './upgrades';
 
 class Updater {
   private windowController: WindowController;
-  private database: sqlite3.Database;
+  private database: Database;
   private config: CoreConfig;
 
   // TODO: Use separate files to define the upgrades
@@ -19,7 +19,7 @@ class Updater {
 
   public constructor(
     windowController: WindowController,
-    database: sqlite3.Database,
+    database: Database,
     config: CoreConfig
   ) {
     this.windowController = windowController;

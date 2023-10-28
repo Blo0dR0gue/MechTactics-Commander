@@ -1,4 +1,4 @@
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
 
 abstract class AppUpgradeInfo {
@@ -6,11 +6,11 @@ abstract class AppUpgradeInfo {
   public description: string;
   public actions: (() => Promise<void>)[];
   protected config: CoreConfig;
-  protected database: sqlite3.Database;
+  protected database: Database;
 
   public constructor(
     config: CoreConfig,
-    database: sqlite3.Database,
+    database: Database,
     version: string,
     description: string
   ) {

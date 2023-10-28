@@ -6,6 +6,11 @@ import { Affiliation } from './Affiliation';
  */
 class Planet extends Circle {
   /**
+   * The id
+   */
+  private id: number;
+
+  /**
    * The name of this planet
    */
   private name: string;
@@ -31,9 +36,18 @@ class Planet extends Circle {
     affiliation: Affiliation
   ) {
     super({ x: x, y: y, r: 0.01 });
+    this.id = id;
     this.name = name;
     this.link = link;
     this.affiliation = affiliation;
+  }
+
+  /**
+   * Gets thee id of this planet
+   * @returns The id of the planet
+   */
+  public getID(): number {
+    return this.id;
   }
 
   /**

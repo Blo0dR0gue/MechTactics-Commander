@@ -11,8 +11,29 @@ class Upgrade009 extends AppUpgradeInfo {
     });
     this.actions.push(async () => {
       console.log('Upgrading Database');
-      // TODO: Enable foreign_keys globally -> db.get("PRAGMA foreign_keys = ON")
-      database.serialize(() => {});
+      // Rename old tables
+      database.exec('ALTER TABLE Planet RENAME TO Planet_old;');
+      database.exec('ALTER TABLE Affiliation RENAME TO Affiliation_old;');
+
+      // Create new table schemas
+      database.exec(
+        'CREATE TABLE IF NOT EXISTS Affiliation(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, color TEXT);'
+      );
+      database.exec(
+        'CREATE TABLE IF NOT EXISTS UniverseAge(id INTEGER PRIMARY KEY AUTOINCREMENT, age TEXT);'
+      );
+      database.exec(
+        'CREATE TABLE IF NOT EXISTS Planet(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, link TEXT, x REAL, y REAL);'
+      );
+      database.exec(
+        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(affiliationID INTEGER, universeAgeID INTEGER, planetID INTEGER, ' +
+          'PRIMARY KEY(affiliationID, universeAgeID, planetID), FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
+          'FOREIGN KEY(universeAgeID) REFERENCES UniverseAge(id), FOREIGN KEY(planetID) REFERENCES Planet(id));'
+      );
+
+      // Insert current battletech map version
+      database.exec('INSERT INTO UniverseAge (age) VALUES ("3025")');
+
       /*
       FIX DATABASE LIKE THIS:
       PRAGMA foreign_keys = 1;

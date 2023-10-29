@@ -26,8 +26,8 @@ class Upgrade009 extends AppUpgradeInfo {
         'CREATE TABLE IF NOT EXISTS Planet(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, link TEXT, x REAL, y REAL);'
       );
       await database.exec(
-        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(affiliationID INTEGER, universeAgeID INTEGER, planetID INTEGER, ' +
-          'PRIMARY KEY(affiliationID, universeAgeID, planetID), FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
+        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(universeAgeID INTEGER, planetID INTEGER, affiliationID INTEGER' +
+          'PRIMARY KEY(universeAgeID, planetID), FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
           'FOREIGN KEY(universeAgeID) REFERENCES UniverseAge(id), FOREIGN KEY(planetID) REFERENCES Planet(id));'
       );
 

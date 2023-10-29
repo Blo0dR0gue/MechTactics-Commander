@@ -20,15 +20,13 @@ class Upgrade009 extends AppUpgradeInfo {
         'CREATE TABLE IF NOT EXISTS Affiliation(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, color TEXT);'
       );
       await database.exec(
-        'CREATE TABLE IF NOT EXISTS UniverseAge(id INTEGER PRIMARY KEY AUTOINCREMENT, age TEXT);'
-      );
-      await database.exec(
         'CREATE TABLE IF NOT EXISTS Planet(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, link TEXT, x REAL, y REAL);'
       );
       await database.exec(
-        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(universeAgeID INTEGER, planetID INTEGER, affiliationID INTEGER' +
-          'PRIMARY KEY(universeAgeID, planetID), FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
-          'FOREIGN KEY(universeAgeID) REFERENCES UniverseAge(id), FOREIGN KEY(planetID) REFERENCES Planet(id));'
+        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(universeAge string, planetID INTEGER, affiliationID INTEGER, ' +
+          'PRIMARY KEY(universeAge, planetID), ' +
+          'FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
+          'FOREIGN KEY(planetID) REFERENCES Planet(id));'
       );
 
       // Insert current battletech map version

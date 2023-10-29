@@ -119,18 +119,19 @@ class Universe {
     this.planets = [];
     this.affiliations = [];
 
-    const affiliationJSONData = await window.sql.getAllAffiliations();
+    // TODO: No static universe age
+    const affiliationJSONData = await window.sql.getAllAffiliations('3025');
     affiliationJSONData.forEach((affiliationJSON) => {
       // Create object and add to affiliations array
       const affiliation = new Affiliation(
-        affiliationJSON.rowID,
+        affiliationJSON.id,
         affiliationJSON.name,
         affiliationJSON.color
       );
       this.affiliations.push(affiliation);
     });
 
-    const planetJSONData = await window.sql.getAllPlanets();
+    const planetJSONData = await window.sql.getAllPlanets('3025');
     planetJSONData.forEach((planetJSON) => {
       // Find the affiliation for this planet
       const planetAffiliation = this.affiliations.find(
@@ -146,7 +147,7 @@ class Universe {
 
       // Create object and add to planets array and quadtree
       const planet = new Planet(
-        planetJSON.rowID,
+        planetJSON.id,
         planetJSON.name,
         planetJSON.x,
         planetJSON.y,

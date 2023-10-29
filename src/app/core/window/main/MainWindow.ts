@@ -21,11 +21,11 @@ class MainWindow extends WindowBase {
   }
 
   protected setupHandler() {
-    ipcMain.handle('getAllPlanets', () => {
+    ipcMain.handle('getAllPlanets', (event, age: string) => {
       return new Promise<PlanetJSON[]>((resolve) => {
         this.database
           .all<PlanetJSON[]>(
-            'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet'
+            `SELECT DISTINCT id, name, x, y, link, u.affiliationID as affiliationID FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAgeID = (SELECT id FROM UniverseAge Where age = "${age}")`
           )
           .then((data) => {
             resolve(data);
@@ -33,10 +33,12 @@ class MainWindow extends WindowBase {
       });
     });
 
-    ipcMain.handle('getAllAffiliations', () => {
+    ipcMain.handle('getAllAffiliations', (event, age: string) => {
       return new Promise<AffiliationJSON[]>((resolve) => {
         this.database
-          .all('SELECT rowid as rowID, name, color FROM affiliation')
+          .all(
+            `SELECT DISTINCT id, name, color FROM Affiliation as a JOIN PlanetAffiliationAge as u ON a.id = u.affiliationID WHERE u.universeAgeID = (SELECT id FROM UniverseAge Where age = "${age}")`
+          )
           .then((data) => {
             resolve(data);
           });

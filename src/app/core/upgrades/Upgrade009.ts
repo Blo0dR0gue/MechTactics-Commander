@@ -12,10 +12,12 @@ class Upgrade009 extends AppUpgradeInfo {
     this.actions.push(async () => {
       console.log('Upgrading Database');
       // Rename old tables
+      console.log('Rename old tables');
       await database.exec('ALTER TABLE Planet RENAME TO Planet_old;');
       await database.exec('ALTER TABLE Affiliation RENAME TO Affiliation_old;');
 
       // Create new table schemas
+      console.log('Create new table schemas');
       await database.exec(
         'CREATE TABLE IF NOT EXISTS Affiliation(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, color TEXT);'
       );
@@ -30,9 +32,11 @@ class Upgrade009 extends AppUpgradeInfo {
       );
 
       // Insert current battletech map version
+      console.log('Insert current battletech map version');
       await database.exec('INSERT INTO UniverseAge (age) VALUES ("3025")');
 
       // Add all affiliation objects
+      console.log('Add all affiliation objects');
       await database.each(
         'SELECT name, color FROM Affiliation_old;',
         async (err, data: { name: string; color: string }) => {
@@ -46,6 +50,8 @@ class Upgrade009 extends AppUpgradeInfo {
         }
       );
 
+      // Adding planets
+      console.log('Adding planets');
       const planetAffilationData = (await database.all(
         'SELECT p.name as planetName, link, x, y, a.name as affiliationName FROM Planet_old as p JOIN Affiliation_old as a ON p.affiliation = a.rowid;'
       )) as {
@@ -66,7 +72,8 @@ class Upgrade009 extends AppUpgradeInfo {
         );
       }
 
-      // Drop old tables
+      // Dropping old tables
+      console.log('Dropping old tables');
       await database.exec('DROP TABLE Planet_old;');
       await database.exec('DROP TABLE Affiliation_old;');
 

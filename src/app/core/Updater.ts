@@ -5,34 +5,21 @@ import {
   autoUpdater,
 } from 'electron-updater';
 import { WindowController } from './window/WindowController';
-import { AppUpgradeInfo } from './AppUpgradeInfo';
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
-import { app } from 'electron';
+import appUpgradeInfos from './upgrades';
 
 class Updater {
   private windowController: WindowController;
-  private database: sqlite3.Database;
+  private database: Database;
   private config: CoreConfig;
-  private upgradeRunning: boolean;
 
-  private readonly appUpgradeInfoMap: Record<string, AppUpgradeInfo> = {
-    '0.0.8': {
-      version: '0.0.8',
-      description: 'Added core features, route settings and planet search',
-      actions: [
-        async () => {
-          this.config.set('version', '0.0.8');
-          this.config.set('jumpRange', 30);
-          this.config.set('excludedAffiliationIDs', []);
-        },
-      ],
-    },
-  };
+  // TODO: Use separate files to define the upgrades
+  private readonly appUpgradeInfoMap = appUpgradeInfos;
 
   public constructor(
     windowController: WindowController,
-    database: sqlite3.Database,
+    database: Database,
     config: CoreConfig
   ) {
     this.windowController = windowController;
@@ -49,28 +36,36 @@ class Updater {
     const currentVersion = this.config.get('version');
     for (const version in this.appUpgradeInfoMap) {
       if (version > currentVersion) {
-        this.upgradeRunning = true;
         return true; // Upgrade is needed
       }
     }
-    this.upgradeRunning = false;
     return false; // No upgrades are needed
   }
 
   private async handleAppUpgrade() {
     const currentVersion = this.config.get('version');
+    // Get all upgrades todo
     const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter(
       (version) => version > currentVersion
     );
-
+    // TODO: Rework to not create the upgrade objects here
+    // Get the amount of actions todo
     const actionsLength = upgradeVersions
-      .map((value) => this.appUpgradeInfoMap[value].actions.length)
+      .map(
+        (value) =>
+          new this.appUpgradeInfoMap[value](this.config, this.database).actions
+            .length
+      )
       .reduce((acc, curr) => acc + curr, 0);
 
     let executedActions = 0;
 
+    // Execute actions per upgrade version one by one and update progress bar.
     for (const version of upgradeVersions) {
-      const upgradeInfo = this.appUpgradeInfoMap[version];
+      const upgradeInfo = new this.appUpgradeInfoMap[version](
+        this.config,
+        this.database
+      );
 
       this.windowController.currentWindow.sendIpc(
         'updateText',
@@ -88,24 +83,26 @@ class Updater {
         );
       }
     }
+
+    // Upgrade finished
     this.windowController.currentWindow.sendIpc(
       'updateText',
-      `Upgrade finished. Restart the app.`,
-      true
+      `Upgrade finished. Starting app please wait.`,
+      false
     );
+    // Wait 4 sec before starting the app.
+    setTimeout(() => {
+      this.windowController.openMainWindow(this.database, this.config);
+    }, 4000);
   }
 
   public restartAndUpdate() {
-    if (this.upgradeRunning) {
-      app.relaunch();
-      app.quit();
-    } else {
-      autoUpdater.quitAndInstall();
-    }
+    autoUpdater.quitAndInstall();
   }
 
   private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
+      this.windowController.openUpdateWindow(this);
       console.log('Checking for updates...');
     });
 
@@ -113,8 +110,12 @@ class Updater {
       console.log('No update available.');
       console.log('Checking for upgrades...');
       if (this.isUpgradeNeeded()) {
-        this.windowController.openUpdateWindow(this);
+        // TODO: Remove timeout and detect if window is visible
         setTimeout(() => {
+          this.windowController.currentWindow.sendIpc(
+            'updateTitle',
+            `Upgrade in progress`
+          );
           this.handleAppUpgrade();
         }, 1000);
       } else {
@@ -124,7 +125,10 @@ class Updater {
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      this.windowController.openUpdateWindow(this);
+      this.windowController.currentWindow.sendIpc(
+        'updateTitle',
+        `Update in progress`
+      );
       this.windowController.currentWindow.sendIpc(
         'updateText',
         `Downloading new update. Version: ${info.version}`,
@@ -133,7 +137,6 @@ class Updater {
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
-      // TODO: Use update page and progress data
       this.windowController.currentWindow.sendIpc(
         'updatePercentage',
         info.percent

@@ -22,6 +22,7 @@ class ActionBarHandler {
   private coordinatesArea: HTMLElement;
   private centerOnPlanetBtn: HTMLButtonElement;
   private addToRouteBtn: HTMLButtonElement;
+  private planetCustomText: HTMLTextAreaElement;
 
   private selectedPlanet: Planet | null;
 
@@ -46,6 +47,9 @@ class ActionBarHandler {
     this.planetNameArea = document.getElementById('planet-name');
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
+    this.planetCustomText = document.getElementById(
+      'planet-custom-textarea'
+    ) as HTMLTextAreaElement;
     this.coordinatesArea = document.getElementById('coordinates');
     this.centerOnPlanetBtn = document.getElementById(
       'center-on-planet'
@@ -106,6 +110,13 @@ class ActionBarHandler {
       'click',
       this.addToRouteClicked.bind(this)
     );
+
+    // Add listener to the custom text area changes to update the selected planets custom text
+    this.planetCustomText.addEventListener('change', () => {
+      if (this.selectedPlanet) {
+        this.selectedPlanet.setText(this.planetCustomText.value);
+      }
+    });
 
     // Setup the camera event listeners
     this.cameraController.selectionChangeEvent.subscribe(
@@ -232,6 +243,8 @@ class ActionBarHandler {
       this.updateText(this.affiliationNameArea, 'None');
       this.updateText(this.coordinatesArea, `x: None, y: None`);
       this.wikiLinkArea.href = '#';
+      this.planetCustomText.disabled = true;
+      this.planetCustomText.value = '';
     } else {
       this.updateText(this.planetNameArea, this.selectedPlanet.getName());
       this.updateText(
@@ -243,6 +256,8 @@ class ActionBarHandler {
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
       this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
+      this.planetCustomText.disabled = false;
+      this.planetCustomText.value = this.selectedPlanet.getText();
       // Select first button (Planet Details)
       // FIXME: Make dynamic
       this.showTab(this.navButtons[0].dataset.content, this.navButtons[0]);

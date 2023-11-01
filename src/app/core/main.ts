@@ -4,13 +4,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import sqlite3 = require('sqlite3');
+import { open, Database } from 'sqlite';
+
 import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
 import { WindowController } from './window/WindowController';
 
 class Main {
   private isDevelopment: boolean;
-  private database: sqlite3.Database;
+  private database: Database;
 
   private config: CoreConfig;
   private windowController: WindowController;
@@ -57,20 +59,26 @@ class Main {
   }
 
   private initHandlers() {
-    app.whenReady().then(() => {
-      this.database = new sqlite3.Database(
-        path
+    app.whenReady().then(async () => {
+      sqlite3.verbose();
+      this.database = await open({
+        driver: sqlite3.Database,
+        filename: path
           .join(
             this.isDevelopment ? __dirname : app.getPath('userData'),
             'commander.db'
           )
           .replace('app.asar', 'app.asar.unpacked'),
-        sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-        (err) => {
-          if (err) console.log(err);
-          // TODO: Error Handling
-        }
-      );
+        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+      });
+
+      // Enable FK Checks
+      this.database.get('PRAGMA foreign_keys = ON');
+      // Enable error tracing
+      this.database.on('trace', (data) => {
+        // TODO: Error handling database
+        console.log(data);
+      });
 
       this.windowController = new WindowController(this.isDevelopment);
 

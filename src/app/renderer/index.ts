@@ -11,6 +11,8 @@ import { Config } from './utils/Config';
 
 import { Tooltip } from 'bootstrap';
 
+const loader = document.getElementById('loader');
+
 // Enable all Tooltips
 const tooltipTriggerList = document.querySelectorAll(
   '[data-bs-toggle="tooltip"]'
@@ -25,11 +27,12 @@ async function setTitle() {
   document.title = document.title.concat(` ${version}`);
 }
 setTitle();
-
 // Build cache then start app
 Config.getInstance()
   .buildCache()
   .then(() => {
+    loader.classList.add('hide');
+    loader.classList.remove('d-flex');
     // Setup the app elements
     const universe = new Universe();
     const camera = new CameraController();
@@ -39,7 +42,7 @@ Config.getInstance()
     const routeController = new RouteController();
 
     // Universe is the central element and needs to generate before the others can start
-    universe.init(camera, routeController).then(() => {
+    universe.init(routeController).then(() => {
       // Start the camera controller & the handlers
       camera.init(universe, routeController);
       routeController.init(universe);

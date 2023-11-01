@@ -1,11 +1,12 @@
 interface Window {
   sql: {
-    getAllPlanets: () => Promise<
-      import('./src/app/types/PlanetJson').PlanetJSON[]
-    >;
-    getAllAffiliations: () => Promise<
-      import('./src/app/types/AffiliationJson').AffiliationJSON[]
-    >;
+    getAllPlanets: (
+      age: string
+    ) => Promise<import('./src/app/types/PlanetJson').PlanetJSON[]>;
+    getAllAffiliations: (
+      age: string
+    ) => Promise<import('./src/app/types/AffiliationJson').AffiliationJSON[]>;
+    updatePlanetText: (id: number, universeAge: string, text: string) => void;
   };
   app: {
     version: () => Promise<string>;
@@ -20,6 +21,9 @@ interface Window {
         text: string,
         finished: boolean
       ) => void
+    ) => void;
+    addUpdateTitleListener: (
+      callback: (event: Electron.IpcRendererEvent, text: string) => void
     ) => void;
     restartAndUpdate: () => void;
   };

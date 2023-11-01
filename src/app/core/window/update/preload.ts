@@ -7,5 +7,8 @@ contextBridge.exposeInMainWorld('app', {
   addUpdateTextListener: (
     callback: (event: IpcRendererEvent, text: string, finished: boolean) => void
   ) => ipcRenderer.on('updateText', callback),
+  addUpdateTitleListener: (
+    callback: (event: IpcRendererEvent, text: string) => void
+  ) => ipcRenderer.on('updateTitle', callback),
   restartAndUpdate: () => ipcRenderer.invoke('restartAndUpdate'),
 });

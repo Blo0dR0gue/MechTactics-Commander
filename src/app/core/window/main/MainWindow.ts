@@ -1,4 +1,4 @@
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 import { WindowBase } from '../WindowBase';
 import * as path from 'path';
 import { app, ipcMain } from 'electron';
@@ -7,49 +7,55 @@ import { AffiliationJSON } from '../../../types/AffiliationJson';
 import { CoreConfig } from '../../CoreConfig';
 
 class MainWindow extends WindowBase {
-  private db: sqlite3.Database;
+  private database: Database;
   private config: CoreConfig;
 
   public constructor(
     isDevelopment: boolean,
-    database: sqlite3.Database,
+    database: Database,
     config: CoreConfig
   ) {
     super(isDevelopment, 'index.html', path.join(__dirname, 'preload.js'));
-    this.db = database;
+    this.database = database;
     this.config = config;
   }
 
   protected setupHandler() {
-    ipcMain.handle('getAllPlanets', () => {
-      return new Promise<PlanetJSON[]>((resolve, reject) => {
-        this.db.all(
-          'SELECT rowid as rowID, name , x, y, affiliation as affiliationID, link FROM Planet',
-          (err, rows: PlanetJSON[]) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(rows);
-            }
-          }
-        );
+    ipcMain.handle('getAllPlanets', (event, age: string) => {
+      return new Promise<PlanetJSON[]>((resolve) => {
+        this.database
+          .all<PlanetJSON[]>(
+            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
+          )
+          .then((data) => {
+            resolve(data);
+          });
       });
     });
 
-    ipcMain.handle('getAllAffiliations', () => {
-      return new Promise<AffiliationJSON[]>((resolve, reject) => {
-        this.db.all(
-          'SELECT rowid as rowID, name, color FROM affiliation',
-          (err, rows: AffiliationJSON[]) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(rows);
-            }
-          }
-        );
+    ipcMain.handle('getAllAffiliations', (event, age: string) => {
+      return new Promise<AffiliationJSON[]>((resolve) => {
+        this.database
+          .all(
+            `SELECT DISTINCT id, name, color FROM Affiliation as a JOIN PlanetAffiliationAge as u ON a.id = u.affiliationID WHERE u.universeAge = "${age}";`
+          )
+          .then((data) => {
+            resolve(data);
+          });
       });
     });
+
+    ipcMain.handle(
+      'updatePlanetText',
+      (event, id: number, universeAge: string, text: string) => {
+        this.database.run(
+          `UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ?;`,
+          text,
+          universeAge,
+          id
+        );
+      }
+    );
 
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();

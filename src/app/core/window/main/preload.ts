@@ -1,8 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('sql', {
-  getAllPlanets: () => ipcRenderer.invoke('getAllPlanets'),
-  getAllAffiliations: () => ipcRenderer.invoke('getAllAffiliations'),
+  getAllPlanets: (age: string) => ipcRenderer.invoke('getAllPlanets', age),
+  getAllAffiliations: (age: string) =>
+    ipcRenderer.invoke('getAllAffiliations', age),
+  updatePlanetText: (id: number, universeAge: string, text: string) => {
+    ipcRenderer.invoke('updatePlanetText', id, universeAge, text);
+  },
 });
 
 contextBridge.exposeInMainWorld('app', {

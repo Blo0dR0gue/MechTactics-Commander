@@ -10,6 +10,7 @@ describe.each([
       y: 0,
       affiliationId: 1,
       link: 'https://example.com',
+      planetText: 'test',
       nameAffiliation: 'Terran',
       color: 'blue',
     },
@@ -26,6 +27,7 @@ describe.each([
       y: 20,
       affiliationId: 2,
       link: 'https://example.com/mars',
+      planetText: 'test',
       nameAffiliation: 'Martian',
       color: 'red',
     },
@@ -44,6 +46,7 @@ describe.each([
         planetData.x,
         planetData.y,
         planetData.link,
+        planetData.planetText,
         new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
@@ -60,6 +63,7 @@ describe.each([
         planetData.x,
         planetData.y,
         planetData.link,
+        planetData.planetText,
         new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
@@ -76,6 +80,7 @@ describe.each([
         planetData.x,
         planetData.y,
         planetData.link,
+        planetData.planetText,
         new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
@@ -92,6 +97,7 @@ describe.each([
         planetData.x,
         planetData.y,
         planetData.link,
+        planetData.planetText,
         new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,

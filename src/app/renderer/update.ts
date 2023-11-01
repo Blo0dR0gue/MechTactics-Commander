@@ -3,6 +3,7 @@ import './styles/main.scss';
 
 const progressBar = document.getElementById('progress-bar');
 const updateText = document.getElementById('update-text');
+const updateTitle = document.getElementById('update-title');
 const restartBtn = document.getElementById('restart') as HTMLButtonElement;
 
 function setProgress(progress: number) {
@@ -10,16 +11,20 @@ function setProgress(progress: number) {
   progressBar.ariaValueNow = progress.toString();
 }
 
-function setText(message: string) {
-  updateText.textContent = message;
+function setText(elem: Element, message: string) {
+  elem.textContent = message;
 }
 
 window.app.addDownloadProgressListener((event, percent) => {
   setProgress(percent);
 });
 
+window.app.addUpdateTitleListener((event, text) => {
+  setText(updateTitle, text);
+});
+
 window.app.addUpdateTextListener((event, text, finished) => {
-  setText(text);
+  setText(updateText, text);
   if (finished) {
     restartBtn.classList.remove('hide');
   }

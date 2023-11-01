@@ -1,10 +1,11 @@
 type PlanetJSON = {
-  rowID: number;
+  id: number;
   name: string;
   x: number;
   y: number;
-  affiliationID: number;
   link: string;
+  planetText: string;
+  affiliationID: number;
 };
 
 export { PlanetJSON };

@@ -4,7 +4,7 @@ import { MainWindow } from './main/MainWindow';
 import { UpdateWindow } from './update/UpdateWindow';
 import { Updater } from '../Updater';
 import { CoreConfig } from '../CoreConfig';
-import sqlite3 = require('sqlite3');
+import { Database } from 'sqlite';
 
 class WindowController {
   public currentWindow: WindowBase;
@@ -15,7 +15,7 @@ class WindowController {
     this.isDevelopment = isDevelopment;
   }
 
-  public openMainWindow(database: sqlite3.Database, config: CoreConfig) {
+  public openMainWindow(database: Database, config: CoreConfig) {
     this.setWindow(new MainWindow(this.isDevelopment, database, config));
   }
 

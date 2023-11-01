@@ -152,6 +152,7 @@ class Universe {
         planetJSON.x,
         planetJSON.y,
         planetJSON.link,
+        planetJSON.planetText,
         planetAffiliation
       );
       this.planets.push(planet);

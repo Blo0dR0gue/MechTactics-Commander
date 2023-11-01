@@ -6,6 +6,7 @@ interface Window {
     getAllAffiliations: (
       age: string
     ) => Promise<import('./src/app/types/AffiliationJson').AffiliationJSON[]>;
+    updatePlanetText: (id: number, universeAge: string, text: string) => void;
   };
   app: {
     version: () => Promise<string>;

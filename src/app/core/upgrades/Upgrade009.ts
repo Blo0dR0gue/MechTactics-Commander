@@ -6,10 +6,6 @@ class Upgrade009 extends AppUpgradeInfo {
   public constructor(config: CoreConfig, database: Database) {
     super(config, database, '0.0.9', 'Test');
     this.actions.push(async () => {
-      console.log('Upgrading config');
-      this.config.set('version', '0.0.9');
-    });
-    this.actions.push(async () => {
       console.log('Upgrading Database');
       // Rename old tables
       console.log('Rename old tables');
@@ -25,15 +21,11 @@ class Upgrade009 extends AppUpgradeInfo {
         'CREATE TABLE IF NOT EXISTS Planet(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, link TEXT, x REAL, y REAL);'
       );
       await database.exec(
-        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(universeAge string, planetID INTEGER, affiliationID INTEGER, ' +
+        'CREATE TABLE IF NOT EXISTS PlanetAffiliationAge(universeAge string, planetID INTEGER, affiliationID INTEGER, planetText TEXT, ' +
           'PRIMARY KEY(universeAge, planetID), ' +
           'FOREIGN KEY(affiliationID) REFERENCES Affiliation(id), ' +
           'FOREIGN KEY(planetID) REFERENCES Planet(id));'
       );
-
-      // Insert current battletech map version
-      console.log('Insert current battletech map version');
-      await database.exec('INSERT INTO UniverseAge (age) VALUES ("3025")');
 
       // Add all affiliation objects
       console.log('Add all affiliation objects');
@@ -68,7 +60,7 @@ class Upgrade009 extends AppUpgradeInfo {
         );
 
         await database.exec(
-          `INSERT INTO PlanetAffiliationAge (affiliationID, universeAgeID, planetID) VALUES ( (SELECT id FROM Affiliation WHERE name = "${data.affiliationName}"), 1, (SELECT id FROM Planet WHERE name = "${data.planetName}"));`
+          `INSERT INTO PlanetAffiliationAge (affiliationID, universeAge, planetID) VALUES ( (SELECT id FROM Affiliation WHERE name = "${data.affiliationName}"), "3025", (SELECT id FROM Planet WHERE name = "${data.planetName}"));`
         );
       }
 
@@ -76,6 +68,10 @@ class Upgrade009 extends AppUpgradeInfo {
       console.log('Dropping old tables');
       await database.exec('DROP TABLE Planet_old;');
       await database.exec('DROP TABLE Affiliation_old;');
+    });
+    this.actions.push(async () => {
+      console.log('Upgrading config');
+      this.config.set('version', '0.0.9');
     });
   }
 }

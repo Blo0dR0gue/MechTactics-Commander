@@ -25,7 +25,7 @@ class MainWindow extends WindowBase {
       return new Promise<PlanetJSON[]>((resolve) => {
         this.database
           .all<PlanetJSON[]>(
-            `SELECT id, name, x, y, link, u.affiliationID as affiliationID FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
+            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
           )
           .then((data) => {
             resolve(data);
@@ -44,6 +44,18 @@ class MainWindow extends WindowBase {
           });
       });
     });
+
+    ipcMain.handle(
+      'updatePlanetText',
+      (event, id: number, universeAge: string, text: string) => {
+        this.database.run(
+          `UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ?;`,
+          text,
+          universeAge,
+          id
+        );
+      }
+    );
 
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();

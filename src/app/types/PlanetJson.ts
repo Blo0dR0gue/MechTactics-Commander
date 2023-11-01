@@ -4,6 +4,7 @@ type PlanetJSON = {
   x: number;
   y: number;
   link: string;
+  planetText: string;
   affiliationID: number;
 };
 

@@ -5,6 +5,7 @@ import { UpdateWindow } from './update/UpdateWindow';
 import { Updater } from '../Updater';
 import { CoreConfig } from '../CoreConfig';
 import { Database } from 'sqlite';
+import { DashboardWindow } from './dashboard/DashboarrdWindow';
 
 class WindowController {
   public currentWindow: WindowBase;
@@ -21,6 +22,10 @@ class WindowController {
 
   public openUpdateWindow(updater: Updater) {
     this.setWindow(new UpdateWindow(this.isDevelopment, updater));
+  }
+
+  public openDashboardWindow(database: Database) {
+    this.setWindow(new DashboardWindow(this.isDevelopment, database));
   }
 
   private setWindow(newWindow: WindowBase) {

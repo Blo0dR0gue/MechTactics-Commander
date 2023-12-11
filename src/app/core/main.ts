@@ -88,10 +88,11 @@ class Main {
         this.config
       );
 
-      this.updater.checkForUpdates();
+      //this.updater.checkForUpdates();
 
       if (this.isDevelopment) {
-        this.windowController.openMainWindow(this.database, this.config);
+        //this.windowController.openMainWindow(this.database, this.config);
+        this.windowController.openDashboardWindow(this.database);
       }
     });
 

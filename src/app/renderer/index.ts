@@ -1,3 +1,5 @@
+// Init file for the main app
+
 // Import custom CSS to load bootstrap and override variables
 import './styles/main.scss';
 

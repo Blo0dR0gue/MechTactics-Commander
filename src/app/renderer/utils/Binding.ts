@@ -1,3 +1,5 @@
+// TODO: remove unknown type
+
 class BindingError extends Error {
   public constructor(message: string) {
     super(message);

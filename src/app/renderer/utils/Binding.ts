@@ -1,5 +1,3 @@
-// TODO: remove unknown type
-
 class BindingError extends Error {
   public constructor(message: string) {
     super(message);
@@ -8,7 +6,7 @@ class BindingError extends Error {
 }
 
 interface BindingData {
-  obj: unknown;
+  obj: object;
   prop: string;
   event?: string;
   eventListener?: () => void;
@@ -18,22 +16,20 @@ interface BindingData {
  * TODO: if parameter not set define it in object instead of throwing an error
  */
 class Binding {
-  private bindingObject: object;
-  private bindingProp: string;
-  private twoWay: boolean;
   private value: unknown;
 
   private bindings: BindingData[] = [];
 
-  public constructor(bindingObject: object, prop: string, twoWay = true) {
-    this.bindingObject = bindingObject;
-    this.bindingProp = prop;
-    this.twoWay = twoWay;
+  public constructor(
+    private readonly bindingObject: object,
+    private readonly bindingProp: string,
+    private readonly twoWay = true
+  ) {
     this.value = this.getValue(this.bindingObject, this.bindingProp);
     this.defineProperty(this.bindingObject, this.bindingProp);
   }
 
-  private objectHasProperty(obj: unknown, prop: string): boolean {
+  private objectHasProperty(obj: object, prop: string): boolean {
     const path = prop.split('.');
     let current = obj;
 
@@ -50,14 +46,17 @@ class Binding {
     return true;
   }
 
-  private getDeepestObject(obj: unknown, prop: string) {
+  private getDeepestObject(obj: object, prop: string) {
     const path = prop.split('.');
+    if (path.length < 1) {
+      throw new BindingError(`Invalid property path: ${prop}`);
+    }
     path.pop(); // Remove the last element
     let current = obj;
 
     for (const part of path) {
       if (current[part] === undefined) {
-        throw new BindingError(`Object does not have prop: ${prop}`);
+        throw new BindingError(`Object does not have property: ${part}`);
       }
       current = current[part];
     }
@@ -76,7 +75,7 @@ class Binding {
     return last;
   }
 
-  private getValue(obj: unknown, prop: string): unknown {
+  private getValue(obj: object, prop: string): unknown {
     const deepestObj = this.getDeepestObject(obj, prop);
     return deepestObj[this.getLastPathPart(prop)];
   }
@@ -95,7 +94,7 @@ class Binding {
     return this.value;
   };
 
-  private defineProperty(obj: unknown, prop: string): void {
+  private defineProperty(obj: object, prop: string): void {
     if (this.objectHasProperty(obj, prop)) {
       const deepestObj = this.getDeepestObject(obj, prop);
       const lastPart = this.getLastPathPart(prop);
@@ -111,7 +110,7 @@ class Binding {
     }
   }
 
-  private resetProperty(obj: unknown, prop: string): void {
+  private resetProperty(obj: object, prop: string): void {
     const deepestObj = this.getDeepestObject(obj, prop);
     const lastPart = this.getLastPathPart(prop);
     Object.defineProperty(deepestObj, lastPart, {
@@ -163,19 +162,19 @@ class Binding {
     deepestObj[this.getLastPathPart(prop)] = this.value;
   }
 
-  public removeBinding(element: unknown, prop: string): void {
+  public removeBinding(obj: object, prop: string): void {
     const idx = this.bindings.findIndex(
-      (b): boolean => element === b.obj && prop.trim() === b.prop
+      (b): boolean => obj === b.obj && prop.trim() === b.prop
     );
     if (idx !== -1) {
       const binding = this.bindings.splice(idx, 1)[0];
       if (this.twoWay) {
-        if (element instanceof HTMLElement) {
-          const event = binding.event;
-          const listener = binding.eventListener;
-          if (event && listener) element.removeEventListener(event, listener);
+        if (obj instanceof HTMLElement) {
+          const { event, eventListener } = binding;
+          if (event && eventListener)
+            obj.removeEventListener(event, eventListener);
         } else {
-          this.resetProperty(element, prop);
+          this.resetProperty(obj, prop);
         }
       }
     }

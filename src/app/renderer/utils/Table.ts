@@ -1,14 +1,14 @@
 type Icon = SVGElement | string;
 type ColSizes = 'col-1' | 'col-2' | 'col-3' | 'col-4' | 'col-5';
 
-interface Button<T = unknown> {
+interface Button<T> {
   text: string;
   classNames?: string[];
   icon?: Icon;
   onClick?: (data: T, rowidx: number) => void;
 }
 
-interface ColumnData<T = unknown> {
+interface ColumnData<T> {
   name: string;
   dataAttribute: keyof T;
   size?: ColSizes;

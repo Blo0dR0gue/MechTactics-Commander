@@ -114,7 +114,9 @@ class ActionBarHandler {
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
       if (this.selectedPlanet) {
-        this.selectedPlanet.setText(this.planetCustomText.value);
+        this.selectedPlanet.setText(
+          encodeURIComponent(this.planetCustomText.value)
+        );
       }
     });
 

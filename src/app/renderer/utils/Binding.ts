@@ -190,4 +190,4 @@ class Binding {
 
 // data-binding='data>username' -> data> bedeutet es gibt ein data array welches aus einer menge von objekten besteht. und aus dem entsprechenden objekt für diese listenid wollen wir den username
 
-export { Binding };
+export { Binding, BindingError };

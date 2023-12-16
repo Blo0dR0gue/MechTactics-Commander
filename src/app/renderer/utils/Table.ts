@@ -1,7 +1,14 @@
 import { Binding } from './Binding';
 
 type Icon = SVGElement & HTMLElement;
-type ColSizes = 'col-1' | 'col-2' | 'col-3' | 'col-4' | 'col-5';
+type ColSizes =
+  | 'col-1'
+  | 'col-2'
+  | 'col-3'
+  | 'col-4'
+  | 'col-5'
+  | 'col-6'
+  | 'col-auto';
 type ObjectWithKeys = Record<string, unknown>;
 
 /**
@@ -34,6 +41,7 @@ class TableError extends Error {
 /**
  * Dynamic table renderer with data binding
  * TODO: Search and pagination
+ * TODO: allow formatter
  */
 class Table<T extends ObjectWithKeys> {
   private tableElement: HTMLTableElement;
@@ -136,14 +144,14 @@ class Table<T extends ObjectWithKeys> {
             if (classNames) btn.classList.add(...classNames);
 
             if (icon) {
-              icon.classList.add('pe-1');
+              if (text) icon.classList.add('pe-1'); // add padding to the right, if also a text should be rendered
               btn.append(icon);
             }
 
             if (onClick) {
               // Add the click event handler
               btn.addEventListener('click', () => {
-                onClick(data, tr.rowIndex);
+                onClick(data, tr.rowIndex - 1); // -1, because headers are row 0
               });
             }
 

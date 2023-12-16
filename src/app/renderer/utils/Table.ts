@@ -177,6 +177,14 @@ class Table<T extends ObjectWithKeys> {
   }
 
   /**
+   * Remove this table from the dom
+   */
+  public remove() {
+    this.clearDataBindings();
+    this.parentElement.removeChild(this.tableElement);
+  }
+
+  /**
    * Set the data of this table.
    * @param data The new data
    */

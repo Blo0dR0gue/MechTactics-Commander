@@ -60,3 +60,7 @@ const planetTable = new Table<(typeof data)[number]>(
 planetTable.setData(data);
 
 planetTable.render();
+
+setTimeout(() => {
+  planetTable.remove();
+}, 5000);

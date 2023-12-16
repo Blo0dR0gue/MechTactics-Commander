@@ -40,6 +40,7 @@ const planetTable = new Table<(typeof data)[number]>(
           classNames:
             'btn btn-primary btn-sm align-items-center d-flex p-1'.split(' '),
           onClick(data, rowidx) {
+            data.test += rowidx;
             console.log(data, rowidx);
           },
         },

@@ -12,7 +12,7 @@ interface Button<T extends ObjectWithKeys> {
 
 interface ColumnData<T extends ObjectWithKeys> {
   name: string;
-  dataAttribute?: keyof T;
+  dataAttribute?: Extract<keyof T, string>;
   size: ColSizes;
   buttons?: Button<T>[];
 }
@@ -46,6 +46,9 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
+    //TODO: clear bindings
+    this.bindings = [];
+
     this.renderTableHeaders();
     this.renderRows();
 
@@ -77,8 +80,14 @@ class Table<T extends ObjectWithKeys> {
         const td = document.createElement('td');
 
         if (dataAttribute !== undefined) {
-          // Render the text
-          td.textContent = String(data[dataAttribute] || '');
+          if (data[dataAttribute]) {
+            // property is in object -> create binding
+            const binding = new Binding(data, dataAttribute);
+            binding.addBinding(td, 'textContent', 'none');
+            this.bindings.push(binding);
+          } else {
+            td.textContent = String('');
+          }
         } else if (buttons !== undefined && buttons.length > 0) {
           // render the buttons
           for (const button of buttons) {

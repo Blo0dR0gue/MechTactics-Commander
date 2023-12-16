@@ -1,3 +1,5 @@
+import { Binding } from './Binding';
+
 type Icon = SVGElement & HTMLElement;
 type ColSizes = 'col-1' | 'col-2' | 'col-3' | 'col-4' | 'col-5';
 
@@ -27,7 +29,8 @@ type ObjectWithKeys = Record<string, unknown>;
 // TODO: Use data binding!!!
 class Table<T extends ObjectWithKeys> {
   private tableElement: HTMLTableElement;
-  private data: T[] | undefined;
+  private data: T[];
+  private bindings: Binding[];
 
   public constructor(
     private parentElement: HTMLElement,
@@ -39,15 +42,19 @@ class Table<T extends ObjectWithKeys> {
   }
 
   public render(): void {
-    console.log(this.data);
-    // TODO: Render table
+    if (!this.data || this.data.length < 1) {
+      throw new TableError(`No data defined`);
+    }
+
+    this.renderTableHeaders();
+    this.renderRows();
+
+    this.parentElement.appendChild(this.tableElement);
+  }
+
+  private renderTableHeaders(): void {
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    thead.appendChild(headerRow);
-    this.tableElement.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    this.tableElement.appendChild(tbody);
 
     for (const columnDefinition of this.columnDefinitions) {
       const th = document.createElement('th');
@@ -55,6 +62,13 @@ class Table<T extends ObjectWithKeys> {
       th.classList.add(columnDefinition.size);
       headerRow.appendChild(th);
     }
+
+    thead.appendChild(headerRow);
+    this.tableElement.appendChild(thead);
+  }
+
+  private renderRows(): void {
+    const tbody = document.createElement('tbody');
 
     for (const data of this.data) {
       const tr = document.createElement('tr');
@@ -97,15 +111,7 @@ class Table<T extends ObjectWithKeys> {
       tbody.appendChild(tr);
     }
 
-    this.parentElement.appendChild(this.tableElement);
-  }
-
-  private renderTableHeaders(): void {
-    // TODO: Create and append table headers based on columnDefinitions
-  }
-
-  private renderRows(): void {
-    // TODO: Iterate through data and create rows
+    this.tableElement.appendChild(tbody);
   }
 
   public setData(data: T[]): void {

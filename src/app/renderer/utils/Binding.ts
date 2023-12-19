@@ -10,6 +10,7 @@ interface BindingData {
   prop: string;
   event?: string;
   eventListener?: () => void;
+  formatter?: (value: unknown) => unknown;
 }
 
 /**
@@ -20,12 +21,21 @@ class Binding {
 
   private bindings: BindingData[] = [];
 
+  private objBinding: boolean = false;
+  private oldObj: object;
+
   public constructor(
     private readonly bindingObject: object,
     private readonly bindingProp: string,
     private readonly twoWay = true
   ) {
     this.value = this.getValue(this.bindingObject, this.bindingProp);
+    if (this.value instanceof Object) {
+      // if we bind an object, create a proxy object for this property
+      this.oldObj = this.value;
+      this.value = this.defineProxy();
+      this.objBinding = true;
+    }
     this.defineProperty(this.bindingObject, this.bindingProp);
   }
 
@@ -83,16 +93,44 @@ class Binding {
   private setter = (newValue: unknown): void => {
     if (newValue === this.value) return;
     this.value = newValue;
-    for (const binding of this.bindings) {
-      const { obj, prop } = binding;
-      const elem = this.getDeepestObject(obj, prop);
-      elem[this.getLastPathPart(prop)] = this.value;
-    }
   };
 
   private getter = (): unknown => {
     return this.value;
   };
+
+  private defineProxy(): typeof Proxy {
+    const handler = {
+      get: (target, key) => {
+        if (key == 'isProxy') return true;
+
+        const prop = target[key];
+
+        // return if property not found
+        if (typeof prop == 'undefined') return;
+
+        // set value as proxy if object
+        if (!prop.isProxy && typeof prop === 'object')
+          target[key] = new Proxy(prop, handler);
+
+        return target[key];
+      },
+      set: (target, key, value) => {
+        target[key] = value;
+        this.updateBindings();
+        return true;
+      },
+    };
+
+    const deepestObj = this.getDeepestObject(
+      this.bindingObject,
+      this.bindingProp
+    );
+    const lastPart = this.getLastPathPart(this.bindingProp);
+
+    deepestObj[lastPart] = new Proxy(deepestObj[lastPart], handler);
+    return deepestObj[lastPart];
+  }
 
   private defineProperty(obj: object, prop: string): void {
     if (this.objectHasProperty(obj, prop)) {
@@ -119,10 +157,21 @@ class Binding {
     });
   }
 
+  private updateBindings(): void {
+    for (const binding of this.bindings) {
+      const { obj, prop, formatter } = binding;
+      const elem = this.getDeepestObject(obj, prop);
+      elem[this.getLastPathPart(prop)] = formatter
+        ? formatter(this.value)
+        : this.value;
+    }
+  }
+
   public addBinding(
     obj: object | HTMLElement,
     prop: string,
-    event?: string
+    event?: string,
+    formatter?: (value: unknown) => unknown
   ): void {
     if (!this.objectHasProperty(obj, prop)) {
       throw new BindingError(
@@ -132,15 +181,23 @@ class Binding {
 
     const deepestObj = this.getDeepestObject(obj, prop);
     const lastPart = this.getLastPathPart(prop);
+    const isObject = deepestObj[lastPart] instanceof Object;
     let listener = undefined;
 
     if (this.twoWay) {
       if (obj instanceof HTMLElement) {
+        if (isObject) {
+          throw new BindingError(
+            `It is not allowed to use two way data binding on an object type via an html element`
+          );
+        }
+
         if (event === undefined) {
           throw new BindingError(
             `Event can't be undefined, if element is an HTML-Element and twoWay is true. Set it to 'none' if no event handler should be used.`
           );
         }
+
         listener = () => {
           this.setter(deepestObj[lastPart]);
         };
@@ -155,11 +212,12 @@ class Binding {
       prop: prop.trim(),
       event: event,
       eventListener: listener,
-    };
+      formatter: formatter,
+    } as BindingData;
 
     this.bindings.push(binding);
 
-    deepestObj[this.getLastPathPart(prop)] = this.value;
+    this.updateBindings();
   }
 
   public removeBinding(obj: object, prop: string): void {
@@ -181,13 +239,21 @@ class Binding {
   }
 
   public unbind(): void {
-    this.resetProperty(this.bindingObject, this.bindingProp);
+    if (this.objBinding) {
+      const deepestObj = this.getDeepestObject(
+        this.bindingObject,
+        this.bindingProp
+      );
+      const lastPart = this.getLastPathPart(this.bindingProp);
+      deepestObj[lastPart] = this.oldObj;
+    } else {
+      this.resetProperty(this.bindingObject, this.bindingProp);
+    }
+
     for (const binding of this.bindings) {
       this.removeBinding(binding.obj, binding.prop);
     }
   }
 }
-
-// data-binding='data>username' -> data> bedeutet es gibt ein data array welches aus einer menge von objekten besteht. und aus dem entsprechenden objekt für diese listenid wollen wir den username
 
 export { Binding, BindingError };

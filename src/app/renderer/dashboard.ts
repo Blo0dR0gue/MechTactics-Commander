@@ -1,6 +1,7 @@
 // Init file for the dashboard page
 
 // Import custom CSS to load bootstrap and override variables
+import { Vector } from './models/Vector';
 import './styles/main.scss';
 import { Table } from './utils/Table';
 
@@ -10,10 +11,10 @@ const tableParent = document.getElementById('table-holder');
 const data = [
   {
     name: 'Terra',
-    coordinates: '0 / 0',
+    coordinates: new Vector(0, 0),
     affiliation: 'Star',
     age: 3025,
-    text: 'Moin',
+    text: 'Test',
   },
 ];
 
@@ -35,7 +36,14 @@ const planetTable = new Table<(typeof data)[number]>(
   'table table-striped table-hover user-select-none'.split(' '),
   [
     { name: 'Name', dataAttribute: 'name', size: 'col-2' },
-    { name: 'Coordinates', dataAttribute: 'coordinates', size: 'col-1' },
+    {
+      name: 'Coordinates',
+      dataAttribute: 'coordinates',
+      size: 'col-1',
+      formatter(value: Vector) {
+        return value.getX() + ' / ' + value.getY();
+      },
+    },
     { name: 'Affiliation', dataAttribute: 'affiliation', size: 'col-2' },
     { name: 'Age', dataAttribute: 'age', size: 'col-1' },
     { name: 'Text', dataAttribute: 'text', size: 'col-4' },
@@ -60,7 +68,3 @@ const planetTable = new Table<(typeof data)[number]>(
 planetTable.setData(data);
 
 planetTable.render();
-
-setTimeout(() => {
-  planetTable.remove();
-}, 5000);

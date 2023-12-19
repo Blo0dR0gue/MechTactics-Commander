@@ -1,3 +1,8 @@
+import {
+  ObjectOfPropRec,
+  ObjectPropsRec,
+  ObjectWithKeys,
+} from '../../types/UtilityTypes';
 import { Binding } from './Binding';
 
 type Icon = SVGElement & HTMLElement;
@@ -9,7 +14,6 @@ type ColSizes =
   | 'col-5'
   | 'col-6'
   | 'col-auto';
-type ObjectWithKeys = Record<string, unknown>;
 
 /**
  * Defines one button which can be added to a column
@@ -26,8 +30,9 @@ interface Button<T extends ObjectWithKeys> {
  */
 interface ColumnData<T extends ObjectWithKeys> {
   name: string;
-  dataAttribute?: Extract<keyof T, string>; // not string | number | symbol only string
   size: ColSizes;
+  dataAttribute?: ObjectPropsRec<T>;
+  formatter?: (value: ObjectOfPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
   buttons?: Button<T>[];
 }
 
@@ -41,7 +46,6 @@ class TableError extends Error {
 /**
  * Dynamic table renderer with data binding
  * TODO: Search and pagination
- * TODO: allow formatter
  */
 class Table<T extends ObjectWithKeys> {
   private tableElement: HTMLTableElement;
@@ -112,20 +116,14 @@ class Table<T extends ObjectWithKeys> {
     for (const data of this.data) {
       const tr = document.createElement('tr');
       for (const columnDefinition of this.columnDefinitions) {
-        const { buttons, dataAttribute } = columnDefinition;
+        const { buttons, dataAttribute, formatter } = columnDefinition;
         const td = document.createElement('td');
 
         if (dataAttribute !== undefined) {
-          // render a text cell
-          if (data[dataAttribute]) {
-            // property is in object -> create binding
-            const binding = new Binding(data, dataAttribute);
-            binding.addBinding(td, 'textContent', 'none');
-            this.bindings.push(binding);
-          } else {
-            // TODO: Allow undefined properties.
-            td.textContent = String('');
-          }
+          // render a text cell using data binding
+          const binding = new Binding(data, dataAttribute);
+          binding.addBinding(td, 'textContent', 'none', formatter);
+          this.bindings.push(binding);
         } else if (buttons !== undefined && buttons.length > 0) {
           // render the button cell
 
@@ -190,7 +188,6 @@ class Table<T extends ObjectWithKeys> {
    */
   public setData(data: T[]): void {
     this.data = data;
-    // TODO: Update Table if rendered
   }
 }
 

@@ -68,3 +68,11 @@ const planetTable = new Table<(typeof data)[number]>(
 planetTable.setData(data);
 
 planetTable.render();
+
+setTimeout(() => {
+  data[0].coordinates.setX(12);
+}, 1000);
+
+setTimeout(() => {
+  data[0].coordinates.setY(1);
+}, 2000);

@@ -3,7 +3,7 @@ import { WindowBase } from '../WindowBase';
 import * as path from 'path';
 import { app, ipcMain } from 'electron';
 import { PlanetResponse } from '../../../types/PlanetResponse';
-import { AffiliationJSON } from '../../../types/AffiliationJson';
+import { AffiliationResponse } from '../../../types/AffiliationResponse';
 import { CoreConfig } from '../../CoreConfig';
 
 class MainWindow extends WindowBase {
@@ -34,7 +34,7 @@ class MainWindow extends WindowBase {
     });
 
     ipcMain.handle('getAllAffiliations', (event, age: string) => {
-      return new Promise<AffiliationJSON[]>((resolve) => {
+      return new Promise<AffiliationResponse[]>((resolve) => {
         this.database
           .all(
             `SELECT DISTINCT id, name, color FROM Affiliation as a JOIN PlanetAffiliationAge as u ON a.id = u.affiliationID WHERE u.universeAge = "${age}";`

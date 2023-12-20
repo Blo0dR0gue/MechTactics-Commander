@@ -5,7 +5,9 @@ interface Window {
     ) => Promise<import('./src/app/types/PlanetResponse').PlanetResponse[]>;
     getAllAffiliations: (
       age: string
-    ) => Promise<import('./src/app/types/AffiliationJson').AffiliationJSON[]>;
+    ) => Promise<
+      import('./src/app/types/AffiliationResponse').AffiliationResponse[]
+    >;
     updatePlanetText: (id: number, universeAge: string, text: string) => void;
   };
   app: {

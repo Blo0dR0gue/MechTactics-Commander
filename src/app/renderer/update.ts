@@ -17,15 +17,15 @@ function setText(elem: Element, message: string) {
   elem.textContent = message;
 }
 
-window.app.addDownloadProgressListener((event, percent) => {
+window.update.addDownloadProgressListener((event, percent) => {
   setProgress(percent);
 });
 
-window.app.addUpdateTitleListener((event, text) => {
+window.update.addUpdateTitleListener((event, text) => {
   setText(updateTitle, text);
 });
 
-window.app.addUpdateTextListener((event, text, finished) => {
+window.update.addUpdateTextListener((event, text, finished) => {
   setText(updateText, text);
   if (finished) {
     restartBtn.classList.remove('hide');
@@ -33,5 +33,5 @@ window.app.addUpdateTextListener((event, text, finished) => {
 });
 
 restartBtn.addEventListener('click', () => {
-  window.app.restartAndUpdate();
+  window.update.restartAndUpdate();
 });

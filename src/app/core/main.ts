@@ -8,15 +8,15 @@ import { open, Database } from 'sqlite';
 
 import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
-import { WindowController } from './window/WindowController';
+import { AppWindow } from './window/AppWindow';
 
 class Main {
   private isDevelopment: boolean;
   private database: Database;
 
   private config: CoreConfig;
-  private windowController: WindowController;
   private updater: Updater;
+  private appWindow: AppWindow;
 
   public constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
@@ -80,26 +80,20 @@ class Main {
         console.log(data);
       });
 
-      this.windowController = new WindowController(this.isDevelopment);
-
-      this.updater = new Updater(
-        this.windowController,
+      this.appWindow = new AppWindow(
+        this.isDevelopment,
         this.database,
         this.config
       );
 
-      //this.updater.checkForUpdates();
-
-      if (this.isDevelopment) {
-        //this.windowController.openMainWindow(this.database, this.config);
-        this.windowController.openDashboardWindow(this.database);
-      }
+      this.updater = new Updater(this.database, this.config, this.appWindow);
+      this.updater.checkForUpdates();
     });
 
     app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.windowController.openMainWindow(this.database, this.config);
+        this.appWindow.loadPage('index.html');
       }
     });
 

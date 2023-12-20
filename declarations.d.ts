@@ -14,6 +14,8 @@ interface Window {
     version: () => Promise<string>;
     setConfigData: (key: string, value: unknown) => void;
     getConfigCache: () => Promise<Record<string, unknown>>;
+  };
+  update: {
     addDownloadProgressListener: (
       callback: (event: Electron.IpcRendererEvent, percent: number) => void
     ) => void;

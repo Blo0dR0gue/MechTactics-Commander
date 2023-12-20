@@ -2,7 +2,7 @@ interface Window {
   sql: {
     getAllPlanets: (
       age: string
-    ) => Promise<import('./src/app/types/PlanetJson').PlanetJSON[]>;
+    ) => Promise<import('./src/app/types/PlanetResponse').PlanetResponse[]>;
     getAllAffiliations: (
       age: string
     ) => Promise<import('./src/app/types/AffiliationJson').AffiliationJSON[]>;

@@ -2,7 +2,7 @@ import { Database } from 'sqlite';
 import { WindowBase } from '../WindowBase';
 import * as path from 'path';
 import { app, ipcMain } from 'electron';
-import { PlanetJSON } from '../../../types/PlanetJson';
+import { PlanetResponse } from '../../../types/PlanetResponse';
 import { AffiliationJSON } from '../../../types/AffiliationJson';
 import { CoreConfig } from '../../CoreConfig';
 
@@ -22,9 +22,9 @@ class MainWindow extends WindowBase {
 
   protected setupHandler() {
     ipcMain.handle('getAllPlanets', (event, age: string) => {
-      return new Promise<PlanetJSON[]>((resolve) => {
+      return new Promise<PlanetResponse[]>((resolve) => {
         this.database
-          .all<PlanetJSON[]>(
+          .all<PlanetResponse[]>(
             `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
           )
           .then((data) => {

@@ -1,4 +1,4 @@
-type PlanetJSON = {
+type PlanetResponse = {
   id: number;
   name: string;
   x: number;
@@ -8,4 +8,4 @@ type PlanetJSON = {
   affiliationID: number;
 };
 
-export { PlanetJSON };
+export { PlanetResponse };

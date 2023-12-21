@@ -121,7 +121,7 @@ class ActionBarHandler {
     });
 
     // Setup the camera event listeners
-    this.cameraController.selectionChangeEvent.subscribe(
+    this.universe.planetSelectionChangedEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
     this.cameraController.updateRouteEvent.subscribe(

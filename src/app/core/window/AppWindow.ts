@@ -62,7 +62,7 @@ class AppWindow {
   }
 
   private setupHandler() {
-    ipcMain.handle('getAllPlanets', (event, age: string) => {
+    ipcMain.handle('getPlanetsAtAge', (event, age: string) => {
       return new Promise<PlanetResponse[]>((resolve) => {
         this.database
           .all<PlanetResponse[]>(
@@ -74,12 +74,20 @@ class AppWindow {
       });
     });
 
-    ipcMain.handle('getAllAffiliations', (event, age: string) => {
+    ipcMain.handle('getAllAffiliations', () => {
       return new Promise<AffiliationResponse[]>((resolve) => {
         this.database
-          .all(
-            `SELECT DISTINCT id, name, color FROM Affiliation as a JOIN PlanetAffiliationAge as u ON a.id = u.affiliationID WHERE u.universeAge = "${age}";`
-          )
+          .all(`SELECT id, name, color FROM Affiliation;`)
+          .then((data) => {
+            resolve(data);
+          });
+      });
+    });
+
+    ipcMain.handle('getAllUniverseAges', () => {
+      return new Promise<AffiliationResponse[]>((resolve) => {
+        this.database
+          .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
           .then((data) => {
             resolve(data);
           });

@@ -1,12 +1,15 @@
 interface Window {
   sql: {
-    getAllPlanets: (
-      age: string
+    getPlanetsAtAge: (
+      age: number
     ) => Promise<import('./src/app/types/PlanetResponse').PlanetResponse[]>;
-    getAllAffiliations: (
-      age: string
-    ) => Promise<
+    getAllAffiliations: () => Promise<
       import('./src/app/types/AffiliationResponse').AffiliationResponse[]
+    >;
+    getAllUniverseAges: () => Promise<
+      {
+        universeAge: number;
+      }[]
     >;
     updatePlanetText: (id: number, universeAge: string, text: string) => void;
   };

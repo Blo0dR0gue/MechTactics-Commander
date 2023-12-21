@@ -2,7 +2,6 @@ import { Vector } from '../models/Vector';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
 import { EventHandler } from '../handler/EventHandler';
-import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
 import { RouteController } from './RouteController';
 import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
 
@@ -16,7 +15,6 @@ class CameraController {
   private element: HTMLCanvasElement;
   private universe: Universe;
 
-  public selectionChangeEvent: EventHandler<SelectionChangeEvent>;
   public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
   private isMoved = false;
@@ -31,7 +29,6 @@ class CameraController {
   private routeManager: RouteController;
 
   public constructor() {
-    this.selectionChangeEvent = new EventHandler();
     this.updateRouteEvent = new EventHandler();
   }
 
@@ -115,7 +112,7 @@ class CameraController {
         this.universe.getSelectedPlanet() !== closest.planet
       ) {
         // Display distance to other planet
-        this.universe.showDistanceToPlanet(closest.planet);
+        this.universe.setDistanceToPlanet(closest.planet);
       } else {
         this.universe.setSelectedPlanet(closest.planet);
         console.log(closest.planet);
@@ -124,15 +121,11 @@ class CameraController {
       // Reset the selected planet. If ctrl is pressed reset the distance planet. if not reset the selected planet.
       // Resetting the selected planet also resets the distance planet
       if (this.ctrlPressed) {
-        this.universe.showDistanceToPlanet(null);
+        this.universe.setDistanceToPlanet(null);
       } else {
         this.universe.setSelectedPlanet(null);
       }
     }
-    // TODO: Remove event
-    this.selectionChangeEvent.invoke({
-      planet: this.universe.getSelectedPlanet(),
-    });
   }
 
   private handleKeyPress(evt: KeyboardEvent) {
@@ -182,7 +175,6 @@ class CameraController {
     );
     // TODO: Create private func
     this.universe.setSelectedPlanet(planet);
-    this.selectionChangeEvent.invoke({ planet: planet });
   }
 
   public getRouteManager() {

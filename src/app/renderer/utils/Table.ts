@@ -143,7 +143,7 @@ class Table<T extends ObjectWithKeys> {
 
             if (icon) {
               if (text) icon.classList.add('pe-1'); // add padding to the right, if also a text should be rendered
-              btn.append(icon);
+              btn.appendChild(icon.cloneNode(true));
             }
 
             if (onClick) {

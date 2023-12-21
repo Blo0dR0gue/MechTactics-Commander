@@ -461,7 +461,10 @@ class Universe {
    * @param {number} age The new age
    */
   public setSelectedUniverseAge(age: number): void {
-    if (this.universeAges.includes(age)) this.selectedUniverseAge = age;
+    if (this.universeAges.includes(age)) {
+      this.selectedUniverseAge = age;
+      this.getPlanets();
+    }
   }
 
   /**

@@ -24,7 +24,8 @@
     "./dist/app/core/AppUpgradeInfo.js",
     "./dist/app/core/upgrades/*",
     "./dist/app/core/commander.db",
-    "./dist/app/core/window/**/*.js"
+    "./dist/app/core/window/AppWindow.js",
+    "./dist/app/core/window/preload.js"
   ],
   "win": {
     "target": "nsis",

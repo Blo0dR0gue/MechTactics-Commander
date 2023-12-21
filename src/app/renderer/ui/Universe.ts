@@ -150,7 +150,9 @@ class Universe {
     this.universeAges = (await window.sql.getAllUniverseAges()).map(
       (obj) => obj.universeAge
     );
-    this.selectedUniverseAge = this.universeAges[0];
+    this.selectedUniverseAge = Config.getInstance().get(
+      'selectedUniverseAge'
+    ) as number;
   };
 
   private getPlanets = async (age: number = this.selectedUniverseAge) => {
@@ -462,6 +464,7 @@ class Universe {
     if (this.universeAges.includes(age)) {
       this.selectedUniverseAge = age;
       this.getPlanets();
+      Config.getInstance().set('selectedUniverseAge', age);
     }
   }
 

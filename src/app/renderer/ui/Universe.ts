@@ -123,9 +123,6 @@ class Universe {
 
       this.initData().then(() => {
         this.render();
-        setTimeout(() => {
-          this.getPlanets(3026);
-        }, 2000);
         resolve();
       });
     });
@@ -461,6 +458,7 @@ class Universe {
    * @param {number} age The new age
    */
   public setSelectedUniverseAge(age: number): void {
+    if (this.selectedUniverseAge === age) return;
     if (this.universeAges.includes(age)) {
       this.selectedUniverseAge = age;
       this.getPlanets();

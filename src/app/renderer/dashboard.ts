@@ -16,6 +16,7 @@ taps.push(affiliationTab);
 
 // btn setup
 planetTab.addEventListener('click', () => {
+  if (planetTab.classList.contains('active')) return;
   taps.forEach((elem) => elem.classList.remove('active'));
   planetTab.classList.add('active');
   affiliationTable.remove();
@@ -23,6 +24,7 @@ planetTab.addEventListener('click', () => {
 });
 
 affiliationTab.addEventListener('click', () => {
+  if (affiliationTab.classList.contains('active')) return;
   taps.forEach((elem) => elem.classList.remove('active'));
   affiliationTab.classList.add('active');
   planetTable.remove();

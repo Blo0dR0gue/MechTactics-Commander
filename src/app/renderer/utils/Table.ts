@@ -4,6 +4,7 @@ import {
   ObjectWithKeys,
 } from '../../types/UtilityTypes';
 import { Binding } from './Binding';
+import { RingLoadingIndicator } from './RingLoadingIndicator';
 
 type Icon = SVGElement & HTMLElement;
 type ColSizes =
@@ -51,6 +52,7 @@ class Table<T extends ObjectWithKeys> {
   private tableElement: HTMLTableElement;
   private data: T[];
   private bindings: Binding[];
+  private loader: RingLoadingIndicator;
 
   public constructor(
     private parentElement: HTMLElement,
@@ -59,6 +61,7 @@ class Table<T extends ObjectWithKeys> {
   ) {
     this.tableElement = document.createElement('table');
     this.tableElement.classList.add(...classNames);
+    this.loader = new RingLoadingIndicator(this.parentElement, 'lds-ring-dark');
   }
 
   /**
@@ -70,12 +73,17 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
-    this.clearDataBindings();
+    this.loader.show();
 
-    this.renderTableHeaders();
-    this.renderRows();
-
-    this.parentElement.appendChild(this.tableElement);
+    setTimeout(() => {
+      this.clearDataBindings();
+      this.renderHeader();
+      this.renderTableHeaders();
+      this.renderRows();
+      this.parentElement.appendChild(this.tableElement);
+      this.renderFooter();
+      this.loader.hide();
+    }, 100);
   }
 
   /**
@@ -88,6 +96,52 @@ class Table<T extends ObjectWithKeys> {
       binding.unbind();
     }
     this.bindings = [];
+  }
+
+  private renderHeader(): void {
+    const header = document.createElement('header');
+    header.classList.add(
+      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
+        ' '
+      )
+    );
+
+    const searchbar = document.createElement('input');
+    searchbar.type = 'text';
+    searchbar.id = 'search-input';
+    searchbar.classList.add('form-control');
+    searchbar.placeholder = 'Search...';
+
+    searchbar.addEventListener('input', () => {
+      console.log(searchbar.value);
+    });
+
+    const searchbarWrapper = document.createElement('div');
+    searchbarWrapper.append(searchbar);
+
+    header.appendChild(searchbarWrapper);
+
+    this.parentElement.appendChild(header);
+  }
+
+  private renderFooter(): void {
+    const footer = document.createElement('footer');
+
+    footer.classList.add(
+      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom'.split(
+        ' '
+      )
+    );
+
+    const paginationContainer = document.createElement('div');
+    const pagination = document.createElement('div');
+    pagination.textContent = '1';
+    pagination.classList.add(...'pagination btn btn-sm'.split(' '));
+    paginationContainer.appendChild(pagination);
+
+    footer.appendChild(paginationContainer);
+
+    this.parentElement.appendChild(footer);
   }
 
   /**

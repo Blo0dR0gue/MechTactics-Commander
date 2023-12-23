@@ -3,6 +3,9 @@ interface Window {
     getPlanetsAtAge: (
       age: number
     ) => Promise<import('./src/app/types/PlanetResponse').PlanetResponse[]>;
+    getAllPlanets: () => Promise<
+      import('./src/app/types/PlanetResponse').PlanetResponse[]
+    >;
     getAllAffiliations: () => Promise<
       import('./src/app/types/AffiliationResponse').AffiliationResponse[]
     >;

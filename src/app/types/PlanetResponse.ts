@@ -6,6 +6,7 @@ type PlanetResponse = {
   link: string;
   planetText: string;
   affiliationID: number;
+  age?: number;
 };
 
 export { PlanetResponse };

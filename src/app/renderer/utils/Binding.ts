@@ -93,6 +93,7 @@ class Binding {
   private setter = (newValue: unknown): void => {
     if (newValue === this.value) return;
     this.value = newValue;
+    this.updateBindings();
   };
 
   private getter = (): unknown => {

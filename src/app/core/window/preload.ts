@@ -2,6 +2,7 @@ import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('sql', {
   getPlanetsAtAge: (age: string) => ipcRenderer.invoke('getPlanetsAtAge', age),
+  getAllPlanets: () => ipcRenderer.invoke('getAllPlanets'),
   getAllAffiliations: () => ipcRenderer.invoke('getAllAffiliations'),
   getAllUniverseAges: () => ipcRenderer.invoke('getAllUniverseAges'),
   updatePlanetText: (id: number, universeAge: string, text: string) => {

@@ -74,6 +74,18 @@ class AppWindow {
       });
     });
 
+    ipcMain.handle('getAllPlanets', () => {
+      return new Promise<PlanetResponse[]>((resolve) => {
+        this.database
+          .all<PlanetResponse[]>(
+            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID;`
+          )
+          .then((data) => {
+            resolve(data);
+          });
+      });
+    });
+
     ipcMain.handle('getAllAffiliations', () => {
       return new Promise<AffiliationResponse[]>((resolve) => {
         this.database

@@ -49,7 +49,9 @@ class TableError extends Error {
  * TODO: Search and pagination
  */
 class Table<T extends ObjectWithKeys> {
+  private headerElement: HTMLElement;
   private tableElement: HTMLTableElement;
+  private footerElement: HTMLElement;
   private data: T[];
   private bindings: Binding[];
   private loader: RingLoadingIndicator;
@@ -69,7 +71,7 @@ class Table<T extends ObjectWithKeys> {
    * setData should be called before.
    */
   public render(): void {
-    if (!this.data || this.data.length < 1) {
+    if (!data || data.length < 1) {
       throw new TableError(`No data defined`);
     }
 
@@ -78,9 +80,7 @@ class Table<T extends ObjectWithKeys> {
     setTimeout(() => {
       this.clearDataBindings();
       this.renderHeader();
-      this.renderTableHeaders();
-      this.renderRows();
-      this.parentElement.appendChild(this.tableElement);
+      this.renderTable();
       this.renderFooter();
       this.loader.hide();
     }, 100);
@@ -100,8 +100,8 @@ class Table<T extends ObjectWithKeys> {
 
   private renderHeader(): void {
     // TODO: make dynamic like the css classes and to render a searchbar or not and also be able to add more data
-    const header = document.createElement('header');
-    header.classList.add(
+    this.headerElement = document.createElement('header');
+    this.headerElement.classList.add(
       ...'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
         ' '
       )
@@ -114,22 +114,28 @@ class Table<T extends ObjectWithKeys> {
     searchbar.placeholder = 'Search...';
 
     searchbar.addEventListener('input', () => {
-      console.log(searchbar.value);
+      const filter = searchbar.value.toLowerCase();
     });
 
     const searchbarWrapper = document.createElement('div');
     searchbarWrapper.append(searchbar);
 
-    header.appendChild(searchbarWrapper);
+    this.headerElement.appendChild(searchbarWrapper);
 
-    this.parentElement.appendChild(header);
+    this.parentElement.appendChild(this.headerElement);
+  }
+
+  private renderTable(): void {
+    this.renderTableHeaders();
+    this.renderRows();
+    this.parentElement.appendChild(this.tableElement);
   }
 
   private renderFooter(): void {
     // TODO: make dynamic like the css and to be able to enable the pagination
-    const footer = document.createElement('footer');
+    this.footerElement = document.createElement('footer');
 
-    footer.classList.add(
+    this.footerElement.classList.add(
       ...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom'.split(
         ' '
       )
@@ -141,9 +147,9 @@ class Table<T extends ObjectWithKeys> {
     pagination.classList.add(...'pagination btn btn-sm'.split(' '));
     paginationContainer.appendChild(pagination);
 
-    footer.appendChild(paginationContainer);
+    this.footerElement.appendChild(paginationContainer);
 
-    this.parentElement.appendChild(footer);
+    this.parentElement.appendChild(this.footerElement);
   }
 
   /**
@@ -235,7 +241,9 @@ class Table<T extends ObjectWithKeys> {
    */
   public remove() {
     this.clearDataBindings();
+    this.parentElement.removeChild(this.headerElement);
     this.parentElement.removeChild(this.tableElement);
+    this.parentElement.removeChild(this.footerElement);
   }
 
   /**

@@ -350,9 +350,11 @@ class Table<T extends ObjectWithKeys> {
    */
   public remove() {
     this.clearDataBindings();
+    this.tableElement.innerHTML = '';
     this.parentElement.removeChild(this.headerElement);
     this.parentElement.removeChild(this.tableElement);
     this.parentElement.removeChild(this.footerElement);
+    this.rendered = false;
   }
 
   /**

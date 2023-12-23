@@ -20,6 +20,7 @@ const planets = await window.sql.getAllPlanets().then((data) =>
 const planetTable = new Table<(typeof planets)[number]>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
+  20,
   [
     { name: 'Name', dataAttribute: 'name', size: 'col-2' },
     {

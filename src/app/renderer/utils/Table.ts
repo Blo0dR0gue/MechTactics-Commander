@@ -46,25 +46,36 @@ class TableError extends Error {
 
 /**
  * Dynamic table renderer with data binding
- * TODO: pagination
  */
 class Table<T extends ObjectWithKeys> {
   private headerElement: HTMLElement;
   private tableElement: HTMLTableElement;
   private footerElement: HTMLElement;
+
   private data: T[];
+  private rendered: boolean;
   private bindings: Binding[];
+
   private loader: RingLoadingIndicator;
-  private rowFilterDataMap: string[][];
+
+  private currentPage: number;
+  private filterText: string;
+  private paginationContainer: HTMLDivElement;
 
   public constructor(
     private parentElement: HTMLElement,
     classNames: string[],
+    private itemsPerPage: number,
     private columnDefinitions: ColumnData<T>[]
   ) {
     this.tableElement = document.createElement('table');
     this.tableElement.classList.add(...classNames);
     this.loader = new RingLoadingIndicator(this.parentElement, 'lds-ring-dark');
+
+    this.currentPage = 1;
+    this.filterText = '';
+    this.bindings = [];
+    this.rendered = false;
   }
 
   /**
@@ -76,10 +87,13 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
+    if (this.rendered) {
+      throw new TableError('Table is already rendered!');
+    }
+
     this.loader.show();
 
     setTimeout(() => {
-      this.clearDataBindings();
       this.renderHeader();
       this.renderTable();
       this.renderFooter();
@@ -116,18 +130,9 @@ class Table<T extends ObjectWithKeys> {
 
     searchbar.addEventListener('input', () => {
       // filter the table on input
-      const filter = searchbar.value.toLowerCase();
-      const rows = this.tableElement.rows;
-
-      for (let i = 0; i < rows.length - 1; i++) {
-        const shouldShow = this.rowFilterDataMap[i].some(function (
-          cellContent
-        ) {
-          return String(cellContent).toLowerCase().indexOf(filter) > -1;
-        });
-
-        rows[i + 1].style.display = shouldShow ? '' : 'none';
-      }
+      this.filterText = searchbar.value.toLowerCase();
+      this.currentPage = 1;
+      this.updateTable();
     });
 
     const searchbarWrapper = document.createElement('div');
@@ -140,16 +145,7 @@ class Table<T extends ObjectWithKeys> {
 
   private renderTable(): void {
     this.renderTableHeaders();
-    this.renderRows();
-
-    // TODO: get ride of filter data map and use this.data. (We need to apply possible filters on the data before checking)
-    this.rowFilterDataMap = Array.from(this.tableElement.rows)
-      .slice(1)
-      .map(function (row) {
-        return Array.from(row.getElementsByTagName('td')).map(function (cell) {
-          return cell.textContent.toLowerCase();
-        });
-      });
+    this.renderRows(0, this.itemsPerPage, this.data);
 
     this.parentElement.appendChild(this.tableElement);
   }
@@ -159,20 +155,104 @@ class Table<T extends ObjectWithKeys> {
     this.footerElement = document.createElement('footer');
 
     this.footerElement.classList.add(
-      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom'.split(
+      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom flex-row'.split(
         ' '
       )
     );
 
-    const paginationContainer = document.createElement('div');
-    const pagination = document.createElement('div');
-    pagination.textContent = '1';
-    pagination.classList.add(...'pagination btn btn-sm'.split(' '));
-    paginationContainer.appendChild(pagination);
+    this.paginationContainer = document.createElement('div');
+    this.paginationContainer.classList.add('d-flex');
+    this.paginationContainer.classList.add('flex-row');
 
-    this.footerElement.appendChild(paginationContainer);
+    this.updatePagination(this.data.length - 1);
+
+    this.footerElement.appendChild(this.paginationContainer);
 
     this.parentElement.appendChild(this.footerElement);
+  }
+
+  private updateTable(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+
+    const filteredData = this.data.filter((obj) => {
+      return Object.keys(obj).some((key) => {
+        const col = this.columnDefinitions.find(
+          (col) => col.dataAttribute == key
+        );
+        if (col?.formatter) {
+          const value = obj[key] as ObjectOfPropRec<T, keyof T>;
+          return col.formatter(value).toLowerCase().includes(this.filterText);
+        } else {
+          return String(obj[key]).toLowerCase().includes(this.filterText);
+        }
+      });
+    });
+
+    // TODO: do not clear like this?
+    this.tableElement.removeChild(this.tableElement.tBodies[0]);
+
+    this.clearDataBindings();
+    this.renderRows(startIndex, endIndex, filteredData);
+    this.updatePagination(filteredData.length - 1);
+  }
+
+  private updatePagination(maxPages: number): void {
+    this.paginationContainer.innerHTML = '';
+
+    const startX = this.currentPage - 2;
+    const endX = this.currentPage + 2;
+    const totalPages = Math.ceil(maxPages / this.itemsPerPage);
+
+    this.createPaginationItem('<', this.currentPage - 1, this.currentPage > 1);
+
+    if (startX > 1) {
+      this.createPaginationItem('1', 1, true);
+
+      this.createPaginationItem('...', -1, false);
+    }
+
+    for (let i = startX; i <= endX; i++) {
+      if (i > 0 && i <= totalPages) {
+        this.createPaginationItem(String(i), i, true);
+      }
+    }
+
+    if (endX < totalPages && endX != startX) {
+      this.createPaginationItem('...', -1, false);
+
+      this.createPaginationItem(String(totalPages), totalPages, true);
+    }
+
+    this.createPaginationItem(
+      '>',
+      this.currentPage + 1,
+      this.currentPage < totalPages
+    );
+  }
+
+  private createPaginationItem(
+    itemText: string,
+    itemNr: number,
+    enabled: boolean
+  ) {
+    const paginationItem = document.createElement('button');
+    paginationItem.textContent = itemText;
+
+    // styling
+    paginationItem.classList.add(...'pagination btn btn-sm'.split(' '));
+    if (itemNr === this.currentPage)
+      paginationItem.classList.add('btn-primary');
+    if (!enabled) paginationItem.classList.add('btn-secondary');
+    paginationItem.disabled = !enabled;
+
+    // on click handling
+    paginationItem.addEventListener('click', () => {
+      this.currentPage = itemNr;
+      this.updateTable();
+    });
+
+    this.paginationContainer.appendChild(paginationItem);
   }
 
   /**
@@ -194,11 +274,17 @@ class Table<T extends ObjectWithKeys> {
     this.tableElement.appendChild(thead);
   }
 
-  private renderRows(): void {
+  private renderRows(
+    startIndex: number = 0,
+    endIndex: number = this.data.length,
+    data: T[]
+  ): void {
     const tbody = document.createElement('tbody');
 
+    const rowData = data.slice(startIndex, endIndex);
+
     // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
-    for (const data of this.data) {
+    for (const data of rowData) {
       const tr = document.createElement('tr');
       for (const columnDefinition of this.columnDefinitions) {
         const { buttons, dataAttribute, formatter } = columnDefinition;
@@ -274,6 +360,8 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[]): void {
+    if (this.rendered)
+      throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
   }
 }

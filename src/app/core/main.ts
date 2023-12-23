@@ -3,7 +3,7 @@ import electronReload from 'electron-reload';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import sqlite3 = require('sqlite3');
+import * as sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 
 import { CoreConfig } from './CoreConfig';

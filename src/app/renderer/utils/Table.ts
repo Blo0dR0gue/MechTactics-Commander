@@ -99,6 +99,7 @@ class Table<T extends ObjectWithKeys> {
   }
 
   private renderHeader(): void {
+    // TODO: make dynamic like the css classes and to render a searchbar or not and also be able to add more data
     const header = document.createElement('header');
     header.classList.add(
       ...'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
@@ -125,6 +126,7 @@ class Table<T extends ObjectWithKeys> {
   }
 
   private renderFooter(): void {
+    // TODO: make dynamic like the css and to be able to enable the pagination
     const footer = document.createElement('footer');
 
     footer.classList.add(

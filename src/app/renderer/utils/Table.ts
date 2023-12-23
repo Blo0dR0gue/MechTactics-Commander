@@ -46,7 +46,7 @@ class TableError extends Error {
 
 /**
  * Dynamic table renderer with data binding
- * TODO: Search and pagination
+ * TODO: pagination
  */
 class Table<T extends ObjectWithKeys> {
   private headerElement: HTMLElement;
@@ -55,6 +55,7 @@ class Table<T extends ObjectWithKeys> {
   private data: T[];
   private bindings: Binding[];
   private loader: RingLoadingIndicator;
+  private rowFilterDataMap: string[][];
 
   public constructor(
     private parentElement: HTMLElement,
@@ -71,7 +72,7 @@ class Table<T extends ObjectWithKeys> {
    * setData should be called before.
    */
   public render(): void {
-    if (!data || data.length < 1) {
+    if (!this.data || this.data.length < 1) {
       throw new TableError(`No data defined`);
     }
 
@@ -114,7 +115,19 @@ class Table<T extends ObjectWithKeys> {
     searchbar.placeholder = 'Search...';
 
     searchbar.addEventListener('input', () => {
+      // filter the table on input
       const filter = searchbar.value.toLowerCase();
+      const rows = this.tableElement.rows;
+
+      for (let i = 0; i < rows.length - 1; i++) {
+        const shouldShow = this.rowFilterDataMap[i].some(function (
+          cellContent
+        ) {
+          return String(cellContent).toLowerCase().indexOf(filter) > -1;
+        });
+
+        rows[i + 1].style.display = shouldShow ? '' : 'none';
+      }
     });
 
     const searchbarWrapper = document.createElement('div');
@@ -128,6 +141,16 @@ class Table<T extends ObjectWithKeys> {
   private renderTable(): void {
     this.renderTableHeaders();
     this.renderRows();
+
+    // TODO: get ride of filter data map and use this.data. (We need to apply possible filters on the data before checking)
+    this.rowFilterDataMap = Array.from(this.tableElement.rows)
+      .slice(1)
+      .map(function (row) {
+        return Array.from(row.getElementsByTagName('td')).map(function (cell) {
+          return cell.textContent.toLowerCase();
+        });
+      });
+
     this.parentElement.appendChild(this.tableElement);
   }
 

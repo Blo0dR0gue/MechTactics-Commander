@@ -181,6 +181,12 @@ class Binding {
       );
     }
 
+    if (twoWay && formatter) {
+      throw new BindingError(
+        `It is not allowed to use twoWay data binding with an formatter`
+      );
+    }
+
     const deepestObj = this.getDeepestObject(obj, prop);
     const lastPart = this.getLastPathPart(prop);
     let listener = undefined;

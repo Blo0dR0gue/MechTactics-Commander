@@ -110,7 +110,7 @@
                 <form id="planet-form">
                   <!--Display of id-->
                   <div class="form-group mb-1">
-                    <label for="id">ID:</label>
+                    <label for="planet-id">ID:</label>
                     <input
                       type="text"
                       class="form-control"
@@ -229,8 +229,86 @@
             </div>
           </div>
         </div>
-
         <!--planet model end-->
+
+        <!--affiliation modal start-->
+        <div
+          class="modal fade"
+          id="affiliation-modal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="affiliation-modal-title">
+                  Affiliation Data
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <!--affiliation edit form-->
+                <form id="affiliation-form">
+                  <!--Display of id-->
+                  <div class="form-group mb-1">
+                    <label for="affiliation-id">ID:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="affiliation-id"
+                      name="id"
+                      value="1"
+                      disabled
+                    />
+                  </div>
+
+                  <!--Affiliation name-->
+                  <div class="form-group mb-1">
+                    <label for="affiliation-name">Name:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="affiliation-name"
+                      name="affiliation-name"
+                      placeholder="Enter name"
+                    />
+                  </div>
+
+                  <!--Affiliation color-->
+                  <div class="form-group mb-1">
+                    <label for="affiliation-name">Color:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="affiliation-color"
+                      name="affiliation-color"
+                      placeholder="Enter color"
+                    />
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="button" class="btn btn-primary" id="planet-save">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--affiliation modal end-->
+
         <div id="table-holder"></div>
       </main>
     </div>

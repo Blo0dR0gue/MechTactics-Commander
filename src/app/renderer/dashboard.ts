@@ -169,7 +169,6 @@ const planetTable = new Table<(typeof planets)[number]>(
         icon: addBtnIcon,
         classNames: ['btn', 'btn-success', 'btn-sm', 'me-1'],
         onClick() {
-          console.log('click');
           openPlanetModalWith();
         },
       },

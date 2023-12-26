@@ -23,7 +23,7 @@ interface Button<T extends ObjectWithKeys> {
   text?: string;
   classNames?: string[];
   icon?: Icon;
-  onClick?: (data: T, rowidx: number) => void;
+  onClick?: (data: T, rowIdx: number, curRowIdx) => void;
 }
 
 /**
@@ -320,7 +320,11 @@ class Table<T extends ObjectWithKeys> {
             if (onClick) {
               // Add the click event handler
               btn.addEventListener('click', () => {
-                onClick(data, tr.rowIndex - 1); // -1, because headers are row 0
+                onClick(
+                  data,
+                  tr.rowIndex - 1 + (this.currentPage - 1) * this.itemsPerPage,
+                  this.currentPage - 1
+                ); // -1, because headers are row 0
               });
             }
 

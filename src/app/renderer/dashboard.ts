@@ -248,7 +248,7 @@ const planetTable = new Table<(typeof planets)[number]>(
   },
   [
     { name: 'ID', dataAttribute: 'id', size: 'col-1' },
-    { name: 'Name', dataAttribute: 'name', size: 'col-2' },
+    { name: 'Name', dataAttribute: 'name', size: 'col-1' },
     {
       name: 'Coordinates',
       dataAttribute: 'coordinates',
@@ -266,7 +266,8 @@ const planetTable = new Table<(typeof planets)[number]>(
       },
     },
     { name: 'Age', dataAttribute: 'age', size: 'col-1' },
-    { name: 'Text', dataAttribute: 'planetText', size: 'col-3' },
+    { name: 'Link', dataAttribute: 'link', size: 'col-2' },
+    { name: 'Text', dataAttribute: 'planetText', size: 'col-2' },
     {
       name: 'Action',
       size: 'col-1',

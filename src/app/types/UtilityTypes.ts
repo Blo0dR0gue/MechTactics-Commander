@@ -29,4 +29,11 @@ type ObjectOfPropRec<T, U extends keyof T = keyof T> = U extends string
     : T[U]
   : never;
 
-export { ObjectWithKeys, ObjectOfPropRec, ObjectPropsRec };
+/**
+ * Remove optional from any parameter
+ */
+type Concrete<Type> = {
+  [Property in keyof Type]-?: Type[Property];
+};
+
+export { ObjectWithKeys, ObjectOfPropRec, ObjectPropsRec, Concrete };

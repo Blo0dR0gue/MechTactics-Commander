@@ -1,6 +1,8 @@
 // Init file for the dashboard page
 
 // Import custom CSS to load bootstrap and override variables
+import { PlanetRequest } from '../types/PlanetData';
+import { Concrete } from '../types/UtilityTypes';
 import './styles/main.scss';
 import { Table } from './utils/Table';
 import { createSVGElementFromString } from './utils/Utils';
@@ -33,11 +35,14 @@ affiliationTab.addEventListener('click', () => {
 
 // get all data
 const affiliations = await window.sql.getAllAffiliations();
-const planets = await window.sql.getAllPlanets().then((data) =>
-  data.map(({ x, y, ...rest }) => ({
-    ...rest,
-    coordinates: { x, y },
-  }))
+const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
+  data.map(
+    ({ x, y, ...rest }) =>
+      ({
+        ...rest,
+        coordinates: { x, y },
+      } as Concrete<PlanetRequest>)
+  )
 );
 
 const editBtnIcon =
@@ -79,8 +84,8 @@ const planetTable = new Table<(typeof planets)[number]>(
           icon: editBtnIcon,
           classNames:
             'btn btn-primary btn-sm align-items-center d-flex p-1'.split(' '),
-          onClick(data, rowidx) {
-            console.log(data, rowidx);
+          onClick(data, rowIdx, curRowIdx) {
+            console.log(data, rowIdx, curRowIdx);
           },
         },
       ],
@@ -109,8 +114,8 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
           icon: editBtnIcon,
           classNames:
             'btn btn-primary btn-sm align-items-center d-flex p-1'.split(' '),
-          onClick(data, rowidx) {
-            console.log(data, rowidx);
+          onClick(data, rowIdx, curRowIdx) {
+            console.log(data, rowIdx, curRowIdx);
           },
         },
       ],

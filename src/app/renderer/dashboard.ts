@@ -148,11 +148,33 @@ const deleteBtnIcon =
 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
 </svg>`);
 
+const addBtnIcon =
+  createSVGElementFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+<path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+</svg>`);
+
 // planet table
 const planetTable = new Table<(typeof planets)[number]>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
   20,
+  {
+    classNames:
+      'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
+        ' '
+      ),
+    searchBar: true,
+    buttons: [
+      {
+        icon: addBtnIcon,
+        classNames: ['btn', 'btn-success', 'btn-sm', 'me-1'],
+        onClick() {
+          console.log('click');
+          openPlanetModalWith();
+        },
+      },
+    ],
+  },
   [
     { name: 'ID', dataAttribute: 'id', size: 'col-1' },
     { name: 'Name', dataAttribute: 'name', size: 'col-2' },
@@ -204,6 +226,13 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
   20,
+  {
+    classNames:
+      'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
+        ' '
+      ),
+    searchBar: true,
+  },
   [
     { name: 'ID', dataAttribute: 'id', size: 'col-1' },
     { name: 'Name', dataAttribute: 'name', size: 'col-2' },

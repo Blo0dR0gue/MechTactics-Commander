@@ -14,6 +14,7 @@ The MIT License
 - [Electron](https://www.electronjs.org/) Build cross-platform desktop apps
 - [Bootstrap](https://getbootstrap.com/) CSS & JS: for styling and GUI related things
 - [Popper](https://popper.js.org/): for better tooltips (recommended by Bootstrap)
+- [Icons](https://icons.getbootstrap.com/): Bootstrap icons
 
 ## Quadtree
 

@@ -2,12 +2,12 @@ interface Window {
   sql: {
     getPlanetsAtAge: (
       age: number
-    ) => Promise<import('./src/app/types/PlanetResponse').PlanetResponse[]>;
+    ) => Promise<import('./src/app/types/PlanetData').PlanetResponse[]>;
     getAllPlanets: () => Promise<
-      import('./src/app/types/PlanetResponse').PlanetResponse[]
+      import('./src/app/types/PlanetData').PlanetResponse[]
     >;
     getAllAffiliations: () => Promise<
-      import('./src/app/types/AffiliationResponse').AffiliationResponse[]
+      import('./src/app/types/AffiliationData').AffiliationResponse[]
     >;
     getAllUniverseAges: () => Promise<
       {
@@ -15,6 +15,15 @@ interface Window {
       }[]
     >;
     updatePlanetText: (id: number, universeAge: string, text: string) => void;
+    updatePlanet: (
+      planet: import('./src/app/types/PlanetData').PlanetRequest
+    ) => void;
+    createPlanet: (
+      planet: import('./src/app/types/PlanetData').PlanetRequest
+    ) => void;
+    deletePlanet: (
+      planet: import('./src/app/types/PlanetData').PlanetRequest
+    ) => void;
   };
   app: {
     version: () => Promise<string>;

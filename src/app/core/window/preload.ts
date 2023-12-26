@@ -1,4 +1,5 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
+import { PlanetRequest } from '../../types/PlanetData';
 
 contextBridge.exposeInMainWorld('sql', {
   getPlanetsAtAge: (age: string) => ipcRenderer.invoke('getPlanetsAtAge', age),
@@ -8,6 +9,12 @@ contextBridge.exposeInMainWorld('sql', {
   updatePlanetText: (id: number, universeAge: string, text: string) => {
     ipcRenderer.invoke('updatePlanetText', id, universeAge, text);
   },
+  updatePlanet: (planet: PlanetRequest) =>
+    ipcRenderer.invoke('updatePlanet', planet),
+  createPlanet: (planet: PlanetRequest) =>
+    ipcRenderer.invoke('createPlanet', planet),
+  deletePlanet: (planet: PlanetRequest) =>
+    ipcRenderer.invoke('deletePlanet', planet),
 });
 
 contextBridge.exposeInMainWorld('app', {

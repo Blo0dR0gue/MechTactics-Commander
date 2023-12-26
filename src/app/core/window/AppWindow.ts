@@ -3,8 +3,8 @@ import * as path from 'path';
 import { AppConstants } from '../AppConstants';
 import { Database } from 'sqlite';
 import { CoreConfig } from '../CoreConfig';
-import { PlanetResponse } from '../../types/PlanetResponse';
-import { AffiliationResponse } from '../../types/AffiliationResponse';
+import { PlanetRequest, PlanetResponse } from '../../types/PlanetData';
+import { AffiliationResponse } from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 
 // TODO: Use only one window and switch loaded files
@@ -117,6 +117,66 @@ class AppWindow {
         );
       }
     );
+
+    ipcMain.handle('updatePlanet', (event, planet: PlanetRequest) => {
+      this.database
+        .run(
+          'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
+          planet.name,
+          planet.link,
+          planet.coordinates.x,
+          planet.coordinates.y,
+          planet.id
+        )
+        .then(() => {
+          this.database.run(
+            'UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ? AND affiliationID = ?;',
+            planet.planetText,
+            planet.age,
+            planet.id,
+            planet.affiliationID
+          );
+        });
+    });
+
+    ipcMain.handle('createPlanet', (event, planet: PlanetRequest) => {
+      this.database
+        .run(
+          'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
+          planet.name,
+          planet.link,
+          planet.coordinates.x,
+          planet.coordinates.y
+        )
+        .then((runResult) => {
+          this.database.run(
+            'INSERT INTO PlanetAffiliationAge (planetID, affiliationID, universeAge) VALUES (?, ?, ?)',
+            runResult.lastID,
+            planet.affiliationID,
+            planet.age
+          );
+        });
+    });
+
+    ipcMain.handle('deletePlanet', (event, planet: PlanetRequest) => {
+      this.database
+        .run(
+          'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND affiliationID = ? AND universeAge = ?;',
+          planet.id,
+          planet.affiliationID,
+          planet.age
+        )
+        .then(() => {
+          this.database.run(
+            'DELETE FROM Planet WHERE id = ?;',
+            planet.name,
+            planet.link,
+            planet.coordinates.x,
+            planet.coordinates.y,
+            planet.id
+          );
+        });
+    });
 
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();

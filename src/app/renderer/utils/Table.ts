@@ -17,12 +17,25 @@ type ColSizes =
   | 'col-auto';
 
 /**
- * Defines one button which can be added to a column
+ * A basic button definition for this table
  */
-interface Button<T extends ObjectWithKeys> {
+interface Button {
   text?: string;
   classNames?: string[];
   icon?: Icon;
+}
+
+/**
+ * A button which can be added to the header
+ */
+interface HeaderButton extends Button {
+  onClick?: () => void;
+}
+
+/**
+ * Defines one button which can be added to a column to be rendered in each row
+ */
+interface RowButton<T extends ObjectWithKeys> extends Button {
   onClick?: (data: T, rowIdx: number, curRowIdx) => void;
 }
 
@@ -34,7 +47,13 @@ interface ColumnData<T extends ObjectWithKeys> {
   size: ColSizes;
   dataAttribute?: ObjectPropsRec<T>;
   formatter?: (value: ObjectOfPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
-  buttons?: Button<T>[];
+  buttons?: RowButton<T>[];
+}
+
+interface HeaderData {
+  searchBar: boolean;
+  classNames: string[];
+  buttons?: HeaderButton[];
 }
 
 class TableError extends Error {
@@ -66,6 +85,7 @@ class Table<T extends ObjectWithKeys> {
     private parentElement: HTMLElement,
     classNames: string[],
     private itemsPerPage: number,
+    private headerData: HeaderData,
     private columnDefinitions: ColumnData<T>[]
   ) {
     this.tableElement = document.createElement('table');
@@ -115,30 +135,48 @@ class Table<T extends ObjectWithKeys> {
 
   private renderHeader(): void {
     // TODO: make dynamic like the css classes and to render a searchbar or not and also be able to add more data
+
+    const { classNames, searchBar, buttons } = this.headerData;
+
     this.headerElement = document.createElement('header');
-    this.headerElement.classList.add(
-      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
-        ' '
-      )
-    );
+    this.headerElement.classList.add(...classNames);
 
-    const searchbar = document.createElement('input');
-    searchbar.type = 'text';
-    searchbar.id = 'search-input';
-    searchbar.classList.add('form-control');
-    searchbar.placeholder = 'Search...';
+    if (buttons && buttons.length > 0) {
+      for (const button of buttons) {
+        const { onClick } = button;
 
-    searchbar.addEventListener('input', () => {
-      // filter the table on input
-      this.filterText = searchbar.value.toLowerCase();
-      this.currentPage = 1;
-      this.updateTable();
-    });
+        const btn = this.createBasicButton(button);
 
-    const searchbarWrapper = document.createElement('div');
-    searchbarWrapper.append(searchbar);
+        if (onClick) {
+          // Add the click event handler
+          btn.addEventListener('click', () => {
+            onClick();
+          });
+        }
 
-    this.headerElement.appendChild(searchbarWrapper);
+        this.headerElement.appendChild(btn);
+      }
+    }
+
+    if (searchBar) {
+      const searchbar = document.createElement('input');
+      searchbar.type = 'text';
+      searchbar.id = 'search-input';
+      searchbar.classList.add('form-control');
+      searchbar.placeholder = 'Search...';
+
+      searchbar.addEventListener('input', () => {
+        // filter the table on input
+        this.filterText = searchbar.value.toLowerCase();
+        this.currentPage = 1;
+        this.updateTable();
+      });
+
+      const searchbarWrapper = document.createElement('div');
+      searchbarWrapper.append(searchbar);
+
+      this.headerElement.appendChild(searchbarWrapper);
+    }
 
     this.parentElement.appendChild(this.headerElement);
   }
@@ -300,22 +338,9 @@ class Table<T extends ObjectWithKeys> {
 
           // for each button definition render one button
           for (const button of buttons) {
-            const { text, classNames, icon, onClick } = button;
+            const { onClick } = button;
 
-            if (!text && !icon) {
-              throw new TableError(
-                `You must define either text or an icon for a button. ${button}`
-              );
-            }
-
-            const btn = document.createElement('button');
-
-            if (classNames) btn.classList.add(...classNames);
-
-            if (icon) {
-              if (text) icon.classList.add('pe-1'); // add padding to the right, if also a text should be rendered
-              btn.appendChild(icon.cloneNode(true));
-            }
+            const btn = this.createBasicButton(button);
 
             if (onClick) {
               // Add the click event handler
@@ -326,11 +351,6 @@ class Table<T extends ObjectWithKeys> {
                   this.currentPage - 1
                 ); // -1, because headers are row 0
               });
-            }
-
-            if (text) {
-              // If a text should be added expand the inner html to not override a possible icon.
-              btn.innerHTML += encodeURIComponent(text);
             }
 
             td.appendChild(btn);
@@ -347,6 +367,36 @@ class Table<T extends ObjectWithKeys> {
     }
 
     this.tableElement.appendChild(tbody);
+  }
+
+  /**
+   * Create a button element
+   * @param button A button definition
+   * @returns A HTMLButtonElement
+   */
+  private createBasicButton(button: Button) {
+    const { text, icon, classNames } = button;
+
+    if (!text && !icon) {
+      throw new TableError(
+        `You must define either text or an icon for a button. ${button}`
+      );
+    }
+
+    const btn = document.createElement('button');
+
+    if (classNames) btn.classList.add(...classNames);
+
+    if (icon) {
+      if (text) icon.classList.add('pe-1'); // add padding to the right, if also a text should be rendered
+      btn.appendChild(icon.cloneNode(true));
+    }
+
+    if (text) {
+      // If a text should be added expand the inner html to not override a possible icon.
+      btn.innerHTML += encodeURIComponent(text);
+    }
+    return btn;
   }
 
   /**

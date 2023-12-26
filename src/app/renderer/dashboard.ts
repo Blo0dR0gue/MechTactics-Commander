@@ -1,6 +1,7 @@
 // Init file for the dashboard page
 
 // Import custom CSS to load bootstrap and override variables
+import { Modal } from 'bootstrap';
 import { AffiliationRequest } from '../types/AffiliationData';
 import { PlanetRequest } from '../types/PlanetData';
 import { Concrete } from '../types/UtilityTypes';
@@ -12,7 +13,93 @@ import { createSVGElementFromString } from './utils/Utils';
 const tableParent = document.getElementById('table-holder');
 const planetTab = document.getElementById('planet-tab');
 const affiliationTab = document.getElementById('affiliation-tab');
+const planetModalElement = document.getElementById('planet-modal');
+const planetForm = document.getElementById('planet-form');
+const planetSaveBtn = document.getElementById('planet-save');
 
+// planet form elements
+const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
+const planetFormName = document.getElementById(
+  'planet-name'
+) as HTMLInputElement;
+const planetFormAffiliationID = document.getElementById(
+  'planet-affiliation-id'
+) as HTMLSelectElement;
+const planetFormCoordX = document.getElementById(
+  'planet-x'
+) as HTMLInputElement;
+const planetFormCoordY = document.getElementById(
+  'planet-y'
+) as HTMLInputElement;
+const planetFormAge = document.getElementById('planet-age') as HTMLInputElement;
+const planetFormLink = document.getElementById(
+  'planet-link'
+) as HTMLInputElement;
+const planetFormText = document.getElementById(
+  'planet-text'
+) as HTMLTextAreaElement;
+
+// planet form and modal setups
+let currentEditPlanet: PlanetRequest = undefined;
+const planetModal = new Modal(planetModalElement, {});
+
+planetForm.addEventListener('submit', (e) => e.preventDefault());
+
+planetSaveBtn.addEventListener('click', () => {
+  const id = Number(planetFormID.value);
+  const name = planetFormName.value;
+  const affiliationID = Number(planetFormAffiliationID.value);
+  const x = Number(planetFormCoordX.value);
+  const y = Number(planetFormCoordY.value);
+  const age = Number(planetFormAge.value);
+  const link = planetFormLink.value;
+  const text = planetFormText.value;
+  if (currentEditPlanet === undefined) {
+    // Create new planet
+    window.sql.createPlanet({
+      id: id,
+      affiliationID: affiliationID,
+      age: age,
+      coordinates: { x: x, y: y },
+      link: link,
+      name: name,
+      planetText: text,
+    });
+  } else {
+    // Update planet
+    currentEditPlanet.name = name;
+    currentEditPlanet.affiliationID = affiliationID;
+    currentEditPlanet.coordinates.x = x;
+    currentEditPlanet.coordinates.y = y;
+    currentEditPlanet.age = age;
+    currentEditPlanet.link = link;
+    currentEditPlanet.planetText = text;
+    window.sql.updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)));
+  }
+});
+
+function setPlanetFormData(planet: PlanetRequest) {
+  planetFormID.value = String(planet?.id || -1);
+  planetFormName.value = planet?.name || '';
+  planetFormAffiliationID.value = String(planet?.affiliationID || 1);
+  planetFormCoordX.value = String(planet?.coordinates?.x || 0);
+  planetFormCoordY.value = String(planet?.coordinates?.y || 0);
+  planetFormAge.value = String(planet?.age || 3025);
+  planetFormLink.value = planet?.link || '';
+  planetFormText.value = planet?.planetText || '';
+
+  // disabled fields on edit
+  planetFormAffiliationID.disabled = planet !== undefined;
+  planetFormAge.disabled = planet !== undefined;
+}
+
+function openPlanetModalWith(planet: PlanetRequest = undefined) {
+  setPlanetFormData(planet);
+  currentEditPlanet = planet;
+  planetModal.show();
+}
+
+// tab setup
 const tabs: HTMLElement[] = [];
 tabs.push(planetTab);
 tabs.push(affiliationTab);
@@ -20,6 +107,7 @@ tabs.push(affiliationTab);
 // tab buttons setup
 planetTab.addEventListener('click', () => {
   if (planetTab.classList.contains('active')) return;
+  // Open planet table
   tabs.forEach((elem) => elem.classList.remove('active'));
   planetTab.classList.add('active');
   affiliationTable.remove();
@@ -28,6 +116,7 @@ planetTab.addEventListener('click', () => {
 
 affiliationTab.addEventListener('click', () => {
   if (affiliationTab.classList.contains('active')) return;
+  // open affiliation table
   tabs.forEach((elem) => elem.classList.remove('active'));
   affiliationTab.classList.add('active');
   planetTable.remove();
@@ -47,6 +136,7 @@ const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
   )
 );
 
+// icon setup
 const editBtnIcon =
   createSVGElementFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
 <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
@@ -92,15 +182,16 @@ const planetTable = new Table<(typeof planets)[number]>(
           icon: editBtnIcon,
           classNames:
             'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
-          onClick(data, rowIdx, curRowIdx) {
-            console.log(data, rowIdx, curRowIdx);
+          onClick(data) {
+            openPlanetModalWith(data);
           },
         },
         {
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
-          onClick(data, rowIdx, curRowIdx) {
-            console.log(data, rowIdx, curRowIdx);
+          onClick(data, rowIdx) {
+            planetTable.removeDataByIdx(rowIdx);
+            window.sql.deletePlanet(JSON.parse(JSON.stringify(data)));
           },
         },
       ],
@@ -145,7 +236,9 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
   ]
 );
 
+// Set data to table
 planetTable.setData(planets);
 affiliationTable.setData(affiliations);
 
+// Start dashboard with planet table
 planetTable.render();

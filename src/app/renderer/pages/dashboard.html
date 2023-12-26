@@ -36,7 +36,11 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link link-dark d-flex align-items-center" href="#" id="affiliation-tab">
+            <a
+              class="nav-link link-dark d-flex align-items-center"
+              href="#"
+              id="affiliation-tab"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -81,8 +85,153 @@
       </nav>
 
       <main class="col-sm-9 col-md-10 h-100 overflow-auto position-relative">
-        <div id="table-holder">
+        <!--planet modal start-->
+        <div
+          class="modal fade"
+          id="planet-modal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="planet-modal-title">
+                  Planet Data
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <!--planet edit form-->
+                <form id="planet-form">
+                  <!--Display of id-->
+                  <div class="form-group mb-1">
+                    <label for="id">ID:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="planet-id"
+                      name="id"
+                      value="1"
+                      disabled
+                    />
+                  </div>
 
+                  <!--Planet name-->
+                  <div class="form-group mb-1">
+                    <label for="planet-name">Name:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="planet-name"
+                      name="planet-name"
+                      placeholder="Enter name"
+                    />
+                  </div>
+
+                  <!--Selection for the affiliation id-->
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-id">Affiliation ID:</label>
+                    <select
+                      class="form-control"
+                      id="planet-affiliation-id"
+                      name="planet-affiliation-id"
+                      disabled
+                    >
+                      <!-- Add your affiliation options here -->
+                      <option value="1" selected>Option 1</option>
+                      <option value="2">Option 2</option>
+                      <!-- Add more options as needed -->
+                    </select>
+                  </div>
+
+                  <!--Coordinates-->
+                  <div class="row mb-1">
+                    <div class="form-group col-md-6">
+                      <label for="planet-x">Coordinate X:</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        id="planet-x"
+                        name="planet-x"
+                        placeholder="Enter X coordinate"
+                      />
+                    </div>
+                    <div class="form-group col-md-6 mb-1">
+                      <label for="planet-y">Coordinate Y:</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        id="planet-y"
+                        name="planet-y"
+                        placeholder="Enter Y coordinate"
+                      />
+                    </div>
+                  </div>
+
+                  <!--age-->
+                  <div class="form-group mb-1">
+                    <label for="planet-age">Age:</label>
+                    <input
+                      type="number"
+                      step="1"
+                      class="form-control"
+                      id="planet-age"
+                      name="planet-age"
+                      placeholder="Enter Age"
+                      disabled
+                    />
+                  </div>
+
+                  <!--Link-->
+                  <div class="form-group mb-1">
+                    <label for="planet-link">Link:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="planet-link"
+                      name="planet-link"
+                      placeholder="Enter link"
+                    />
+                  </div>
+
+                  <!--Planet Text-->
+                  <div class="form-group mb-1">
+                    <label for="planet-tex">Planet Text:</label>
+                    <textarea
+                      class="form-control"
+                      id="planet-text"
+                      name="planet-tex"
+                      rows="2"
+                      placeholder="Enter planet text"
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="button" class="btn btn-primary" id="planet-save">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--planet model end-->
+        <div id="table-holder"></div>
       </main>
     </div>
   </body>

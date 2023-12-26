@@ -4,7 +4,7 @@ import { CoreConfig } from '../CoreConfig';
 
 class Upgrade010 extends AppUpgradeInfo {
   public constructor(config: CoreConfig, database: Database) {
-    super(config, database, '0.0.10', '');
+    super(config, database, '0.0.10', 'Added a dashboard');
     this.actions.push(async () => {
       config.set('selectedUniverseAge', 3025);
     });

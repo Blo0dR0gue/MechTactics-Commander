@@ -37,6 +37,7 @@ interface HeaderButton extends Button {
  */
 interface RowButton<T extends ObjectWithKeys> extends Button {
   onClick?: (data: T, rowIdx: number, curRowIdx) => void;
+  enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
 }
 
 /**
@@ -338,7 +339,7 @@ class Table<T extends ObjectWithKeys> {
 
           // for each button definition render one button
           for (const button of buttons) {
-            const { onClick } = button;
+            const { onClick, enabled } = button;
 
             const btn = this.createBasicButton(button);
 
@@ -351,6 +352,14 @@ class Table<T extends ObjectWithKeys> {
                   this.currentPage - 1
                 ); // -1, because headers are row 0
               });
+            }
+
+            if (enabled) {
+              btn.disabled = !enabled(
+                data,
+                tr.rowIndex - 1 + (this.currentPage - 1) * this.itemsPerPage,
+                this.currentPage - 1
+              );
             }
 
             td.appendChild(btn);

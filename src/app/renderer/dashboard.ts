@@ -9,6 +9,19 @@ import './styles/main.scss';
 import { Table } from './utils/Table';
 import { createSVGElementFromString } from './utils/Utils';
 
+// get all data
+const affiliations: AffiliationRequest[] =
+  await window.sql.getAllAffiliations();
+const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
+  data.map(
+    ({ x, y, ...rest }) =>
+      ({
+        ...rest,
+        coordinates: { x, y },
+      } as Concrete<PlanetRequest>)
+  )
+);
+
 // element definitions
 const tableParent = document.getElementById('table-holder');
 const planetTab = document.getElementById('planet-tab');
@@ -38,6 +51,17 @@ const planetFormLink = document.getElementById(
 const planetFormText = document.getElementById(
   'planet-text'
 ) as HTMLTextAreaElement;
+
+// affiliation form elements
+const affiliationFormID = document.getElementById(
+  'affiliation-id'
+) as HTMLInputElement;
+const affiliationFormName = document.getElementById(
+  'affiliation-name'
+) as HTMLInputElement;
+const affiliationFormColor = document.getElementById(
+  'affiliation-color'
+) as HTMLInputElement;
 
 // planet form and modal setups
 let currentEditPlanet: PlanetRequest = undefined;
@@ -94,9 +118,20 @@ function setPlanetFormData(planet: PlanetRequest) {
 }
 
 function openPlanetModalWith(planet: PlanetRequest = undefined) {
-  setPlanetFormData(planet);
   currentEditPlanet = planet;
+  addAffiliationsToSelect();
+  setPlanetFormData(planet);
   planetModal.show();
+}
+
+function addAffiliationsToSelect() {
+  planetFormAffiliationID.innerHTML = '';
+  for (const affiliation of affiliations) {
+    const affiliationOption = document.createElement('option');
+    affiliationOption.value = String(affiliation.id);
+    affiliationOption.textContent = affiliation.name;
+    planetFormAffiliationID.appendChild(affiliationOption);
+  }
 }
 
 // tab setup
@@ -122,19 +157,6 @@ affiliationTab.addEventListener('click', () => {
   planetTable.remove();
   affiliationTable.render();
 });
-
-// get all data
-const affiliations: AffiliationRequest[] =
-  await window.sql.getAllAffiliations();
-const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
-  data.map(
-    ({ x, y, ...rest }) =>
-      ({
-        ...rest,
-        coordinates: { x, y },
-      } as Concrete<PlanetRequest>)
-  )
-);
 
 // icon setup
 const editBtnIcon =

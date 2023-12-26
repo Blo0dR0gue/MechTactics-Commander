@@ -10,14 +10,14 @@ const tableParent = document.getElementById('table-holder');
 const planetTab = document.getElementById('planet-tab');
 const affiliationTab = document.getElementById('affiliation-tab');
 
-const taps: HTMLElement[] = [];
-taps.push(planetTab);
-taps.push(affiliationTab);
+const tabs: HTMLElement[] = [];
+tabs.push(planetTab);
+tabs.push(affiliationTab);
 
 // btn setup
 planetTab.addEventListener('click', () => {
   if (planetTab.classList.contains('active')) return;
-  taps.forEach((elem) => elem.classList.remove('active'));
+  tabs.forEach((elem) => elem.classList.remove('active'));
   planetTab.classList.add('active');
   affiliationTable.remove();
   planetTable.render();
@@ -25,7 +25,7 @@ planetTab.addEventListener('click', () => {
 
 affiliationTab.addEventListener('click', () => {
   if (affiliationTab.classList.contains('active')) return;
-  taps.forEach((elem) => elem.classList.remove('active'));
+  tabs.forEach((elem) => elem.classList.remove('active'));
   affiliationTab.classList.add('active');
   planetTable.remove();
   affiliationTable.render();

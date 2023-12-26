@@ -370,6 +370,37 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
   }
+
+  /**
+   * Add a new data element to the table
+   * @param data
+   */
+  public addData(data: T): void {
+    this.clearDataBindings();
+    this.data.push(data);
+    this.updateTable();
+  }
+
+  /**
+   * Remove a data element from the table. This also removes the data element from the real data array
+   * @param data
+   */
+  public removeData(data: T): void {
+    const idx = this.data.findIndex((obj) => obj === data);
+    if (idx > -1) {
+      this.removeDataByIdx(idx);
+    }
+  }
+
+  /**
+   * Remove a data element from the table by an index. This also removes the data element from the real data array
+   * @param data
+   */
+  public removeDataByIdx(idx: number) {
+    this.clearDataBindings();
+    this.data.splice(idx, 1);
+    this.updateTable();
+  }
 }
 
 export { Table, TableError };

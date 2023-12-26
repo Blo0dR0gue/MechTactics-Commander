@@ -1,6 +1,7 @@
 // Init file for the dashboard page
 
 // Import custom CSS to load bootstrap and override variables
+import { AffiliationRequest } from '../types/AffiliationData';
 import { PlanetRequest } from '../types/PlanetData';
 import { Concrete } from '../types/UtilityTypes';
 import './styles/main.scss';
@@ -16,7 +17,7 @@ const tabs: HTMLElement[] = [];
 tabs.push(planetTab);
 tabs.push(affiliationTab);
 
-// btn setup
+// tab buttons setup
 planetTab.addEventListener('click', () => {
   if (planetTab.classList.contains('active')) return;
   tabs.forEach((elem) => elem.classList.remove('active'));
@@ -34,7 +35,8 @@ affiliationTab.addEventListener('click', () => {
 });
 
 // get all data
-const affiliations = await window.sql.getAllAffiliations();
+const affiliations: AffiliationRequest[] =
+  await window.sql.getAllAffiliations();
 const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
   data.map(
     ({ x, y, ...rest }) =>

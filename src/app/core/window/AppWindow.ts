@@ -167,14 +167,7 @@ class AppWindow {
           planet.age
         )
         .then(() => {
-          this.database.run(
-            'DELETE FROM Planet WHERE id = ?;',
-            planet.name,
-            planet.link,
-            planet.coordinates.x,
-            planet.coordinates.y,
-            planet.id
-          );
+          this.database.run('DELETE FROM Planet WHERE id = ?;', planet.id);
         });
     });
 

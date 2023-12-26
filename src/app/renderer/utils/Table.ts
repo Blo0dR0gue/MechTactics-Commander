@@ -292,8 +292,8 @@ class Table<T extends ObjectWithKeys> {
 
         if (dataAttribute !== undefined) {
           // render a text cell using data binding
-          const binding = new Binding(data, dataAttribute, false);
-          binding.addBinding(td, 'textContent', 'none', formatter);
+          const binding = new Binding(data, dataAttribute);
+          binding.addBinding(td, 'textContent', false, formatter, 'none');
           this.bindings.push(binding);
         } else if (buttons !== undefined && buttons.length > 0) {
           // render the button cell

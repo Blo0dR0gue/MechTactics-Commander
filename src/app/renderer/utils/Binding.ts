@@ -8,6 +8,7 @@ class BindingError extends Error {
 interface BindingData {
   obj: object;
   prop: string;
+  twoWay: boolean;
   event?: string;
   eventListener?: () => void;
   formatter?: (value: unknown) => unknown;
@@ -26,8 +27,7 @@ class Binding {
 
   public constructor(
     private readonly bindingObject: object,
-    private readonly bindingProp: string,
-    private readonly twoWay = true
+    private readonly bindingProp: string
   ) {
     this.value = this.getValue(this.bindingObject, this.bindingProp);
     if (this.value instanceof Object) {
@@ -171,8 +171,9 @@ class Binding {
   public addBinding(
     obj: object | HTMLElement,
     prop: string,
-    event?: string,
-    formatter?: (value: unknown) => unknown
+    twoWay: boolean,
+    formatter?: (value: unknown) => unknown,
+    event?: string
   ): void {
     if (!this.objectHasProperty(obj, prop)) {
       throw new BindingError(
@@ -182,12 +183,11 @@ class Binding {
 
     const deepestObj = this.getDeepestObject(obj, prop);
     const lastPart = this.getLastPathPart(prop);
-    const isObject = deepestObj[lastPart] instanceof Object;
     let listener = undefined;
 
-    if (this.twoWay) {
+    if (twoWay) {
       if (obj instanceof HTMLElement) {
-        if (isObject) {
+        if (this.objBinding) {
           throw new BindingError(
             `It is not allowed to use two way data binding on an object type via an html element`
           );
@@ -211,6 +211,7 @@ class Binding {
     const binding = {
       obj: obj,
       prop: prop.trim(),
+      twoWay: twoWay,
       event: event,
       eventListener: listener,
       formatter: formatter,
@@ -227,9 +228,9 @@ class Binding {
     );
     if (idx !== -1) {
       const binding = this.bindings.splice(idx, 1)[0];
-      if (this.twoWay) {
+      const { event, eventListener, twoWay } = binding;
+      if (twoWay) {
         if (obj instanceof HTMLElement) {
-          const { event, eventListener } = binding;
           if (event && eventListener)
             obj.removeEventListener(event, eventListener);
         } else {

@@ -340,6 +340,9 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
             affiliationTable.removeDataByIdx(rowIdx);
             window.sql.deleteAffiliation(data);
           },
+          enabled(data) {
+            return data.id != 0;
+          },
         },
       ],
     },

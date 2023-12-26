@@ -8,6 +8,11 @@ class Upgrade010 extends AppUpgradeInfo {
     this.actions.push(async () => {
       config.set('selectedUniverseAge', 3025);
     });
+    this.actions.push(async () => {
+      database.run(
+        "INSERT INTO Affiliation (id, name, color) VALUES (0, 'Default', '#FFFFFF');"
+      );
+    });
   }
 }
 

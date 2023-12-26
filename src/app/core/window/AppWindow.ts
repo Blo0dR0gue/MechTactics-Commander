@@ -4,7 +4,10 @@ import { AppConstants } from '../AppConstants';
 import { Database } from 'sqlite';
 import { CoreConfig } from '../CoreConfig';
 import { PlanetRequest, PlanetResponse } from '../../types/PlanetData';
-import { AffiliationResponse } from '../../types/AffiliationData';
+import {
+  AffiliationRequest,
+  AffiliationResponse,
+} from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 
 // TODO: Use only one window and switch loaded files
@@ -170,6 +173,46 @@ class AppWindow {
           this.database.run('DELETE FROM Planet WHERE id = ?;', planet.id);
         });
     });
+
+    ipcMain.handle(
+      'updateAffiliation',
+      (event, affiliation: AffiliationRequest) => {
+        this.database.run(
+          'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
+          affiliation.name,
+          affiliation.color
+        );
+      }
+    );
+
+    ipcMain.handle(
+      'createAffiliation',
+      (event, affiliation: AffiliationRequest) => {
+        this.database.run(
+          'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
+          affiliation.name,
+          affiliation.color
+        );
+      }
+    );
+
+    ipcMain.handle(
+      'deleteAffiliation',
+      (event, affiliation: AffiliationRequest) => {
+        if (affiliation.id === 0) return;
+        this.database
+          .run(
+            'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',
+            affiliation.id
+          )
+          .then(() => {
+            this.database.run(
+              'DELETE FROM Affiliation WHERE id = ?;',
+              affiliation.id
+            );
+          });
+      }
+    );
 
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();

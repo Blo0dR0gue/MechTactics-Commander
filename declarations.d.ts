@@ -15,6 +15,8 @@ interface Window {
       }[]
     >;
     updatePlanetText: (id: number, universeAge: string, text: string) => void;
+
+    // Dashboard
     updatePlanet: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
     ) => void;
@@ -24,12 +26,24 @@ interface Window {
     deletePlanet: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
     ) => void;
+
+    updateAffiliation: (
+      affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
+    ) => void;
+    createAffiliation: (
+      affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
+    ) => void;
+    deleteAffiliation: (
+      affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
+    ) => void;
   };
+
   app: {
     version: () => Promise<string>;
     setConfigData: (key: string, value: unknown) => void;
     getConfigCache: () => Promise<Record<string, unknown>>;
   };
+
   update: {
     addDownloadProgressListener: (
       callback: (event: Electron.IpcRendererEvent, percent: number) => void

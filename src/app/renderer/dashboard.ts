@@ -9,11 +9,14 @@ import './styles/main.scss';
 import { Table } from './utils/Table';
 import { createSVGElementFromString } from './utils/Utils';
 
-// get all data
-const affiliations: AffiliationRequest[] =
-  await window.sql.getAllAffiliations();
+// get planet and affiliation data
+const affiliations: AffiliationRequest[] = await window.sql
+  .getAllAffiliations()
+  .then((data) => data.map((obj) => obj as Concrete<typeof obj>));
+
 const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
   data.map(
+    // move x and y coordinate to separate object inside an planet request object
     ({ x, y, ...rest }) =>
       ({
         ...rest,
@@ -26,9 +29,14 @@ const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
 const tableParent = document.getElementById('table-holder');
 const planetTab = document.getElementById('planet-tab');
 const affiliationTab = document.getElementById('affiliation-tab');
+
 const planetModalElement = document.getElementById('planet-modal');
 const planetForm = document.getElementById('planet-form');
 const planetSaveBtn = document.getElementById('planet-save');
+
+const affiliationModalElement = document.getElementById('affiliation-modal');
+const affiliationForm = document.getElementById('affiliation-form');
+const affiliationSaveBtn = document.getElementById('affiliation-save');
 
 // planet form elements
 const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
@@ -91,6 +99,7 @@ planetSaveBtn.addEventListener('click', () => {
     });
   } else {
     // Update planet
+    currentEditPlanet.id = id;
     currentEditPlanet.name = name;
     currentEditPlanet.affiliationID = affiliationID;
     currentEditPlanet.coordinates.x = x;
@@ -124,14 +133,55 @@ function openPlanetModalWith(planet: PlanetRequest = undefined) {
   planetModal.show();
 }
 
+/**
+ * Add all affiliations to the planet affiliation id select element
+ */
 function addAffiliationsToSelect() {
+  // clear affiliation id select
   planetFormAffiliationID.innerHTML = '';
+
+  // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
   for (const affiliation of affiliations) {
     const affiliationOption = document.createElement('option');
     affiliationOption.value = String(affiliation.id);
     affiliationOption.textContent = affiliation.name;
     planetFormAffiliationID.appendChild(affiliationOption);
   }
+}
+
+// affiliation form and modal setups
+let currentEditAffiliation: AffiliationRequest = undefined;
+
+affiliationForm.addEventListener('submit', (e) => e.preventDefault());
+
+const affiliationModal = new Modal(affiliationModalElement, {});
+
+affiliationSaveBtn.addEventListener('click', () => {
+  const id = Number(affiliationFormID.value);
+  const name = affiliationFormName.value;
+  const color = affiliationFormColor.value;
+  if (currentEditAffiliation === undefined) {
+    // Create new affiliation
+    window.sql.createAffiliation({ id: id, name: name, color: color });
+  } else {
+    // Update affiliation
+    currentEditAffiliation.id = id;
+    currentEditAffiliation.name = name;
+    currentEditAffiliation.color = color;
+    window.sql.updateAffiliation(currentEditAffiliation);
+  }
+});
+
+function openAffiliationModalWith(affiliation: AffiliationRequest = undefined) {
+  currentEditAffiliation = affiliation;
+  setAffiliationFormData(affiliation);
+  affiliationModal.show();
+}
+
+function setAffiliationFormData(affiliation: AffiliationRequest) {
+  affiliationFormID.value = String(affiliation?.id || -1);
+  affiliationFormName.value = affiliation?.name || '';
+  affiliationFormColor.value = affiliation?.color || '';
 }
 
 // tab setup
@@ -253,6 +303,15 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
         ' '
       ),
     searchBar: true,
+    buttons: [
+      {
+        icon: addBtnIcon,
+        classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
+        onClick() {
+          openAffiliationModalWith();
+        },
+      },
+    ],
   },
   [
     { name: 'ID', dataAttribute: 'id', size: 'col-1' },
@@ -270,15 +329,16 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
           icon: editBtnIcon,
           classNames:
             'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
-          onClick(data, rowIdx, curRowIdx) {
-            console.log(data, rowIdx, curRowIdx);
+          onClick(data) {
+            openAffiliationModalWith(data);
           },
         },
         {
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
-          onClick(data, rowIdx, curRowIdx) {
-            console.log(data, rowIdx, curRowIdx);
+          onClick(data, rowIdx) {
+            affiliationTable.removeDataByIdx(rowIdx);
+            window.sql.deleteAffiliation(data);
           },
         },
       ],

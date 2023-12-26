@@ -134,8 +134,6 @@ class Table<T extends ObjectWithKeys> {
   }
 
   private renderHeader(): void {
-    // TODO: make dynamic like the css classes and to render a searchbar or not and also be able to add more data
-
     const { classNames, searchBar, buttons } = this.headerData;
 
     this.headerElement = document.createElement('header');
@@ -210,6 +208,7 @@ class Table<T extends ObjectWithKeys> {
   }
 
   private updateTable(): void {
+    this.loader.show();
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
 
@@ -233,6 +232,7 @@ class Table<T extends ObjectWithKeys> {
     this.clearDataBindings();
     this.renderRows(startIndex, endIndex, filteredData);
     this.updatePagination(filteredData.length - 1);
+    this.loader.hide();
   }
 
   private updatePagination(maxPages: number): void {

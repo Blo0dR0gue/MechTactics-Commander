@@ -308,6 +308,73 @@
         </div>
         <!--affiliation modal end-->
 
+        <!--planet age copy modal start-->
+        <div
+          class="modal fade"
+          id="planet-age-copy-modal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="planet-age-copy-modal-title">
+                  Copy Planets By Age
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <!--planet age copy form-->
+                <form id="planet-age-copy-form">
+                  <!--target-->
+                  <div class="form-group mb-1">
+                    <label for="planet-age-copy-target">Target:</label>
+                    <select
+                      class="form-control"
+                      id="planet-age-copy-target"
+                      name="planet-age-copy-target"
+                    ></select>
+                  </div>
+                  <!--destination-->
+                  <div class="form-group mb-1">
+                    <label for="planet-age-copy-destination"
+                      >Destination:</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="planet-age-copy-destination"
+                      name="planet-age-copy-destination"
+                    />
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  id="planet-age-copy-save"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--planet age copy modal end-->
+
         <div id="table-holder"></div>
       </main>
     </div>

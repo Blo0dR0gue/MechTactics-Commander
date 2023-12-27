@@ -214,6 +214,15 @@ class AppWindow {
       }
     );
 
+    ipcMain.handle('addPlanetToAge', (event, planet: PlanetRequest) => {
+      this.database.run(
+        'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
+        planet.age,
+        planet.id,
+        planet.affiliationID
+      );
+    });
+
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();
     });

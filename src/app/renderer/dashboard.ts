@@ -1,5 +1,9 @@
 // Init file for the dashboard page
 
+// TODO: Create dynamic modal
+// TODO: Short this file
+// TODO: Cleanup
+
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
 import { AffiliationRequest } from '../types/AffiliationData';
@@ -38,6 +42,12 @@ const affiliationModalElement = document.getElementById('affiliation-modal');
 const affiliationForm = document.getElementById('affiliation-form');
 const affiliationSaveBtn = document.getElementById('affiliation-save');
 
+const planetAgeCopyModalElement = document.getElementById(
+  'planet-age-copy-modal'
+);
+const planetAgeCopyForm = document.getElementById('planet-age-copy-form');
+const planetAgeCopySaveBtn = document.getElementById('planet-age-copy-save');
+
 // planet form elements
 const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
 const planetFormName = document.getElementById(
@@ -59,6 +69,15 @@ const planetFormLink = document.getElementById(
 const planetFormText = document.getElementById(
   'planet-text'
 ) as HTMLTextAreaElement;
+
+// planet age copy form elements
+const planetAgeCopyFormTarget = document.getElementById(
+  'planet-age-copy-target'
+) as HTMLSelectElement;
+
+const planetAgeCopyFormDestination = document.getElementById(
+  'planet-age-copy-destination'
+) as HTMLInputElement;
 
 // affiliation form elements
 const affiliationFormID = document.getElementById(
@@ -83,7 +102,7 @@ planetSaveBtn.addEventListener('click', () => {
   const affiliationID = Number(planetFormAffiliationID.value);
   const x = Number(planetFormCoordX.value);
   const y = Number(planetFormCoordY.value);
-  const age = Number(planetFormAge.value);
+  const age = Math.ceil(Number(planetFormAge.value));
   const link = planetFormLink.value;
   const text = planetFormText.value;
   if (currentEditPlanet === undefined) {
@@ -148,6 +167,51 @@ function addAffiliationsToSelect() {
     planetFormAffiliationID.appendChild(affiliationOption);
   }
 }
+
+// planet age copy modal and form setups
+planetAgeCopyForm.addEventListener('submit', (e) => e.preventDefault());
+
+const planetAgeCopyModal = new Modal(planetAgeCopyModalElement, {});
+
+function openPlanetAgeCopyModal() {
+  const ages = planets.reduce(
+    (acc, obj) => acc.add(obj.age),
+    new Set<number>()
+  );
+
+  // clear age selection element to add the current existing one
+  planetAgeCopyFormTarget.innerHTML = '';
+
+  for (const age of ages) {
+    const ageOption = document.createElement('option');
+    ageOption.value = String(age);
+    ageOption.textContent = String(age);
+
+    planetAgeCopyFormTarget.appendChild(ageOption);
+  }
+  planetAgeCopyFormDestination.value = '9999';
+  planetAgeCopyModal.show();
+}
+
+planetAgeCopySaveBtn.addEventListener('click', () => {
+  const target = Number(planetAgeCopyFormTarget.value);
+  const destination = Number(planetAgeCopyFormDestination.value);
+  if (target === destination) return; // TODO: Show toast
+
+  const destinationPlanets = planets.filter(
+    (planet) => planet.age === destination
+  );
+  const targetPlanets = planets.filter(
+    (planet) => planet.age === target && !destinationPlanets.includes(planet)
+  );
+
+  for (const planet of targetPlanets) {
+    const copy = { ...planet } as PlanetRequest;
+    copy.age = destination;
+    // TODO: create helper or something for json parse
+    window.sql.addPlanetToAge(JSON.parse(JSON.stringify(copy)));
+  }
+});
 
 // affiliation form and modal setups
 let currentEditAffiliation: AffiliationRequest = undefined;
@@ -225,6 +289,12 @@ const addBtnIcon =
 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
 </svg>`);
 
+const copyBtnIcon =
+  createSVGElementFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+</svg>`);
+
 // planet table
 const planetTable = new Table<(typeof planets)[number]>(
   tableParent,
@@ -242,6 +312,13 @@ const planetTable = new Table<(typeof planets)[number]>(
         classNames: ['btn', 'btn-success', 'btn-sm', 'me-1'],
         onClick() {
           openPlanetModalWith();
+        },
+      },
+      {
+        icon: copyBtnIcon,
+        classNames: ['btn', 'btn-warning', 'btn-sm', 'me-1'],
+        onClick() {
+          openPlanetAgeCopyModal();
         },
       },
     ],

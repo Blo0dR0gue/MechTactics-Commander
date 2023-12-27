@@ -7,21 +7,27 @@ contextBridge.exposeInMainWorld('sql', {
   getAllPlanets: () => ipcRenderer.invoke('getAllPlanets'),
   getAllAffiliations: () => ipcRenderer.invoke('getAllAffiliations'),
   getAllUniverseAges: () => ipcRenderer.invoke('getAllUniverseAges'),
+
   updatePlanetText: (id: number, universeAge: string, text: string) => {
     ipcRenderer.invoke('updatePlanetText', id, universeAge, text);
   },
+
   updatePlanet: (planet: PlanetRequest) =>
     ipcRenderer.invoke('updatePlanet', planet),
   createPlanet: (planet: PlanetRequest) =>
     ipcRenderer.invoke('createPlanet', planet),
   deletePlanet: (planet: PlanetRequest) =>
     ipcRenderer.invoke('deletePlanet', planet),
+
   updateAffiliation: (affiliation: AffiliationRequest) =>
     ipcRenderer.invoke('updateAffiliation', affiliation),
   createAffiliation: (affiliation: AffiliationRequest) =>
     ipcRenderer.invoke('createAffiliation', affiliation),
   deleteAffiliation: (affiliation: AffiliationRequest) =>
     ipcRenderer.invoke('deleteAffiliation', affiliation),
+
+  addPlanetToAge: (planet: PlanetRequest) =>
+    ipcRenderer.invoke('addPlanetToAge', planet),
 });
 
 contextBridge.exposeInMainWorld('app', {

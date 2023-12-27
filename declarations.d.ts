@@ -36,6 +36,10 @@ interface Window {
     deleteAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
     ) => void;
+
+    addPlanetToAge: (
+      planet: import('./src/app/types/PlanetData').PlanetRequest
+    ) => void;
   };
 
   app: {

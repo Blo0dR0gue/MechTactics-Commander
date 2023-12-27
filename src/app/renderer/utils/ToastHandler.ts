@@ -6,6 +6,7 @@ class ToastHandler {
 
   public constructor(
     parentElement: HTMLElement,
+    classNames: string[],
     private maxElements = 6,
     yPos: 'top-0' | 'bottom-0' = 'top-0',
     xPos: 'end-0' | 'start-0' = 'end-0'
@@ -14,9 +15,8 @@ class ToastHandler {
 
     // create toast container and add it to the parent
     this.toastContainer = document.createElement('div');
-    this.toastContainer.classList.add(
-      ...['toast-container', 'p-3', 'text-white', 'mt-5', yPos, xPos]
-    );
+    this.toastContainer.classList.add(...classNames);
+    this.toastContainer.classList.add(...['toast-container', yPos, xPos]);
     parentElement.appendChild(this.toastContainer);
   }
 

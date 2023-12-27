@@ -42,7 +42,11 @@ Config.getInstance()
     const camera = new CameraController();
     const actionBarHandler = new ActionBarHandler();
     const headerHandler = new HeaderHandler();
-    const toastHandler = new ToastHandler(toastContainer);
+    const toastHandler = new ToastHandler(toastContainer, [
+      'p-3',
+      'text-white',
+      'mt-5',
+    ]);
     const routeController = new RouteController();
 
     // Universe is the central element and needs to generate before the others can start

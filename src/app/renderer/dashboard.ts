@@ -12,6 +12,7 @@ import { Concrete } from '../types/UtilityTypes';
 import './styles/main.scss';
 import { Table } from './utils/Table';
 import { createSVGElementFromString } from './utils/Utils';
+import { ToastHandler, ToastType } from './utils/ToastHandler';
 
 // get planet and affiliation data
 const affiliations: AffiliationRequest[] = await window.sql
@@ -47,6 +48,8 @@ const planetAgeCopyModalElement = document.getElementById(
 );
 const planetAgeCopyForm = document.getElementById('planet-age-copy-form');
 const planetAgeCopySaveBtn = document.getElementById('planet-age-copy-save');
+
+const toastContainer = document.getElementById('toast-container');
 
 // planet form elements
 const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
@@ -89,6 +92,10 @@ const affiliationFormName = document.getElementById(
 const affiliationFormColor = document.getElementById(
   'affiliation-color'
 ) as HTMLInputElement;
+
+// Toast setup
+
+const toastHandler = new ToastHandler(toastContainer, ['text-white']);
 
 // planet form and modal setups
 let currentEditPlanet: PlanetRequest = undefined;
@@ -196,7 +203,14 @@ function openPlanetAgeCopyModal() {
 planetAgeCopySaveBtn.addEventListener('click', () => {
   const target = Number(planetAgeCopyFormTarget.value);
   const destination = Math.ceil(Number(planetAgeCopyFormDestination.value));
-  if (target === destination) return; // TODO: Show toast
+  if (target === destination) {
+    toastHandler.createAndShowToast(
+      'Info',
+      `Destination and target are equal. This is not allowed!`,
+      ToastType.Info
+    );
+    return;
+  }
 
   const destinationPlanets = planets.filter(
     (planet) => planet.age === destination

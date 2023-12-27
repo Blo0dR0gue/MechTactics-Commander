@@ -3,7 +3,7 @@ import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
-import { ToastHandler } from './ToastHandler';
+import { ToastHandler } from '../utils/ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';
 import { Affiliation } from '../models/Affiliation';

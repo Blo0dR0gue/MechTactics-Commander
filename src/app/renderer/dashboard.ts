@@ -195,7 +195,7 @@ function openPlanetAgeCopyModal() {
 
 planetAgeCopySaveBtn.addEventListener('click', () => {
   const target = Number(planetAgeCopyFormTarget.value);
-  const destination = Number(planetAgeCopyFormDestination.value);
+  const destination = Math.ceil(Number(planetAgeCopyFormDestination.value));
   if (target === destination) return; // TODO: Show toast
 
   const destinationPlanets = planets.filter(

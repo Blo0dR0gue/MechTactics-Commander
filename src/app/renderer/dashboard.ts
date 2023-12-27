@@ -123,6 +123,7 @@ planetSaveBtn.addEventListener('click', () => {
       name: name,
       planetText: text,
     });
+    toastHandler.createAndShowToast('Planet', 'Planet created', ToastType.Info); // TODO: use .then()
   } else {
     // Update planet
     currentEditPlanet.id = id;
@@ -134,6 +135,7 @@ planetSaveBtn.addEventListener('click', () => {
     currentEditPlanet.link = link;
     currentEditPlanet.planetText = text;
     window.sql.updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)));
+    toastHandler.createAndShowToast('Planet', 'Planet updated', ToastType.Info);
   }
 });
 
@@ -225,6 +227,11 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     // TODO: create helper or something for json parse
     window.sql.addPlanetToAge(JSON.parse(JSON.stringify(copy)));
   }
+  toastHandler.createAndShowToast(
+    'Planet',
+    `Copied planets from age ${target} to age ${destination}`,
+    ToastType.Info
+  );
 });
 
 // affiliation form and modal setups
@@ -241,12 +248,22 @@ affiliationSaveBtn.addEventListener('click', () => {
   if (currentEditAffiliation === undefined) {
     // Create new affiliation
     window.sql.createAffiliation({ id: id, name: name, color: color });
+    toastHandler.createAndShowToast(
+      'Affiliation',
+      'Affiliation created',
+      ToastType.Info
+    );
   } else {
     // Update affiliation
     currentEditAffiliation.id = id;
     currentEditAffiliation.name = name;
     currentEditAffiliation.color = color;
     window.sql.updateAffiliation(currentEditAffiliation);
+    toastHandler.createAndShowToast(
+      'Affiliation',
+      'Affiliation updated',
+      ToastType.Info
+    );
   }
 });
 
@@ -377,6 +394,11 @@ const planetTable = new Table<(typeof planets)[number]>(
           onClick(data, rowIdx) {
             planetTable.removeDataByIdx(rowIdx);
             window.sql.deletePlanet(JSON.parse(JSON.stringify(data)));
+            toastHandler.createAndShowToast(
+              'Planet',
+              'Planet deleted',
+              ToastType.Info
+            );
           },
         },
       ],
@@ -431,6 +453,11 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
           onClick(data, rowIdx) {
             affiliationTable.removeDataByIdx(rowIdx);
             window.sql.deleteAffiliation(data);
+            toastHandler.createAndShowToast(
+              'Affiliation',
+              'Affiliation deleted',
+              ToastType.Info
+            );
           },
           enabled(data) {
             return data.id != 0;

@@ -53,6 +53,7 @@ class Main {
       this.config.set('version', app.getVersion());
       this.config.set('jumpRange', 30);
       this.config.set('excludedAffiliationIDs', []);
+      this.config.set('selectedUniverseAge', 3025);
     }
     this.initHandlers();
     return this;

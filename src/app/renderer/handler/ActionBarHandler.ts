@@ -257,7 +257,9 @@ class ActionBarHandler {
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
-      this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
+      this.wikiLinkArea.href =
+        this.selectedPlanet.getWikiURL() ||
+        'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
       this.planetCustomText.value = this.selectedPlanet.getText();
       // Select first button (Planet Details)
@@ -328,7 +330,6 @@ class ActionBarHandler {
    * Function, to generate all jump cards. It removes all first, calculates the route to all planets and added the jump cards between the corresponding planet cards.
    */
   private generateJumpCards(): void {
-    // TODO: Rework that. Only for first function tests!
     const routeGenerated = this.routeController.calculateRoute(
       Config.getInstance().get('jumpRange') as number
     );

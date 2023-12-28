@@ -113,8 +113,7 @@ planetSaveBtn.addEventListener('click', () => {
   const link = planetFormLink.value;
   const text = planetFormText.value;
   if (currentEditPlanet === undefined) {
-    // Create new planet
-    window.sql.createPlanet({
+    const newPlanet = {
       id: id,
       affiliationID: affiliationID,
       age: age,
@@ -122,8 +121,11 @@ planetSaveBtn.addEventListener('click', () => {
       link: link,
       name: name,
       planetText: text,
-    });
+    } as PlanetRequest;
+    // Create new planet
+    window.sql.createPlanet(newPlanet);
     toastHandler.createAndShowToast('Planet', 'Planet created', ToastType.Info); // TODO: use .then()
+    planetTable.addData(newPlanet);
   } else {
     // Update planet
     currentEditPlanet.id = id;
@@ -137,6 +139,7 @@ planetSaveBtn.addEventListener('click', () => {
     window.sql.updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)));
     toastHandler.createAndShowToast('Planet', 'Planet updated', ToastType.Info);
   }
+  planetModal.hide();
 });
 
 function setPlanetFormData(planet: PlanetRequest) {
@@ -226,12 +229,14 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     copy.age = destination;
     // TODO: create helper or something for json parse
     window.sql.addPlanetToAge(JSON.parse(JSON.stringify(copy)));
+    planetTable.addData(copy);
   }
   toastHandler.createAndShowToast(
     'Planet',
     `Copied planets from age ${target} to age ${destination}`,
     ToastType.Info
   );
+  planetAgeCopyModal.hide();
 });
 
 // affiliation form and modal setups
@@ -247,12 +252,18 @@ affiliationSaveBtn.addEventListener('click', () => {
   const color = affiliationFormColor.value;
   if (currentEditAffiliation === undefined) {
     // Create new affiliation
-    window.sql.createAffiliation({ id: id, name: name, color: color });
+    const newAffiliation = {
+      id: id,
+      name: name,
+      color: color,
+    } as AffiliationRequest;
+    window.sql.createAffiliation(newAffiliation);
     toastHandler.createAndShowToast(
       'Affiliation',
       'Affiliation created',
       ToastType.Info
     );
+    affiliationTable.addData(newAffiliation);
   } else {
     // Update affiliation
     currentEditAffiliation.id = id;
@@ -265,6 +276,7 @@ affiliationSaveBtn.addEventListener('click', () => {
       ToastType.Info
     );
   }
+  affiliationModal.hide();
 });
 
 function openAffiliationModalWith(affiliation: AffiliationRequest = undefined) {

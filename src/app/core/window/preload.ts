@@ -26,8 +26,10 @@ contextBridge.exposeInMainWorld('sql', {
   deleteAffiliation: (affiliation: AffiliationRequest) =>
     ipcRenderer.invoke('deleteAffiliation', affiliation),
 
-  addPlanetToAge: (planet: PlanetRequest) =>
-    ipcRenderer.invoke('addPlanetToAge', planet),
+  addPlanetToAge: (planet: PlanetRequest, age: number) =>
+    ipcRenderer.invoke('addPlanetToAge', planet, age),
+  addPlanetsToAge: (planets: PlanetRequest[], age: number) =>
+    ipcRenderer.invoke('addPlanetsToAge', planets, age),
 });
 
 contextBridge.exposeInMainWorld('app', {

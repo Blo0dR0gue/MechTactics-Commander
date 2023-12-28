@@ -38,8 +38,14 @@ interface Window {
     ) => Promise<boolean>;
 
     addPlanetToAge: (
-      planet: import('./src/app/types/PlanetData').PlanetRequest
+      planet: import('./src/app/types/PlanetData').PlanetRequest,
+      age: number
     ) => Promise<import('./src/app/types/PlanetData').PlanetRequest>;
+
+    addPlanetsToAge: (
+      planets: import('./src/app/types/PlanetData').PlanetRequest[],
+      age: number
+    ) => Promise<boolean>;
   };
 
   app: {

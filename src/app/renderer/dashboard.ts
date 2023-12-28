@@ -13,6 +13,7 @@ import './styles/main.scss';
 import { Table } from './utils/Table';
 import { createSVGElementFromString } from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/ToastHandler';
+import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
 
 // get planet and affiliation data
 const affiliations: AffiliationRequest[] = await window.sql
@@ -96,6 +97,11 @@ const affiliationFormColor = document.getElementById(
 // Toast setup
 
 const toastHandler = new ToastHandler(toastContainer, ['text-white']);
+
+// loading indicator setup
+const loader = document.getElementById('loader');
+
+const loadingIndicator = new RingLoadingIndicator(loader, 'lds-ring-dark');
 
 // planet form and modal setups
 let currentEditPlanet: PlanetRequest = undefined;
@@ -262,24 +268,23 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     (planet) => planet.age === target && !destinationPlanets.includes(planet)
   );
 
-  for (const planet of targetPlanets) {
-    const copy = { ...planet } as PlanetRequest;
-    copy.age = destination;
-    // TODO: create helper or something for json parse
-    window.sql
-      .addPlanetToAge(JSON.parse(JSON.stringify(copy)))
-      .then((planet) => {
-        planetTable.addData(planet);
-      })
-      .catch((reason) =>
-        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+  loadingIndicator.show();
+
+  // TODO: create helper or something for json parse
+  window.sql
+    .addPlanetsToAge(JSON.parse(JSON.stringify(targetPlanets)), destination)
+    .then(() => {
+      toastHandler.createAndShowToast(
+        'Planet',
+        `Copied planets from age ${target} to age ${destination}`,
+        ToastType.Info
       );
-  }
-  toastHandler.createAndShowToast(
-    'Planet',
-    `Copied planets from age ${target} to age ${destination}`,
-    ToastType.Info
-  );
+      loadingIndicator.hide();
+    })
+    .catch((reason) =>
+      toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+    );
+
   planetAgeCopyModal.hide();
 });
 

@@ -12,8 +12,13 @@ import { Universe } from './ui/Universe';
 import { Config } from './utils/Config';
 
 import { Tooltip } from 'bootstrap';
+import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
 
 const loader = document.getElementById('loader');
+
+const loadingIndicator = new RingLoadingIndicator(loader);
+
+loadingIndicator.show();
 
 const toastContainer = document.getElementById('toast-container');
 
@@ -35,8 +40,7 @@ setTitle();
 Config.getInstance()
   .buildCache()
   .then(() => {
-    loader.classList.add('hide');
-    loader.classList.remove('d-flex');
+    loadingIndicator.hide();
     // Setup the app elements
     const universe = new Universe();
     const camera = new CameraController();

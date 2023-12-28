@@ -113,19 +113,28 @@ planetSaveBtn.addEventListener('click', () => {
   const link = planetFormLink.value;
   const text = planetFormText.value;
   if (currentEditPlanet === undefined) {
-    const newPlanet = {
-      id: id,
-      affiliationID: affiliationID,
-      age: age,
-      coordinates: { x: x, y: y },
-      link: link,
-      name: name,
-      planetText: text,
-    } as PlanetRequest;
     // Create new planet
-    window.sql.createPlanet(newPlanet);
-    toastHandler.createAndShowToast('Planet', 'Planet created', ToastType.Info); // TODO: use .then()
-    planetTable.addData(newPlanet);
+    window.sql
+      .createPlanet({
+        id: id,
+        affiliationID: affiliationID,
+        age: age,
+        coordinates: { x: x, y: y },
+        link: link,
+        name: name,
+        planetText: text,
+      })
+      .then((planet) => {
+        toastHandler.createAndShowToast(
+          'Planet',
+          'Planet created',
+          ToastType.Info
+        );
+        planetTable.addData(planet);
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   } else {
     // Update planet
     currentEditPlanet.id = id;
@@ -136,8 +145,18 @@ planetSaveBtn.addEventListener('click', () => {
     currentEditPlanet.age = age;
     currentEditPlanet.link = link;
     currentEditPlanet.planetText = text;
-    window.sql.updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)));
-    toastHandler.createAndShowToast('Planet', 'Planet updated', ToastType.Info);
+    window.sql
+      .updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)))
+      .then(() => {
+        toastHandler.createAndShowToast(
+          'Planet',
+          'Planet updated',
+          ToastType.Info
+        );
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   }
   planetModal.hide();
 });
@@ -228,8 +247,14 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     const copy = { ...planet } as PlanetRequest;
     copy.age = destination;
     // TODO: create helper or something for json parse
-    window.sql.addPlanetToAge(JSON.parse(JSON.stringify(copy)));
-    planetTable.addData(copy);
+    window.sql
+      .addPlanetToAge(JSON.parse(JSON.stringify(copy)))
+      .then((planet) => {
+        planetTable.addData(planet);
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   }
   toastHandler.createAndShowToast(
     'Planet',
@@ -252,29 +277,40 @@ affiliationSaveBtn.addEventListener('click', () => {
   const color = affiliationFormColor.value;
   if (currentEditAffiliation === undefined) {
     // Create new affiliation
-    const newAffiliation = {
-      id: id,
-      name: name,
-      color: color,
-    } as AffiliationRequest;
-    window.sql.createAffiliation(newAffiliation);
-    toastHandler.createAndShowToast(
-      'Affiliation',
-      'Affiliation created',
-      ToastType.Info
-    );
-    affiliationTable.addData(newAffiliation);
+    window.sql
+      .createAffiliation({
+        id: id,
+        name: name,
+        color: color,
+      })
+      .then((affiliation) => {
+        toastHandler.createAndShowToast(
+          'Affiliation',
+          'Affiliation created',
+          ToastType.Info
+        );
+        affiliationTable.addData(affiliation);
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   } else {
     // Update affiliation
     currentEditAffiliation.id = id;
     currentEditAffiliation.name = name;
     currentEditAffiliation.color = color;
-    window.sql.updateAffiliation(currentEditAffiliation);
-    toastHandler.createAndShowToast(
-      'Affiliation',
-      'Affiliation updated',
-      ToastType.Info
-    );
+    window.sql
+      .updateAffiliation(currentEditAffiliation)
+      .then(() => {
+        toastHandler.createAndShowToast(
+          'Affiliation',
+          'Affiliation updated',
+          ToastType.Info
+        );
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   }
   affiliationModal.hide();
 });
@@ -404,13 +440,23 @@ const planetTable = new Table<(typeof planets)[number]>(
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
           onClick(data, rowIdx) {
-            planetTable.removeDataByIdx(rowIdx);
-            window.sql.deletePlanet(JSON.parse(JSON.stringify(data)));
-            toastHandler.createAndShowToast(
-              'Planet',
-              'Planet deleted',
-              ToastType.Info
-            );
+            window.sql
+              .deletePlanet(JSON.parse(JSON.stringify(data)))
+              .then(() => {
+                planetTable.removeDataByIdx(rowIdx);
+                toastHandler.createAndShowToast(
+                  'Planet',
+                  'Planet deleted',
+                  ToastType.Info
+                );
+              })
+              .catch((reason) =>
+                toastHandler.createAndShowToast(
+                  'Error',
+                  reason,
+                  ToastType.Danger
+                )
+              );
           },
         },
       ],
@@ -463,13 +509,23 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
           onClick(data, rowIdx) {
-            affiliationTable.removeDataByIdx(rowIdx);
-            window.sql.deleteAffiliation(data);
-            toastHandler.createAndShowToast(
-              'Affiliation',
-              'Affiliation deleted',
-              ToastType.Info
-            );
+            window.sql
+              .deleteAffiliation(data)
+              .then(() => {
+                affiliationTable.removeDataByIdx(rowIdx);
+                toastHandler.createAndShowToast(
+                  'Affiliation',
+                  'Affiliation deleted',
+                  ToastType.Info
+                );
+              })
+              .catch((reason) =>
+                toastHandler.createAndShowToast(
+                  'Error',
+                  reason,
+                  ToastType.Danger
+                )
+              );
           },
           enabled(data) {
             return data.id != 0;

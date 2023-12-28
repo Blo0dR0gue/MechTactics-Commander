@@ -19,27 +19,27 @@ interface Window {
     // Dashboard
     updatePlanet: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
-    ) => void;
+    ) => Promise<import('./src/app/types/PlanetData').PlanetRequest>;
     createPlanet: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
-    ) => void;
+    ) => Promise<import('./src/app/types/PlanetData').PlanetRequest>;
     deletePlanet: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
-    ) => void;
+    ) => Promise<boolean>;
 
     updateAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
-    ) => void;
+    ) => Promise<import('./src/app/types/AffiliationData').AffiliationRequest>;
     createAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
-    ) => void;
+    ) => Promise<import('./src/app/types/AffiliationData').AffiliationRequest>;
     deleteAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
-    ) => void;
+    ) => Promise<boolean>;
 
     addPlanetToAge: (
       planet: import('./src/app/types/PlanetData').PlanetRequest
-    ) => void;
+    ) => Promise<import('./src/app/types/PlanetData').PlanetRequest>;
   };
 
   app: {

@@ -121,107 +121,151 @@ class AppWindow {
       }
     );
 
-    ipcMain.handle('updatePlanet', (event, planet: PlanetRequest) => {
-      this.database
-        .run(
-          'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
-          planet.name,
-          planet.link,
-          planet.coordinates.x,
-          planet.coordinates.y,
-          planet.id
-        )
-        .then(() => {
-          this.database.run(
-            'UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ? AND affiliationID = ?;',
-            planet.planetText,
-            planet.age,
-            planet.id,
-            planet.affiliationID
-          );
-        });
-    });
+    ipcMain.handle(
+      'updatePlanet',
+      (event, planet: PlanetRequest) =>
+        new Promise<PlanetRequest>((resolve, reject) => {
+          this.database
+            .run(
+              'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
+              planet.name,
+              planet.link,
+              planet.coordinates.x,
+              planet.coordinates.y,
+              planet.id
+            )
+            .then(() => {
+              this.database
+                .run(
+                  'UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ? AND affiliationID = ?;',
+                  planet.planetText,
+                  planet.age,
+                  planet.id,
+                  planet.affiliationID
+                )
+                .then(() => resolve(planet))
+                .catch((reason) => reject(reason));
+            })
+            .catch((reason) => reject(reason));
+        })
+    );
 
-    ipcMain.handle('createPlanet', (event, planet: PlanetRequest) => {
-      this.database
-        .run(
-          'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
-          planet.name,
-          planet.link,
-          planet.coordinates.x,
-          planet.coordinates.y
-        )
-        .then((runResult) => {
-          this.database.run(
-            'INSERT INTO PlanetAffiliationAge (planetID, affiliationID, universeAge) VALUES (?, ?, ?)',
-            runResult.lastID,
-            planet.affiliationID,
-            planet.age
-          );
-        });
-    });
+    ipcMain.handle(
+      'createPlanet',
+      (event, planet: PlanetRequest) =>
+        new Promise<PlanetRequest>((resolve, reject) => {
+          this.database
+            .run(
+              'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
+              planet.name,
+              planet.link,
+              planet.coordinates.x,
+              planet.coordinates.y
+            )
+            .then((runResult) => {
+              this.database
+                .run(
+                  'INSERT INTO PlanetAffiliationAge (planetID, affiliationID, universeAge) VALUES (?, ?, ?)',
+                  runResult.lastID,
+                  planet.affiliationID,
+                  planet.age
+                )
+                .then(() => resolve({ ...planet, id: runResult.lastID }))
+                .catch((reason) => reject(reason));
+            })
+            .catch((reason) => reject(reason));
+        })
+    );
 
-    ipcMain.handle('deletePlanet', (event, planet: PlanetRequest) => {
-      this.database
-        .run(
-          'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND affiliationID = ? AND universeAge = ?;',
-          planet.id,
-          planet.affiliationID,
-          planet.age
-        )
-        .then(() => {
-          this.database.run('DELETE FROM Planet WHERE id = ?;', planet.id);
-        });
-    });
+    ipcMain.handle(
+      'deletePlanet',
+      (event, planet: PlanetRequest) =>
+        new Promise<boolean>((resolve, reject) => {
+          this.database
+            .run(
+              'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND affiliationID = ? AND universeAge = ?;',
+              planet.id,
+              planet.affiliationID,
+              planet.age
+            )
+            .then(() => {
+              this.database
+                .run('DELETE FROM Planet WHERE id = ?;', planet.id)
+                .then(() => resolve(true))
+                .catch((reason) => reject(reason));
+            })
+            .catch((reason) => reject(reason));
+        })
+    );
 
     ipcMain.handle(
       'updateAffiliation',
-      (event, affiliation: AffiliationRequest) => {
-        this.database.run(
-          'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
-          affiliation.name,
-          affiliation.color
-        );
-      }
+      (event, affiliation: AffiliationRequest) =>
+        new Promise<AffiliationRequest>((resolve, reject) => {
+          this.database
+            .run(
+              'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
+              affiliation.name,
+              affiliation.color
+            )
+            .then(() => resolve(affiliation))
+            .catch((reason) => reject(reason));
+        })
     );
 
     ipcMain.handle(
       'createAffiliation',
-      (event, affiliation: AffiliationRequest) => {
-        this.database.run(
-          'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
-          affiliation.name,
-          affiliation.color
-        );
-      }
+      (event, affiliation: AffiliationRequest) =>
+        new Promise<AffiliationRequest>((resolve, reject) => {
+          this.database
+            .run(
+              'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
+              affiliation.name,
+              affiliation.color
+            )
+            .then((runResult) =>
+              resolve({ ...affiliation, id: runResult.lastID })
+            )
+            .catch((reason) => reject(reason));
+        })
     );
 
     ipcMain.handle(
       'deleteAffiliation',
-      (event, affiliation: AffiliationRequest) => {
-        if (affiliation.id === 0) return;
-        this.database
-          .run(
-            'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',
-            affiliation.id
-          )
-          .then(() => {
-            this.database.run(
-              'DELETE FROM Affiliation WHERE id = ?;',
+      (event, affiliation: AffiliationRequest) =>
+        new Promise<boolean>((resolve, reject) => {
+          if (affiliation.id === 0)
+            reject("You can't delete affiliation with id 0");
+          this.database
+            .run(
+              'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',
               affiliation.id
-            );
-          });
-      }
+            )
+            .then(() => {
+              this.database
+                .run('DELETE FROM Affiliation WHERE id = ?;', affiliation.id)
+                .then(() => resolve(true))
+                .catch((reason) => reject(reason));
+            })
+            .catch((reason) => reject(reason));
+        })
     );
 
-    ipcMain.handle('addPlanetToAge', (event, planet: PlanetRequest) => {
-      this.database.run(
-        'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
-        planet.age,
-        planet.id,
-        planet.affiliationID
-      );
-    });
+    ipcMain.handle(
+      'addPlanetToAge',
+      (event, planet: PlanetRequest) =>
+        new Promise<PlanetRequest>((resolve, reject) => {
+          this.database
+            .run(
+              'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
+              planet.age,
+              planet.id,
+              planet.affiliationID
+            )
+            .then(() => resolve(planet))
+            .catch((reason) => reject(reason));
+        })
+    );
 
     ipcMain.handle('getConfigCache', () => {
       return this.config.getConfig();

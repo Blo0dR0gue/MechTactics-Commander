@@ -112,6 +112,25 @@ planetSaveBtn.addEventListener('click', () => {
   const age = Math.ceil(Number(planetFormAge.value));
   const link = planetFormLink.value;
   const text = planetFormText.value;
+
+  // Do not update or create if planet with same coordinates but other name exists in the same age!
+  if (
+    planets.filter(
+      (planet) =>
+        planet.coordinates.x === x &&
+        planet.coordinates.y === y &&
+        planet.age === age &&
+        planet.name !== name
+    ).length > 0
+  ) {
+    toastHandler.createAndShowToast(
+      'Error',
+      'You cannot create a planet with the same coordinates as an existing planet.',
+      ToastType.Danger
+    );
+    return;
+  }
+
   if (currentEditPlanet === undefined) {
     // Create new planet
     window.sql

@@ -111,13 +111,40 @@ planetForm.addEventListener('submit', (e) => e.preventDefault());
 
 planetSaveBtn.addEventListener('click', () => {
   const id = Number(planetFormID.value);
-  const name = planetFormName.value;
+  const name = planetFormName.value.trim();
   const affiliationID = Number(planetFormAffiliationID.value);
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
-  const age = Math.ceil(Number(planetFormAge.value));
-  const link = planetFormLink.value;
-  const text = planetFormText.value;
+  const age = Math.ceil(parseFloat(planetFormAge.value));
+  const link = planetFormLink.value.trim();
+  const text = planetFormText.value.trim();
+
+  if (name.length <= 0) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Name can't be empty",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (isNaN(x) || isNaN(y)) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Coordinates can't be NaN",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (isNaN(age)) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Age can't be NaN",
+      ToastType.Danger
+    );
+    return;
+  }
 
   // Do not update or create if planet with same coordinates but other name exists in the same age!
   if (
@@ -251,11 +278,23 @@ function openPlanetAgeCopyModal() {
 
 planetAgeCopySaveBtn.addEventListener('click', () => {
   const target = Number(planetAgeCopyFormTarget.value);
-  const destination = Math.ceil(Number(planetAgeCopyFormDestination.value));
+  const destination = Math.ceil(
+    Number(parseFloat(planetAgeCopyFormDestination.value).toFixed(0))
+  );
+
+  if (isNaN(destination)) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Destination can't be NaN",
+      ToastType.Danger
+    );
+    return;
+  }
+
   if (target === destination) {
     toastHandler.createAndShowToast(
       'Info',
-      `Destination and target are equal. This is not allowed!`,
+      'Destination and target are equal. This is not allowed!',
       ToastType.Info
     );
     return;
@@ -297,8 +336,18 @@ const affiliationModal = new Modal(affiliationModalElement, {});
 
 affiliationSaveBtn.addEventListener('click', () => {
   const id = Number(affiliationFormID.value);
-  const name = affiliationFormName.value;
+  const name = affiliationFormName.value.trim();
   const color = affiliationFormColor.value;
+
+  if (name.length <= 0) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Name can't be empty",
+      ToastType.Danger
+    );
+    return;
+  }
+
   if (currentEditAffiliation === undefined) {
     // Create new affiliation
     window.sql
@@ -467,6 +516,7 @@ const planetTable = new Table<(typeof planets)[number]>(
             window.sql
               .deletePlanet(JSON.parse(JSON.stringify(data)))
               .then(() => {
+                console.log(rowIdx);
                 planetTable.removeDataByIdx(rowIdx);
                 toastHandler.createAndShowToast(
                   'Planet',

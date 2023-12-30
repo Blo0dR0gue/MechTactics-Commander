@@ -166,7 +166,7 @@ class Table<T extends ObjectWithKeys> {
 
       searchbar.addEventListener('input', () => {
         // filter the table on input
-        this.filterText = searchbar.value.toLowerCase();
+        this.filterText = searchbar.value.toLowerCase().trim();
         this.currentPage = 1;
         this.updateTable();
       });
@@ -346,19 +346,15 @@ class Table<T extends ObjectWithKeys> {
             if (onClick) {
               // Add the click event handler
               btn.addEventListener('click', () => {
-                onClick(
-                  data,
-                  tr.rowIndex - 1 + (this.currentPage - 1) * this.itemsPerPage,
-                  this.currentPage - 1
-                ); // -1, because headers are row 0
+                onClick(data, this.data.indexOf(data), tr.rowIndex - 1);
               });
             }
 
             if (enabled) {
               btn.disabled = !enabled(
                 data,
-                tr.rowIndex - 1 + (this.currentPage - 1) * this.itemsPerPage,
-                this.currentPage - 1
+                this.data.indexOf(data),
+                tr.rowIndex - 1
               );
             }
 

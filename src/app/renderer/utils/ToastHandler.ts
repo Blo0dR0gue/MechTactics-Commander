@@ -23,13 +23,14 @@ class ToastHandler {
   public createAndShowToast(
     title: string,
     text: string,
-    type = ToastType.Default
+    type = ToastType.Default,
+    displayTime = 3000
   ) {
     if (this.currentToasts.length >= this.maxElements) {
       this.removeToastByIndex(0);
     }
 
-    const toast = new ToastItem(title, text, 3000, type, () => {
+    const toast = new ToastItem(title, text, displayTime, type, () => {
       this.removeToast(toast);
     });
     this.toastContainer.appendChild(toast.getToastDOMElement());

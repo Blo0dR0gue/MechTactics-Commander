@@ -3,6 +3,7 @@
 // TODO: Create dynamic modal
 // TODO: Short this file
 // TODO: Cleanup
+// TODO: Copy btn for planets?
 
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
@@ -116,7 +117,7 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const age = Math.ceil(parseFloat(planetFormAge.value));
-  const link = planetFormLink.value.trim();
+  const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
   const text = planetFormText.value.trim();
 
   if (name.length <= 0) {
@@ -230,7 +231,7 @@ planetSaveBtn.addEventListener('click', () => {
 function setPlanetFormData(planet: PlanetRequest) {
   planetFormID.value = String(planet?.id || -1);
   planetFormName.value = planet?.name || '';
-  planetFormAffiliationID.value = String(planet?.affiliationID || 1);
+  planetFormAffiliationID.value = String(planet?.affiliationID || 0);
   planetFormCoordX.value = String(planet?.coordinates?.x || 0);
   planetFormCoordY.value = String(planet?.coordinates?.y || 0);
   planetFormAge.value = String(planet?.age || 3025);

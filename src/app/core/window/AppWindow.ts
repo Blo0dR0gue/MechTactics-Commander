@@ -137,11 +137,11 @@ class AppWindow {
             .then(() => {
               this.database
                 .run(
-                  'UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ? AND affiliationID = ?;',
+                  'UPDATE PlanetAffiliationAge SET planetText = ?, affiliationID = ? WHERE universeAge = ? AND planetID = ?;',
                   planet.planetText,
+                  planet.affiliationID,
                   planet.age,
-                  planet.id,
-                  planet.affiliationID
+                  planet.id
                 )
                 .then(() => resolve(planet))
                 .catch((reason) => reject(reason));

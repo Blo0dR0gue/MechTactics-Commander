@@ -238,7 +238,6 @@ function setPlanetFormData(planet: PlanetRequest) {
   planetFormText.value = planet?.planetText || '';
 
   // disabled fields on edit
-  planetFormAffiliationID.disabled = planet !== undefined;
   planetFormAge.disabled = planet !== undefined;
 }
 

@@ -146,19 +146,33 @@ planetSaveBtn.addEventListener('click', () => {
     return;
   }
 
-  // Do not update or create if planet with same coordinates but other name exists in the same age!
   if (
-    planets.filter(
-      (planet) =>
-        planet.coordinates.x === x &&
-        planet.coordinates.y === y &&
-        planet.age === age &&
-        planet.name !== name
-    ).length > 0
+    name !== currentEditPlanet?.name &&
+    planets.filter((planet) => planet.name === name && planet.age === age)
+      .length > 0
   ) {
     toastHandler.createAndShowToast(
       'Error',
-      'You cannot create a planet with the same coordinates as an existing planet.',
+      'You cannot create or update a planet with/to the same name as an existing planet in the same universe age.',
+      ToastType.Danger
+    );
+    return;
+  }
+
+  const p = planets.filter(
+    (planet) =>
+      planet.coordinates.x === x &&
+      planet.coordinates.y === y &&
+      planet.age === age &&
+      (currentEditPlanet
+        ? planet.name !== currentEditPlanet.name
+        : planet.name !== name)
+  );
+
+  if (p.length > 0) {
+    toastHandler.createAndShowToast(
+      'Error',
+      'You cannot create or update a planet with/to the same coordinates as an existing planet.',
       ToastType.Danger
     );
     return;
@@ -304,8 +318,23 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     (planet) => planet.age === destination
   );
   const targetPlanets = planets.filter(
-    (planet) => planet.age === target && !destinationPlanets.includes(planet)
+    (planet) =>
+      planet.age === target &&
+      destinationPlanets.filter(
+        (destPlanet) =>
+          destPlanet.id === planet.id || destPlanet.name === planet.name
+      ).length <= 0
   );
+
+  if (targetPlanets.length <= 0) {
+    toastHandler.createAndShowToast(
+      'Info',
+      `No Planets to copy. All planets from ${target} are already in ${destination}`,
+      ToastType.Info
+    );
+    planetAgeCopyModal.hide();
+    return;
+  }
 
   loadingIndicator.show();
 
@@ -320,9 +349,10 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
       );
       loadingIndicator.hide();
     })
-    .catch((reason) =>
-      toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-    );
+    .catch((reason) => {
+      toastHandler.createAndShowToast('Error', reason, ToastType.Danger);
+      loadingIndicator.hide();
+    });
 
   planetAgeCopyModal.hide();
 });
@@ -343,6 +373,17 @@ affiliationSaveBtn.addEventListener('click', () => {
     toastHandler.createAndShowToast(
       'Error',
       "Name can't be empty",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (
+    affiliations.filter((affiliation) => affiliation.name === name).length > 0
+  ) {
+    toastHandler.createAndShowToast(
+      'Error',
+      `Affiliation with name ${name} already exists`,
       ToastType.Danger
     );
     return;

@@ -247,6 +247,7 @@ class Binding {
   }
 
   public unbind(): void {
+    this.resetProperty(this.bindingObject, this.bindingProp);
     if (this.objBinding) {
       const deepestObj = this.getDeepestObject(
         this.bindingObject,
@@ -254,8 +255,6 @@ class Binding {
       );
       const lastPart = this.getLastPathPart(this.bindingProp);
       deepestObj[lastPart] = this.oldObj;
-    } else {
-      this.resetProperty(this.bindingObject, this.bindingProp);
     }
 
     for (const binding of this.bindings) {

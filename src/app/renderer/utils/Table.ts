@@ -20,8 +20,17 @@ type ColSizes =
  * A basic button definition for this table
  */
 interface Button {
+  /**
+   * The display text of the button
+   */
   text?: string;
+  /**
+   * A list of css class names to style this button
+   */
   classNames?: string[];
+  /**
+   * A possible icon element, which is displayed before a possible text
+   */
   icon?: Icon;
 }
 
@@ -29,6 +38,9 @@ interface Button {
  * A button which can be added to the header
  */
 interface HeaderButton extends Button {
+  /**
+   * Callback handler, which is invoked on click
+   */
   onClick?: () => void;
 }
 
@@ -36,7 +48,20 @@ interface HeaderButton extends Button {
  * Defines one button which can be added to a column to be rendered in each row
  */
 interface RowButton<T extends ObjectWithKeys> extends Button {
+  /**
+   * Callback handler, which is invoked on click
+   * @param data The data of the row the button got clicked
+   * @param rowIdx The overall index of this row
+   * @param curRowIdx The current index of this row in the current pagination context
+   */
   onClick?: (data: T, rowIdx: number, curRowIdx) => void;
+  /**
+   * Use this, to define if the button is enabled or not.
+   * @param data The data of the row the button got clicked
+   * @param rowIdx The overall index of this row
+   * @param curRowIdx The current index of this row in the current pagination context
+   * @returns true, if the button should be enabled
+   */
   enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
 }
 
@@ -44,16 +69,45 @@ interface RowButton<T extends ObjectWithKeys> extends Button {
  * Defines one column
  */
 interface ColumnData<T extends ObjectWithKeys> {
+  /**
+   * The display name of the column
+   */
   name: string;
+  /**
+   * The size of this column
+   */
   size: ColSizes;
+  /**
+   * The prop of an object from the data, which should be displayed in this column. (Using data binding - one way)
+   */
   dataAttribute?: ObjectPropsRec<T>;
+  /**
+   * A formatter which can be used to update the display of the bound object prop
+   * @param value The value of the table block, which is displayed if no formatter is used
+   * @returns The new string to display
+   */
   formatter?: (value: ObjectOfPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
+  /**
+   * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
+   */
   buttons?: RowButton<T>[];
 }
 
+/**
+ * Defines the header of the table
+ */
 interface HeaderData {
+  /**
+   * Enable / Disable the search bar
+   */
   searchBar: boolean;
+  /**
+   * A list of class names to style the header
+   */
   classNames: string[];
+  /**
+   * A possible list of buttons to display in the header.
+   */
   buttons?: HeaderButton[];
 }
 
@@ -82,6 +136,14 @@ class Table<T extends ObjectWithKeys> {
   private filterText: string;
   private paginationContainer: HTMLDivElement;
 
+  /**
+   * Create a new dynamic table
+   * @param parentElement The dom element, in which this table should be rendered
+   * @param classNames A list of css classes to add to the table element
+   * @param itemsPerPage The max amount of items, which should be rendered on one page of this table (pagination)
+   * @param headerData Header definition
+   * @param columnDefinitions
+   */
   public constructor(
     private parentElement: HTMLElement,
     classNames: string[],
@@ -95,12 +157,15 @@ class Table<T extends ObjectWithKeys> {
 
     this.currentPage = 1;
     this.filterText = '';
+
     this.bindings = [];
+
     this.rendered = false;
   }
 
   /**
-   * Render this table. <br>
+   * Render this table.
+   *
    * setData should be called before.
    */
   public render(): void {
@@ -118,7 +183,9 @@ class Table<T extends ObjectWithKeys> {
       this.renderHeader();
       this.renderTable();
       this.renderFooter();
+
       this.loader.hide();
+      this.rendered = true;
     }, 100);
   }
 
@@ -134,6 +201,9 @@ class Table<T extends ObjectWithKeys> {
     this.bindings = [];
   }
 
+  /**
+   * Render the table header with a possible search bar and customize buttons
+   */
   private renderHeader(): void {
     const { classNames, searchBar, buttons } = this.headerData;
 
@@ -201,18 +271,24 @@ class Table<T extends ObjectWithKeys> {
     this.paginationContainer.classList.add('d-flex');
     this.paginationContainer.classList.add('flex-row');
 
-    this.updatePagination(this.data.length - 1);
+    this.updatePagination(this.data.length);
 
     this.footerElement.appendChild(this.paginationContainer);
 
     this.parentElement.appendChild(this.footerElement);
   }
 
+  /**
+   * Renders the table with the data of the currently selected page and filter. Also updates the pagination items.
+   */
   private updateTable(): void {
     this.loader.show();
+
+    // Calculate indices for the pagination (which items should be displayed)
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
 
+    // Keep only the data, which matches the filter
     const filteredData = this.data.filter((obj) => {
       return Object.keys(obj).some((key) => {
         const col = this.columnDefinitions.find(
@@ -232,16 +308,23 @@ class Table<T extends ObjectWithKeys> {
 
     this.clearDataBindings();
     this.renderRows(startIndex, endIndex, filteredData);
-    this.updatePagination(filteredData.length - 1);
+    this.updatePagination(filteredData.length);
+
     this.loader.hide();
   }
 
-  private updatePagination(maxPages: number): void {
+  /**
+   * Updates the displayed selectable pages in the footer
+   * @param maxItems The number of items which are currently selectable
+   */
+  private updatePagination(maxItems: number): void {
     this.paginationContainer.innerHTML = '';
 
+    // show 2 page items before and after the current selected page
     const startX = this.currentPage - 2;
     const endX = this.currentPage + 2;
-    const totalPages = Math.ceil(maxPages / this.itemsPerPage);
+
+    const totalPages = Math.ceil(maxItems / this.itemsPerPage);
 
     this.createPaginationItem('<', this.currentPage - 1, this.currentPage > 1);
 
@@ -270,6 +353,12 @@ class Table<T extends ObjectWithKeys> {
     );
   }
 
+  /**
+   * Creates one selectable pagination item and adds it to the pagination container
+   * @param itemText
+   * @param itemNr
+   * @param enabled
+   */
   private createPaginationItem(
     itemText: string,
     itemNr: number,
@@ -313,6 +402,13 @@ class Table<T extends ObjectWithKeys> {
     this.tableElement.appendChild(thead);
   }
 
+  /**
+   * Renders the data rows
+   *
+   * @param startIndex Index from where the data should be displayed
+   * @param endIndex Index until where the data should be displayed
+   * @param data The data to display. To display all the data set startIndex to 0 and endIndex to Infinity
+   */
   private renderRows(
     startIndex: number = 0,
     endIndex: number = this.data.length,

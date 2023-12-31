@@ -160,17 +160,17 @@ planetSaveBtn.addEventListener('click', () => {
     return;
   }
 
-  const p = planets.filter(
-    (planet) =>
-      planet.coordinates.x === x &&
-      planet.coordinates.y === y &&
-      planet.age === age &&
-      (currentEditPlanet
-        ? planet.name !== currentEditPlanet.name
-        : planet.name !== name)
-  );
-
-  if (p.length > 0) {
+  if (
+    planets.filter(
+      (planet) =>
+        planet.coordinates.x === x &&
+        planet.coordinates.y === y &&
+        planet.age === age &&
+        (currentEditPlanet
+          ? planet.name !== currentEditPlanet.name
+          : planet.name !== name)
+    ).length > 0
+  ) {
     toastHandler.createAndShowToast(
       'Error',
       'You cannot create or update a planet with/to the same coordinates as an existing planet.',
@@ -204,6 +204,7 @@ planetSaveBtn.addEventListener('click', () => {
       );
   } else {
     // Update planet
+    // Updating this objects updates the table, because of the data binding used with the table
     currentEditPlanet.id = id;
     currentEditPlanet.name = name;
     currentEditPlanet.affiliationID = affiliationID;

@@ -1,3 +1,5 @@
+import { PlanetRequest, PlanetResponse } from '../../types/PlanetData';
+
 function createSVGElementFromString(svg: string) {
   const svgCode = svg;
 
@@ -7,4 +9,14 @@ function createSVGElementFromString(svg: string) {
   return svgDocument.documentElement as HTMLElement & SVGElement;
 }
 
-export { createSVGElementFromString };
+/**
+ * Moves x and y coordinate to separate object
+ * @param planet
+ * @returns
+ */
+function planetResponseToPlanetRequest(planet: PlanetResponse): PlanetRequest {
+  const { x, y, ...rest } = planet;
+  return { ...rest, coordinates: { x: x, y: y } } as PlanetRequest;
+}
+
+export { createSVGElementFromString, planetResponseToPlanetRequest };

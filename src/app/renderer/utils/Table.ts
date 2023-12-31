@@ -414,6 +414,8 @@ class Table<T extends ObjectWithKeys> {
     this.parentElement.removeChild(this.tableElement);
     this.parentElement.removeChild(this.footerElement);
     this.rendered = false;
+    this.currentPage = 1;
+    this.filterText = '';
   }
 
   /**
@@ -427,12 +429,20 @@ class Table<T extends ObjectWithKeys> {
   }
 
   /**
-   * Add a new data element to the table
+   * Add a new data element(s) to the table
    * @param data
    */
-  public addData(data: T): void {
+  public addData(data: T): void;
+  public addData(data: T[]): void;
+  public addData(data: T | T[]): void {
     this.clearDataBindings();
-    this.data.push(data);
+
+    if (Array.isArray(data)) {
+      this.data.push(...data);
+    } else {
+      this.data.push(data);
+    }
+
     this.updateTable();
   }
 

@@ -12,7 +12,10 @@ import { PlanetRequest } from '../types/PlanetData';
 import { Concrete } from '../types/UtilityTypes';
 import './styles/main.scss';
 import { Table } from './utils/Table';
-import { createSVGElementFromString } from './utils/Utils';
+import {
+  createSVGElementFromString,
+  planetResponseToPlanetRequest,
+} from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/ToastHandler';
 import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
 
@@ -21,16 +24,9 @@ const affiliations: AffiliationRequest[] = await window.sql
   .getAllAffiliations()
   .then((data) => data.map((obj) => obj as Concrete<typeof obj>));
 
-const planets: PlanetRequest[] = await window.sql.getAllPlanets().then((data) =>
-  data.map(
-    // move x and y coordinate to separate object inside an planet request object
-    ({ x, y, ...rest }) =>
-      ({
-        ...rest,
-        coordinates: { x, y },
-      } as Concrete<PlanetRequest>)
-  )
-);
+const planets: PlanetRequest[] = await window.sql
+  .getAllPlanets()
+  .then((data) => data.map((planet) => planetResponseToPlanetRequest(planet)));
 
 // element definitions
 const tableParent = document.getElementById('table-holder');
@@ -197,7 +193,7 @@ planetSaveBtn.addEventListener('click', () => {
           'Planet created',
           ToastType.Info
         );
-        planetTable.addData(planet);
+        planetTable.addData(planetResponseToPlanetRequest(planet));
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
@@ -342,7 +338,9 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
   // TODO: create helper or something for json parse
   window.sql
     .addPlanetsToAge(JSON.parse(JSON.stringify(targetPlanets)), destination)
-    .then(() => {
+    .then((planets) => {
+      const planetData = planets.map((p) => planetResponseToPlanetRequest(p));
+      planetTable.addData(planetData);
       toastHandler.createAndShowToast(
         'Planet',
         `Copied planets from age ${target} to age ${destination}`,
@@ -518,7 +516,7 @@ const planetTable = new Table<(typeof planets)[number]>(
     ],
   },
   [
-    { name: 'ID', dataAttribute: 'id', size: 'col-1' },
+    { name: 'Planet-ID', dataAttribute: 'id', size: 'col-1' },
     { name: 'Name', dataAttribute: 'name', size: 'col-1' },
     {
       name: 'Coordinates',

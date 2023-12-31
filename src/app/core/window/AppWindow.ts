@@ -81,7 +81,7 @@ class AppWindow {
       return new Promise<PlanetResponse[]>((resolve) => {
         this.database
           .all<PlanetResponse[]>(
-            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID;`
+            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID ORDER BY age, id ASC;`
           )
           .then((data) => {
             resolve(data);
@@ -124,7 +124,7 @@ class AppWindow {
     ipcMain.handle(
       'updatePlanet',
       (event, planet: PlanetRequest) =>
-        new Promise<PlanetRequest>((resolve, reject) => {
+        new Promise<boolean>((resolve, reject) => {
           this.database
             .run(
               'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
@@ -143,7 +143,7 @@ class AppWindow {
                   planet.age,
                   planet.id
                 )
-                .then(() => resolve(planet))
+                .then(() => resolve(true))
                 .catch((reason) => reject(reason));
             })
             .catch((reason) => reject(reason));
@@ -153,7 +153,7 @@ class AppWindow {
     ipcMain.handle(
       'createPlanet',
       (event, planet: PlanetRequest) =>
-        new Promise<PlanetRequest>((resolve, reject) => {
+        new Promise<PlanetResponse>((resolve, reject) => {
           this.database
             .run(
               'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
@@ -170,7 +170,15 @@ class AppWindow {
                   planet.affiliationID,
                   planet.age
                 )
-                .then(() => resolve({ ...planet, id: runResult.lastID }))
+                .then(() => {
+                  const { coordinates, ...rest } = planet;
+                  resolve({
+                    ...rest,
+                    x: coordinates.x,
+                    y: coordinates.y,
+                    id: runResult.lastID,
+                  });
+                })
                 .catch((reason) => reject(reason));
             })
             .catch((reason) => reject(reason));
@@ -201,14 +209,14 @@ class AppWindow {
     ipcMain.handle(
       'updateAffiliation',
       (event, affiliation: AffiliationRequest) =>
-        new Promise<AffiliationRequest>((resolve, reject) => {
+        new Promise<boolean>((resolve, reject) => {
           this.database
             .run(
               'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
               affiliation.name,
               affiliation.color
             )
-            .then(() => resolve(affiliation))
+            .then(() => resolve(true))
             .catch((reason) => reject(reason));
         })
     );
@@ -216,7 +224,7 @@ class AppWindow {
     ipcMain.handle(
       'createAffiliation',
       (event, affiliation: AffiliationRequest) =>
-        new Promise<AffiliationRequest>((resolve, reject) => {
+        new Promise<AffiliationResponse>((resolve, reject) => {
           this.database
             .run(
               'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
@@ -254,7 +262,7 @@ class AppWindow {
     ipcMain.handle(
       'addPlanetToAge',
       (event, planet: PlanetRequest, age: number) =>
-        new Promise<PlanetRequest>((resolve, reject) => {
+        new Promise<PlanetResponse>((resolve, reject) => {
           this.database
             .run(
               'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
@@ -262,7 +270,15 @@ class AppWindow {
               planet.id,
               planet.affiliationID
             )
-            .then(() => resolve(planet))
+            .then(() => {
+              const { coordinates, ...rest } = planet;
+              resolve({
+                ...rest,
+                age: age,
+                x: coordinates.x,
+                y: coordinates.y,
+              });
+            })
             .catch((reason) => reject(reason));
         })
     );
@@ -270,18 +286,28 @@ class AppWindow {
     ipcMain.handle(
       'addPlanetsToAge',
       (event, planets: PlanetRequest[], age: number) =>
-        new Promise<boolean>((resolve, reject) => {
+        new Promise<PlanetResponse[]>((resolve, reject) => {
           const insertPromises = planets.map((planet) => {
-            return this.database.run(
-              'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
-              age,
-              planet.id,
-              planet.affiliationID
-            );
+            return this.database
+              .run(
+                'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
+                age,
+                planet.id,
+                planet.affiliationID
+              )
+              .then(() => {
+                const { coordinates, ...rest } = planet;
+                return {
+                  ...rest,
+                  age: age,
+                  x: coordinates.x,
+                  y: coordinates.y,
+                };
+              });
           });
 
           Promise.all(insertPromises)
-            .then(() => resolve(true))
+            .then((results) => resolve(results))
             .catch((reason) => reject(reason));
         })
     );

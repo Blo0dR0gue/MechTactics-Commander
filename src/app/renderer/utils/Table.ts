@@ -280,6 +280,7 @@ class Table<T extends ObjectWithKeys> {
 
   /**
    * Renders the table with the data of the currently selected page and filter. Also updates the pagination items.
+   * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
   private updateTable(): void {
     this.loader.show();

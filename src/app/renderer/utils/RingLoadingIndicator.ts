@@ -24,7 +24,7 @@ class RingLoadingIndicator {
   }
 
   show() {
-    this.parentElement.appendChild(this.loader);
+    if (!this.loader.parentNode) this.parentElement.appendChild(this.loader);
   }
 
   hide() {

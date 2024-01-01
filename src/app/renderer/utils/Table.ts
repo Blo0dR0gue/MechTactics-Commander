@@ -127,7 +127,6 @@ class Table<T extends ObjectWithKeys> {
   private footerElement: HTMLElement;
 
   private data: T[];
-  private rendered: boolean;
   private bindings: Binding[];
 
   private loader: RingLoadingIndicator;
@@ -159,8 +158,6 @@ class Table<T extends ObjectWithKeys> {
     this.filterText = '';
 
     this.bindings = [];
-
-    this.rendered = false;
   }
 
   /**
@@ -173,7 +170,7 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
-    if (this.rendered) {
+    if (this.tableElement.parentNode) {
       throw new TableError('Table is already rendered!');
     }
 
@@ -185,7 +182,6 @@ class Table<T extends ObjectWithKeys> {
       this.renderFooter();
 
       this.loader.hide();
-      this.rendered = true;
     }, 100);
   }
 
@@ -505,14 +501,15 @@ class Table<T extends ObjectWithKeys> {
    * Remove this table from the dom
    */
   public remove() {
-    this.clearDataBindings();
-    this.tableElement.innerHTML = '';
-    this.parentElement.removeChild(this.headerElement);
-    this.parentElement.removeChild(this.tableElement);
-    this.parentElement.removeChild(this.footerElement);
-    this.rendered = false;
-    this.currentPage = 1;
-    this.filterText = '';
+    if (this.tableElement.parentNode) {
+      this.clearDataBindings();
+      this.tableElement.innerHTML = '';
+      this.parentElement.removeChild(this.headerElement);
+      this.parentElement.removeChild(this.tableElement);
+      this.parentElement.removeChild(this.footerElement);
+      this.currentPage = 1;
+      this.filterText = '';
+    }
   }
 
   /**
@@ -520,7 +517,7 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[]): void {
-    if (this.rendered)
+    if (this.tableElement.parentNode)
       throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
   }

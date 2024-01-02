@@ -18,6 +18,7 @@ import {
 } from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/ToastHandler';
 import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
+import { Dialog } from './utils/Dialog';
 
 // get planet and affiliation data
 const affiliations: AffiliationRequest[] = await window.sql
@@ -48,6 +49,7 @@ const planetAgeCopyForm = document.getElementById('planet-age-copy-form');
 const planetAgeCopySaveBtn = document.getElementById('planet-age-copy-save');
 
 const toastContainer = document.getElementById('toast-container');
+const dialogContainer = document.getElementById('dialog-container');
 
 // planet form elements
 const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
@@ -487,6 +489,10 @@ const copyBtnIcon =
 <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
 </svg>`);
 
+// Dialog setup
+
+const dynamicDialog = new Dialog(dialogContainer);
+
 // planet table
 const planetTable = new Table<(typeof planets)[number]>(
   tableParent,
@@ -553,24 +559,50 @@ const planetTable = new Table<(typeof planets)[number]>(
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
           onClick(data, rowIdx) {
-            window.sql
-              .deletePlanet(JSON.parse(JSON.stringify(data)))
-              .then(() => {
-                console.log(rowIdx);
-                planetTable.removeDataByIdx(rowIdx);
-                toastHandler.createAndShowToast(
-                  'Planet',
-                  'Planet deleted',
-                  ToastType.Info
-                );
-              })
-              .catch((reason) =>
-                toastHandler.createAndShowToast(
-                  'Error',
-                  reason,
-                  ToastType.Danger
-                )
-              );
+            dynamicDialog.show(
+              {
+                title: 'Delete Planet?',
+                classNames: ['fs-5'],
+              },
+              {
+                content: `Do you want to delete the planet '${data.name}?`,
+              },
+              {
+                buttons: [
+                  {
+                    text: 'Ok',
+                    classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
+                    onClick() {
+                      window.sql
+                        .deletePlanet(JSON.parse(JSON.stringify(data)))
+                        .then(() => {
+                          dynamicDialog.hide();
+                          planetTable.removeDataByIdx(rowIdx);
+                          toastHandler.createAndShowToast(
+                            'Planet',
+                            'Planet deleted',
+                            ToastType.Info
+                          );
+                        })
+                        .catch((reason) =>
+                          toastHandler.createAndShowToast(
+                            'Error',
+                            reason,
+                            ToastType.Danger
+                          )
+                        );
+                    },
+                  },
+                  {
+                    text: 'Cancel',
+                    classNames: ['btn', 'btn-secondary'],
+                    onClick() {
+                      dynamicDialog.hide();
+                    },
+                  },
+                ],
+              }
+            );
           },
         },
       ],
@@ -623,23 +655,50 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
           icon: deleteBtnIcon,
           classNames: 'btn btn-danger btn-sm align-items-center p-1'.split(' '),
           onClick(data, rowIdx) {
-            window.sql
-              .deleteAffiliation(data)
-              .then(() => {
-                affiliationTable.removeDataByIdx(rowIdx);
-                toastHandler.createAndShowToast(
-                  'Affiliation',
-                  'Affiliation deleted',
-                  ToastType.Info
-                );
-              })
-              .catch((reason) =>
-                toastHandler.createAndShowToast(
-                  'Error',
-                  reason,
-                  ToastType.Danger
-                )
-              );
+            dynamicDialog.show(
+              {
+                title: 'Delete Affiliation?',
+                classNames: ['fs-5'],
+              },
+              {
+                content: `Do you want to delete the affiliation '${data.name}?`,
+              },
+              {
+                buttons: [
+                  {
+                    text: 'Ok',
+                    classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
+                    onClick() {
+                      window.sql
+                        .deleteAffiliation(data)
+                        .then(() => {
+                          dynamicDialog.hide();
+                          affiliationTable.removeDataByIdx(rowIdx);
+                          toastHandler.createAndShowToast(
+                            'Affiliation',
+                            'Affiliation deleted',
+                            ToastType.Info
+                          );
+                        })
+                        .catch((reason) =>
+                          toastHandler.createAndShowToast(
+                            'Error',
+                            reason,
+                            ToastType.Danger
+                          )
+                        );
+                    },
+                  },
+                  {
+                    text: 'Cancel',
+                    classNames: ['btn', 'btn-secondary'],
+                    onClick() {
+                      dynamicDialog.hide();
+                    },
+                  },
+                ],
+              }
+            );
           },
           enabled(data) {
             return data.id != 0;

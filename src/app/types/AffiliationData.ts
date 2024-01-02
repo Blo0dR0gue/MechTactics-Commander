@@ -1,11 +1,7 @@
-import { Concrete } from './UtilityTypes';
-
-type AffiliationResponse = {
-  id?: number;
+type AffiliationData = {
+  id: number;
   name: string;
   color: string;
 };
 
-type AffiliationRequest = Concrete<AffiliationResponse>;
-
-export { AffiliationResponse, AffiliationRequest };
+export { AffiliationData };

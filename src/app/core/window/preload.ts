@@ -1,6 +1,7 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
-import { PlanetRequest } from '../../types/PlanetData';
-import { AffiliationRequest } from '../../types/AffiliationData';
+import { PlanetData } from '../../types/PlanetData';
+import { AffiliationData } from '../../types/AffiliationData';
+import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
 
 contextBridge.exposeInMainWorld('sql', {
   getPlanetsAtAge: (age: string) => ipcRenderer.invoke('getPlanetsAtAge', age),
@@ -12,24 +13,24 @@ contextBridge.exposeInMainWorld('sql', {
     ipcRenderer.invoke('updatePlanetText', id, universeAge, text);
   },
 
-  updatePlanet: (planet: PlanetRequest) =>
+  updatePlanet: (planet: PlanetData) =>
     ipcRenderer.invoke('updatePlanet', planet),
-  createPlanet: (planet: PlanetRequest) =>
+  createPlanet: (planet: PlanetData) =>
     ipcRenderer.invoke('createPlanet', planet),
-  deletePlanet: (planet: PlanetRequest) =>
+  deletePlanet: (planet: PlanetData) =>
     ipcRenderer.invoke('deletePlanet', planet),
 
-  updateAffiliation: (affiliation: AffiliationRequest) =>
+  updateAffiliation: (affiliation: AffiliationData) =>
     ipcRenderer.invoke('updateAffiliation', affiliation),
-  createAffiliation: (affiliation: AffiliationRequest) =>
+  createAffiliation: (affiliation: AffiliationData) =>
     ipcRenderer.invoke('createAffiliation', affiliation),
-  deleteAffiliation: (affiliation: AffiliationRequest) =>
+  deleteAffiliation: (affiliation: AffiliationData) =>
     ipcRenderer.invoke('deleteAffiliation', affiliation),
 
-  addPlanetToAge: (planet: PlanetRequest, age: number) =>
-    ipcRenderer.invoke('addPlanetToAge', planet, age),
-  addPlanetsToAge: (planets: PlanetRequest[], age: number) =>
-    ipcRenderer.invoke('addPlanetsToAge', planets, age),
+  addPlanetToAge: (planet: PlanetAffiliationAgeData) =>
+    ipcRenderer.invoke('addPlanetToAge', planet),
+  addPlanetsToAge: (planets: PlanetAffiliationAgeData[]) =>
+    ipcRenderer.invoke('addPlanetsToAge', planets),
 });
 
 contextBridge.exposeInMainWorld('app', {

@@ -1,4 +1,4 @@
-import { PlanetRequest, PlanetResponse } from '../../types/PlanetData';
+import { PlanetCoordData, PlanetData } from '../../types/PlanetData';
 
 function createSVGElementFromString(svg: string) {
   const svgCode = svg;
@@ -14,9 +14,18 @@ function createSVGElementFromString(svg: string) {
  * @param planet
  * @returns
  */
-function planetResponseToPlanetRequest(planet: PlanetResponse): PlanetRequest {
+function planetDataToPlanetCoordData(planet: PlanetData): PlanetCoordData {
   const { x, y, ...rest } = planet;
-  return { ...rest, coordinates: { x: x, y: y } } as PlanetRequest;
+  return { ...rest, coord: { x: x, y: y } } as PlanetCoordData;
 }
 
-export { createSVGElementFromString, planetResponseToPlanetRequest };
+function planetCoordDataToPlanetData(planet: PlanetCoordData): PlanetData {
+  const { coord, ...rest } = planet;
+  return { ...rest, x: coord.x, y: coord.y } as PlanetData;
+}
+
+export {
+  createSVGElementFromString,
+  planetDataToPlanetCoordData,
+  planetCoordDataToPlanetData,
+};

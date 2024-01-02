@@ -1,25 +1,26 @@
-type PlanetResponse = {
+type PlanetData = {
   id: number;
   name: string;
   x: number;
   y: number;
   link: string;
-  planetText: string;
-  affiliationID: number;
-  age?: number;
 };
 
-type PlanetRequest = {
-  coordinates: {
+type PlanetCoordData = {
+  id: number;
+  name: string;
+  coord: {
     x: number;
     y: number;
   };
-  id: number;
-  name: string;
+
   link: string;
-  planetText: string;
-  affiliationID: number;
-  age: number;
 };
 
-export { PlanetResponse, PlanetRequest };
+type PlanetWithAffiliationAndAge = PlanetData & {
+  affiliationID: number;
+  age: number;
+  planetText: string;
+};
+
+export { PlanetData, PlanetCoordData, PlanetWithAffiliationAndAge };

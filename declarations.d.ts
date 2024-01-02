@@ -2,12 +2,14 @@ interface Window {
   sql: {
     getPlanetsAtAge: (
       age: number
-    ) => Promise<import('./src/app/types/PlanetData').PlanetResponse[]>;
+    ) => Promise<
+      import('./src/app/types/PlanetData').PlanetWithAffiliationAndAge[]
+    >;
     getAllPlanets: () => Promise<
-      import('./src/app/types/PlanetData').PlanetResponse[]
+      import('./src/app/types/PlanetData').PlanetData[]
     >;
     getAllAffiliations: () => Promise<
-      import('./src/app/types/AffiliationData').AffiliationResponse[]
+      import('./src/app/types/AffiliationData').AffiliationData[]
     >;
     getAllUniverseAges: () => Promise<
       {
@@ -17,34 +19,36 @@ interface Window {
 
     // Dashboard
     updatePlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetRequest
+      planet: import('./src/app/types/PlanetData').PlanetData
     ) => Promise<boolean>;
     createPlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetRequest
-    ) => Promise<import('./src/app/types/PlanetData').PlanetResponse>;
+      planet: import('./src/app/types/PlanetData').PlanetData
+    ) => Promise<import('./src/app/types/PlanetData').PlanetData>;
     deletePlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetRequest
+      planet: import('./src/app/types/PlanetData').PlanetData
     ) => Promise<boolean>;
 
     updateAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
+      affiliation: import('./src/app/types/AffiliationData').AffiliationData
     ) => Promise<boolean>;
     createAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationResponse
-    ) => Promise<import('./src/app/types/AffiliationData').AffiliationRequest>;
+      affiliation: import('./src/app/types/AffiliationData').AffiliationData
+    ) => Promise<import('./src/app/types/AffiliationData').AffiliationData>;
     deleteAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationRequest
+      affiliation: import('./src/app/types/AffiliationData').AffiliationData
     ) => Promise<boolean>;
 
     addPlanetToAge: (
-      planet: import('./src/app/types/PlanetData').PlanetRequest,
-      age: number
-    ) => Promise<import('./src/app/types/PlanetData').PlanetResponse>;
+      planet: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
+    ) => Promise<
+      import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
+    >;
 
     addPlanetsToAge: (
-      planets: import('./src/app/types/PlanetData').PlanetRequest[],
-      age: number
-    ) => Promise<import('./src/app/types/PlanetData').PlanetResponse[]>;
+      planets: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData[]
+    ) => Promise<
+      import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData[]
+    >;
   };
 
   app: {

@@ -184,7 +184,8 @@ class Universe {
         planetJSON.y,
         planetJSON.link,
         planetJSON.planetText,
-        planetAffiliation
+        planetAffiliation,
+        this.selectedUniverseAge
       );
       this.planets.push(planet);
       this.tree.insert(planet);

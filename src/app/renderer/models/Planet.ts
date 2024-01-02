@@ -61,6 +61,7 @@ class Planet extends Circle {
   }
 
   private updatePlanetInDB(): void {
+    // FIXME:
     window.sql.updatePlanet({
       id: this.id,
       affiliationID: this.affiliation.getID(),

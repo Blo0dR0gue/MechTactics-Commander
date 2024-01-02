@@ -3,7 +3,7 @@
 // TODO: Create dynamic modal
 // TODO: Short this file
 // TODO: Cleanup
-// TODO: Copy btn for planets?
+// TODO: Separate universe age planet affiliation table, to avoid the current problem of creating a planet with the same name, in a other affiliation in a other age.
 
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';

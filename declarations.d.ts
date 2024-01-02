@@ -14,7 +14,6 @@ interface Window {
         universeAge: number;
       }[]
     >;
-    updatePlanetText: (id: number, universeAge: string, text: string) => void;
 
     // Dashboard
     updatePlanet: (

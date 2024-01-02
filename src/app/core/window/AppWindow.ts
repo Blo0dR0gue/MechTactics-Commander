@@ -110,18 +110,6 @@ class AppWindow {
     });
 
     ipcMain.handle(
-      'updatePlanetText',
-      (event, id: number, universeAge: string, text: string) => {
-        this.database.run(
-          `UPDATE PlanetAffiliationAge SET planetText = ? WHERE universeAge = ? AND planetID = ?;`,
-          text,
-          universeAge,
-          id
-        );
-      }
-    );
-
-    ipcMain.handle(
       'updatePlanet',
       (event, planet: PlanetRequest) =>
         new Promise<boolean>((resolve, reject) => {
@@ -265,10 +253,11 @@ class AppWindow {
         new Promise<PlanetResponse>((resolve, reject) => {
           this.database
             .run(
-              'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
+              'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID, planetText) VALUES (?, ?, ?, ?);',
               age,
               planet.id,
-              planet.affiliationID
+              planet.affiliationID,
+              planet.planetText
             )
             .then(() => {
               const { coordinates, ...rest } = planet;

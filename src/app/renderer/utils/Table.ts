@@ -4,9 +4,9 @@ import {
   ObjectWithKeys,
 } from '../../types/UtilityTypes';
 import { Binding } from './Binding';
+import { Button, IButton } from './Button';
 import { RingLoadingIndicator } from './RingLoadingIndicator';
 
-type Icon = SVGElement & HTMLElement;
 type ColSizes =
   | 'col-1'
   | 'col-2'
@@ -17,27 +17,9 @@ type ColSizes =
   | 'col-auto';
 
 /**
- * A basic button definition for this table
- */
-interface Button {
-  /**
-   * The display text of the button
-   */
-  text?: string;
-  /**
-   * A list of css class names to style this button
-   */
-  classNames?: string[];
-  /**
-   * A possible icon element, which is displayed before a possible text
-   */
-  icon?: Icon;
-}
-
-/**
  * A button which can be added to the header
  */
-interface HeaderButton extends Button {
+interface HeaderButton extends IButton {
   /**
    * Callback handler, which is invoked on click
    */
@@ -47,7 +29,7 @@ interface HeaderButton extends Button {
 /**
  * Defines one button which can be added to a column to be rendered in each row
  */
-interface RowButton<T extends ObjectWithKeys> extends Button {
+interface RowButton<T extends ObjectWithKeys> extends IButton {
   /**
    * Callback handler, which is invoked on click
    * @param data The data of the row the button got clicked
@@ -210,16 +192,17 @@ class Table<T extends ObjectWithKeys> {
       for (const button of buttons) {
         const { onClick } = button;
 
-        const btn = this.createBasicButton(button);
+        const btn = new Button(this.headerElement, button); //this.createBasicButton(button);
 
         if (onClick) {
           // Add the click event handler
-          btn.addEventListener('click', () => {
+          btn.getButtonElement().addEventListener('click', () => {
             onClick();
           });
         }
 
-        this.headerElement.appendChild(btn);
+        //this.headerElement.appendChild(btn);
+        btn.render();
       }
     }
 
@@ -434,24 +417,22 @@ class Table<T extends ObjectWithKeys> {
           for (const button of buttons) {
             const { onClick, enabled } = button;
 
-            const btn = this.createBasicButton(button);
+            const btn = new Button(td, button); //this.createBasicButton(button);
 
             if (onClick) {
               // Add the click event handler
-              btn.addEventListener('click', () => {
+              btn.getButtonElement().addEventListener('click', () => {
                 onClick(data, this.data.indexOf(data), tr.rowIndex - 1);
               });
             }
 
             if (enabled) {
-              btn.disabled = !enabled(
-                data,
-                this.data.indexOf(data),
-                tr.rowIndex - 1
+              btn.disable(
+                !enabled(data, this.data.indexOf(data), tr.rowIndex - 1)
               );
             }
-
-            td.appendChild(btn);
+            btn.render();
+            //td.appendChild(btn);
           }
         } else {
           throw new TableError(
@@ -465,36 +446,6 @@ class Table<T extends ObjectWithKeys> {
     }
 
     this.tableElement.appendChild(tbody);
-  }
-
-  /**
-   * Create a button element
-   * @param button A button definition
-   * @returns A HTMLButtonElement
-   */
-  private createBasicButton(button: Button) {
-    const { text, icon, classNames } = button;
-
-    if (!text && !icon) {
-      throw new TableError(
-        `You must define either text or an icon for a button. ${button}`
-      );
-    }
-
-    const btn = document.createElement('button');
-
-    if (classNames) btn.classList.add(...classNames);
-
-    if (icon) {
-      if (text) icon.style.paddingRight = '1rem'; // add padding to the right, if also a text should be rendered
-      btn.appendChild(icon.cloneNode(true));
-    }
-
-    if (text) {
-      // If a text should be added expand the inner html to not override a possible icon.
-      btn.innerHTML += encodeURIComponent(text);
-    }
-    return btn;
   }
 
   /**

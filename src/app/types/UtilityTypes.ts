@@ -3,6 +3,8 @@
  */
 type ObjectWithKeys = Record<string, unknown>;
 
+type Icon = SVGElement & HTMLElement;
+
 /**
  * Get all props of an object recursive
  * @example
@@ -36,4 +38,4 @@ type Concrete<Type> = {
   [Property in keyof Type]-?: Type[Property];
 };
 
-export { ObjectWithKeys, ObjectOfPropRec, ObjectPropsRec, Concrete };
+export { Icon, ObjectWithKeys, ObjectOfPropRec, ObjectPropsRec, Concrete };

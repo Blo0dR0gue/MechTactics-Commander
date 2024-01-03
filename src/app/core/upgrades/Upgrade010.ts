@@ -18,6 +18,10 @@ class Upgrade010 extends AppUpgradeInfo {
         "INSERT INTO Affiliation (id, name, color) VALUES (0, 'Default', '#FFFFFF');"
       );
     });
+    this.actions.push(async () => {
+      console.log('Upgrading config');
+      this.config.set('version', '0.1.0');
+    });
   }
 }
 

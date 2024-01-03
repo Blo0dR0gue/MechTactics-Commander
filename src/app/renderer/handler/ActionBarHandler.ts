@@ -153,7 +153,7 @@ class ActionBarHandler {
     const col2 = rowParent.children[1];
 
     // Get Affiliations to exclude
-    // TODO: Rework to make it more dynamic (Add others)
+    // TODO: Rework to make it more dynamic (Add others - add to dashboard in next version)
     const sepExcluded = [] as Affiliation[];
     // Max 4 elements per col
     const perCol = 4;
@@ -180,28 +180,30 @@ class ActionBarHandler {
       if (i >= perCol * 2) break;
       const affiliation = sepExcluded[i];
       const col = i < perCol ? col1 : col2;
-      col.appendChild(
-        this.createExcludeAffiliationToggle(
-          affiliation.getName(),
-          !excludedAffiliationIDs.includes(affiliation.getID()),
-          (input: HTMLInputElement) => {
-            if (input.checked) {
-              Config.getInstance().remove(
-                'excludedAffiliationIDs',
-                affiliation.getID()
-              );
-              this.routeController.removeExcludedAffiliation(affiliation);
-            } else {
-              Config.getInstance().add(
-                'excludedAffiliationIDs',
-                affiliation.getID()
-              );
-              this.routeController.addExcludedAffiliation(affiliation);
+      if (affiliation) {
+        col.appendChild(
+          this.createExcludeAffiliationToggle(
+            affiliation.getName(),
+            !excludedAffiliationIDs.includes(affiliation.getID()),
+            (input: HTMLInputElement) => {
+              if (input.checked) {
+                Config.getInstance().remove(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
+                this.routeController.removeExcludedAffiliation(affiliation);
+              } else {
+                Config.getInstance().add(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
+                this.routeController.addExcludedAffiliation(affiliation);
+              }
+              this.generateJumpCards();
             }
-            this.generateJumpCards();
-          }
-        )
-      );
+          )
+        );
+      }
     }
   }
 

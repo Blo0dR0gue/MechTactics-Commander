@@ -4,31 +4,32 @@
 // TODO: Short this file
 // TODO: Cleanup
 // TODO: Separate universe age planet affiliation table, to avoid the current problem of creating a planet with the same name, in a other affiliation in a other age.
-// FIXME:
 
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
-import { AffiliationRequest } from '../types/AffiliationData';
-import { PlanetRequest } from '../types/PlanetData';
-import { Concrete } from '../types/UtilityTypes';
 import './styles/main.scss';
 import { Table } from './utils/Table';
 import {
   createSVGElementFromString,
-  planetResponseToPlanetRequest,
+  planetCoordDataToPlanetData,
+  planetDataToPlanetCoordData,
 } from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/ToastHandler';
 import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
 import { Dialog } from './utils/Dialog';
+import { AffiliationData } from '../types/AffiliationData';
+import { PlanetCoordData } from '../types/PlanetData';
+import { PlanetAffiliationAgeData } from '../types/PlanetAffiliationAge';
 
 // get planet and affiliation data
-const affiliations: AffiliationRequest[] = await window.sql
-  .getAllAffiliations()
-  .then((data) => data.map((obj) => obj as Concrete<typeof obj>));
+const affiliations: AffiliationData[] = await window.sql.getAllAffiliations();
 
-const planets: PlanetRequest[] = await window.sql
+const planets: PlanetCoordData[] = await window.sql
   .getAllPlanets()
-  .then((data) => data.map((planet) => planetResponseToPlanetRequest(planet)));
+  .then((data) => data.map((planet) => planetDataToPlanetCoordData(planet)));
+
+const planetAffiliationAges: PlanetAffiliationAgeData[] =
+  await window.sql.getAllPlanetAffiliationAges();
 
 // element definitions
 const tableParent = document.getElementById('table-holder');
@@ -57,22 +58,15 @@ const planetFormID = document.getElementById('planet-id') as HTMLInputElement;
 const planetFormName = document.getElementById(
   'planet-name'
 ) as HTMLInputElement;
-const planetFormAffiliationID = document.getElementById(
-  'planet-affiliation-id'
-) as HTMLSelectElement;
 const planetFormCoordX = document.getElementById(
   'planet-x'
 ) as HTMLInputElement;
 const planetFormCoordY = document.getElementById(
   'planet-y'
 ) as HTMLInputElement;
-const planetFormAge = document.getElementById('planet-age') as HTMLInputElement;
 const planetFormLink = document.getElementById(
   'planet-link'
 ) as HTMLInputElement;
-const planetFormText = document.getElementById(
-  'planet-text'
-) as HTMLTextAreaElement;
 
 // planet age copy form elements
 const planetAgeCopyFormTarget = document.getElementById(
@@ -104,7 +98,7 @@ const loader = document.getElementById('loader');
 const loadingIndicator = new RingLoadingIndicator(loader, 'lds-ring-dark');
 
 // planet form and modal setups
-let currentEditPlanet: PlanetRequest = undefined;
+let currentEditPlanet: PlanetCoordData = undefined;
 const planetModal = new Modal(planetModalElement, {});
 
 planetForm.addEventListener('submit', (e) => e.preventDefault());
@@ -112,12 +106,9 @@ planetForm.addEventListener('submit', (e) => e.preventDefault());
 planetSaveBtn.addEventListener('click', () => {
   const id = Number(planetFormID.value);
   const name = planetFormName.value.trim();
-  const affiliationID = Number(planetFormAffiliationID.value);
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
-  const age = Math.ceil(parseFloat(planetFormAge.value));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
-  const text = planetFormText.value.trim();
 
   if (name.length <= 0) {
     toastHandler.createAndShowToast(
@@ -137,23 +128,13 @@ planetSaveBtn.addEventListener('click', () => {
     return;
   }
 
-  if (isNaN(age)) {
-    toastHandler.createAndShowToast(
-      'Error',
-      "Age can't be NaN",
-      ToastType.Danger
-    );
-    return;
-  }
-
   if (
     name !== currentEditPlanet?.name &&
-    planets.filter((planet) => planet.name === name && planet.age === age)
-      .length > 0
+    planets.filter((planet) => planet.name === name).length > 0
   ) {
     toastHandler.createAndShowToast(
       'Error',
-      'You cannot create or update a planet with/to the same name as an existing planet in the same universe age.',
+      'You cannot create or update a planet with/to the same name as an existing planet.',
       ToastType.Danger
     );
     return;
@@ -162,9 +143,8 @@ planetSaveBtn.addEventListener('click', () => {
   if (
     planets.filter(
       (planet) =>
-        planet.coordinates.x === x &&
-        planet.coordinates.y === y &&
-        planet.age === age &&
+        planet.coord.x === x &&
+        planet.coord.y === y &&
         (currentEditPlanet
           ? planet.name !== currentEditPlanet.name
           : planet.name !== name)
@@ -183,12 +163,10 @@ planetSaveBtn.addEventListener('click', () => {
     window.sql
       .createPlanet({
         id: id,
-        affiliationID: affiliationID,
-        age: age,
-        coordinates: { x: x, y: y },
+        x: x,
+        y: y,
         link: link,
         name: name,
-        planetText: text,
       })
       .then((planet) => {
         toastHandler.createAndShowToast(
@@ -196,7 +174,7 @@ planetSaveBtn.addEventListener('click', () => {
           'Planet created',
           ToastType.Info
         );
-        planetTable.addData(planetResponseToPlanetRequest(planet));
+        planetTable.addData(planetDataToPlanetCoordData(planet));
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
@@ -206,14 +184,15 @@ planetSaveBtn.addEventListener('click', () => {
     // Updating this objects updates the table, because of the data binding used with the table
     currentEditPlanet.id = id;
     currentEditPlanet.name = name;
-    currentEditPlanet.affiliationID = affiliationID;
-    currentEditPlanet.coordinates.x = x;
-    currentEditPlanet.coordinates.y = y;
-    currentEditPlanet.age = age;
+    currentEditPlanet.coord.x = x;
+    currentEditPlanet.coord.y = y;
     currentEditPlanet.link = link;
-    currentEditPlanet.planetText = text;
     window.sql
-      .updatePlanet(JSON.parse(JSON.stringify(currentEditPlanet)))
+      .updatePlanet(
+        JSON.parse(
+          JSON.stringify(planetCoordDataToPlanetData(currentEditPlanet))
+        )
+      )
       .then(() => {
         toastHandler.createAndShowToast(
           'Planet',
@@ -228,41 +207,18 @@ planetSaveBtn.addEventListener('click', () => {
   planetModal.hide();
 });
 
-function setPlanetFormData(planet: PlanetRequest) {
+function setPlanetFormData(planet: PlanetCoordData) {
   planetFormID.value = String(planet?.id || -1);
   planetFormName.value = planet?.name || '';
-  planetFormAffiliationID.value = String(planet?.affiliationID || 0);
-  planetFormCoordX.value = String(planet?.coordinates?.x || 0);
-  planetFormCoordY.value = String(planet?.coordinates?.y || 0);
-  planetFormAge.value = String(planet?.age || 3025);
+  planetFormCoordX.value = String(planet?.coord?.x || 0);
+  planetFormCoordY.value = String(planet?.coord?.y || 0);
   planetFormLink.value = planet?.link || '';
-  planetFormText.value = planet?.planetText || '';
-
-  // disabled fields on edit
-  planetFormAge.disabled = planet !== undefined;
 }
 
-function openPlanetModalWith(planet: PlanetRequest = undefined) {
+function openPlanetModalWith(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
-  addAffiliationsToSelect();
   setPlanetFormData(planet);
   planetModal.show();
-}
-
-/**
- * Add all affiliations to the planet affiliation id select element
- */
-function addAffiliationsToSelect() {
-  // clear affiliation id select
-  planetFormAffiliationID.innerHTML = '';
-
-  // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
-  for (const affiliation of affiliations) {
-    const affiliationOption = document.createElement('option');
-    affiliationOption.value = String(affiliation.id);
-    affiliationOption.textContent = affiliation.name;
-    planetFormAffiliationID.appendChild(affiliationOption);
-  }
 }
 
 // planet age copy modal and form setups
@@ -271,7 +227,7 @@ planetAgeCopyForm.addEventListener('submit', (e) => e.preventDefault());
 const planetAgeCopyModal = new Modal(planetAgeCopyModalElement, {});
 
 function openPlanetAgeCopyModal() {
-  const ages = planets.reduce(
+  const ages = planetAffiliationAges.reduce(
     (acc, obj) => acc.add(obj.age),
     new Set<number>()
   );
@@ -291,12 +247,12 @@ function openPlanetAgeCopyModal() {
 }
 
 planetAgeCopySaveBtn.addEventListener('click', () => {
-  const target = Number(planetAgeCopyFormTarget.value);
-  const destination = Math.ceil(
+  const targetAge = Number(planetAgeCopyFormTarget.value);
+  const destinationAge = Math.ceil(
     Number(parseFloat(planetAgeCopyFormDestination.value).toFixed(0))
   );
 
-  if (isNaN(destination)) {
+  if (isNaN(destinationAge)) {
     toastHandler.createAndShowToast(
       'Error',
       "Destination can't be NaN",
@@ -305,7 +261,7 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     return;
   }
 
-  if (target === destination) {
+  if (targetAge === destinationAge) {
     toastHandler.createAndShowToast(
       'Info',
       'Destination and target are equal. This is not allowed!',
@@ -314,22 +270,25 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     return;
   }
 
-  const destinationPlanets = planets.filter(
-    (planet) => planet.age === destination
+  const destinationDataPoints = planetAffiliationAges.filter(
+    (data) => data.age === destinationAge
   );
-  const targetPlanets = planets.filter(
-    (planet) =>
-      planet.age === target &&
-      destinationPlanets.filter(
-        (destPlanet) =>
-          destPlanet.id === planet.id || destPlanet.name === planet.name
-      ).length <= 0
-  );
+  const targetDataPoints = planetAffiliationAges
+    .filter(
+      (data) =>
+        data.age === targetAge &&
+        destinationDataPoints.filter(
+          (destData) => destData.planetID === data.planetID
+        ).length <= 0
+    )
+    .map((data) => {
+      return { ...data, age: destinationAge } as PlanetAffiliationAgeData;
+    });
 
-  if (targetPlanets.length <= 0) {
+  if (targetDataPoints.length <= 0) {
     toastHandler.createAndShowToast(
       'Info',
-      `No Planets to copy. All planets from ${target} are already in ${destination}`,
+      `No Planets to copy. All planets from ${targetAge} are already in ${destinationAge}`,
       ToastType.Info
     );
     planetAgeCopyModal.hide();
@@ -340,13 +299,12 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
 
   // TODO: create helper or something for json parse
   window.sql
-    .addPlanetsToAge(JSON.parse(JSON.stringify(targetPlanets)), destination)
-    .then((planets) => {
-      const planetData = planets.map((p) => planetResponseToPlanetRequest(p));
-      planetTable.addData(planetData);
+    .createPlanetAffiliationAges(JSON.parse(JSON.stringify(targetDataPoints)))
+    .then((dataPoints) => {
+      // TODO: Add data points to table
       toastHandler.createAndShowToast(
         'Planet',
-        `Copied planets from age ${target} to age ${destination}`,
+        `Copied planets from age ${targetAge} to age ${destinationAge}`,
         ToastType.Info
       );
       loadingIndicator.hide();
@@ -360,7 +318,7 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
 });
 
 // affiliation form and modal setups
-let currentEditAffiliation: AffiliationRequest = undefined;
+let currentEditAffiliation: AffiliationData = undefined;
 
 affiliationForm.addEventListener('submit', (e) => e.preventDefault());
 
@@ -431,13 +389,13 @@ affiliationSaveBtn.addEventListener('click', () => {
   affiliationModal.hide();
 });
 
-function openAffiliationModalWith(affiliation: AffiliationRequest = undefined) {
+function openAffiliationModalWith(affiliation: AffiliationData = undefined) {
   currentEditAffiliation = affiliation;
   setAffiliationFormData(affiliation);
   affiliationModal.show();
 }
 
-function setAffiliationFormData(affiliation: AffiliationRequest) {
+function setAffiliationFormData(affiliation: AffiliationData) {
   affiliationFormID.value = String(affiliation?.id || -1);
   affiliationFormName.value = affiliation?.name || '';
   affiliationFormColor.value = affiliation?.color || '';
@@ -498,7 +456,7 @@ const dynamicDialog = new Dialog(dialogContainer);
 const planetTable = new Table<(typeof planets)[number]>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
-  20,
+  25,
   {
     classNames:
       'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(
@@ -513,40 +471,23 @@ const planetTable = new Table<(typeof planets)[number]>(
           openPlanetModalWith();
         },
       },
-      {
-        icon: copyBtnIcon,
-        classNames: ['btn', 'btn-warning', 'btn-sm', 'me-1'],
-        onClick() {
-          openPlanetAgeCopyModal();
-        },
-      },
     ],
   },
   [
     { name: 'Planet-ID', dataAttribute: 'id', size: 'col-1' },
-    { name: 'Name', dataAttribute: 'name', size: 'col-1' },
+    { name: 'Name', dataAttribute: 'name', size: 'col-3' },
     {
       name: 'Coordinates',
-      dataAttribute: 'coordinates',
-      size: 'col-2',
+      dataAttribute: 'coord',
+      size: 'col-3',
       formatter(value: { x: number; y: number }) {
         return value.x + ' / ' + value.y;
       },
     },
-    {
-      name: 'Affiliation',
-      dataAttribute: 'affiliationID',
-      size: 'col-2',
-      formatter(value) {
-        return affiliations.find((obj) => obj.id == value).name;
-      },
-    },
-    { name: 'Age', dataAttribute: 'age', size: 'col-1' },
-    { name: 'Link', dataAttribute: 'link', size: 'col-2' },
-    { name: 'Text', dataAttribute: 'planetText', size: 'col-2' },
+    { name: 'Link', dataAttribute: 'link', size: 'col-3' },
     {
       name: 'Action',
-      size: 'col-1',
+      size: 'col-2',
       buttons: [
         {
           icon: editBtnIcon,
@@ -615,7 +556,7 @@ const planetTable = new Table<(typeof planets)[number]>(
 const affiliationTable = new Table<(typeof affiliations)[number]>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
-  20,
+  25,
   {
     classNames:
       'navbar border-bottom d-flex justify-content-center bg-light sticky-top'.split(

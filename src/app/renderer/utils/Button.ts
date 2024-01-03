@@ -1,4 +1,5 @@
 import { Icon } from '../../types/UtilityTypes';
+import { escapeHtmlTags } from './Utils';
 
 /**
  * A basic button definition for this table
@@ -52,7 +53,7 @@ class Button {
 
     if (text) {
       // If a text should be added expand the inner html to not override a possible icon.
-      this.buttonElement.innerHTML += encodeURIComponent(text);
+      this.buttonElement.innerHTML += escapeHtmlTags(text);
     }
   }
 

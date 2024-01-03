@@ -24,8 +24,13 @@ function planetCoordDataToPlanetData(planet: PlanetCoordData): PlanetData {
   return { ...rest, x: coord.x, y: coord.y } as PlanetData;
 }
 
+function escapeHtmlTags(input: string) {
+  return input.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export {
   createSVGElementFromString,
   planetDataToPlanetCoordData,
   planetCoordDataToPlanetData,
+  escapeHtmlTags,
 };

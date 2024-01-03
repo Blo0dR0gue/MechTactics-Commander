@@ -25,7 +25,7 @@ class Updater {
   }
 
   private isUpgradeNeeded() {
-    const currentVersion = this.config.get('version');
+    const currentVersion = this.config.get('version') as string;
     for (const version in this.appUpgradeInfoMap) {
       if (version > currentVersion) {
         return true; // Upgrade is needed

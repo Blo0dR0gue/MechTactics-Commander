@@ -19,6 +19,11 @@ abstract class AppUpgradeInfo {
     this.actions = [];
     this.version = version;
     this.description = description;
+
+    this.actions.push(async () => {
+      console.log('Upgrading version in config');
+      this.config.set('version', this.version);
+    });
   }
 }
 

@@ -8,6 +8,7 @@ import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
 import appUpgradeInfos from './upgrades';
 import { AppWindow } from './window/AppWindow';
+import { AppUpgradeInfo } from './AppUpgradeInfo';
 
 class Updater {
   private readonly appUpgradeInfoMap = appUpgradeInfos;
@@ -57,7 +58,7 @@ class Updater {
       const upgradeInfo = new this.appUpgradeInfoMap[version](
         this.config,
         this.database
-      );
+      ) as AppUpgradeInfo;
 
       this.appWindow.sendIpc(
         'updateText',
@@ -66,7 +67,10 @@ class Updater {
       );
 
       for (const action of upgradeInfo.actions) {
-        await action(); // Perform action and wait for it to finish
+        // TODO: Create log file???
+        await action().catch((reason) => {
+          console.log(reason);
+        }); // Perform action and wait for it to finish and catch all errors.
         executedActions++;
         // Send upgrade percentage
         this.appWindow.sendIpc(

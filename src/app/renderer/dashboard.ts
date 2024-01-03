@@ -1,9 +1,8 @@
 // Init file for the dashboard page
 
-// TODO: Create dynamic modal
+// TODO: Update the dynamic modal to also hold forms
 // TODO: Short this file
 // TODO: Cleanup
-// TODO: Separate universe age planet affiliation table, to avoid the current problem of creating a planet with the same name, in a other affiliation in a other age.
 
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';

@@ -7,11 +7,9 @@ contextBridge.exposeInMainWorld('sql', {
   getPlanetsAtAge: (age: string) => ipcRenderer.invoke('getPlanetsAtAge', age),
   getAllPlanets: () => ipcRenderer.invoke('getAllPlanets'),
   getAllAffiliations: () => ipcRenderer.invoke('getAllAffiliations'),
+  getAllPlanetAffiliationAges: () =>
+    ipcRenderer.invoke('getAllPlanetAffiliationAges'),
   getAllUniverseAges: () => ipcRenderer.invoke('getAllUniverseAges'),
-
-  updatePlanetText: (id: number, universeAge: string, text: string) => {
-    ipcRenderer.invoke('updatePlanetText', id, universeAge, text);
-  },
 
   updatePlanet: (planet: PlanetData) =>
     ipcRenderer.invoke('updatePlanet', planet),
@@ -27,10 +25,14 @@ contextBridge.exposeInMainWorld('sql', {
   deleteAffiliation: (affiliation: AffiliationData) =>
     ipcRenderer.invoke('deleteAffiliation', affiliation),
 
-  addPlanetToAge: (planet: PlanetAffiliationAgeData) =>
-    ipcRenderer.invoke('addPlanetToAge', planet),
-  addPlanetsToAge: (planets: PlanetAffiliationAgeData[]) =>
-    ipcRenderer.invoke('addPlanetsToAge', planets),
+  updatePlanetAffiliationAge: (data: PlanetAffiliationAgeData) =>
+    ipcRenderer.invoke('updatePlanetAffiliationAge', data),
+  createPlanetAffiliationAge: (data: PlanetAffiliationAgeData) =>
+    ipcRenderer.invoke('createPlanetAffiliationAge', data),
+  createPlanetAffiliationAges: (dataPoints: PlanetAffiliationAgeData[]) =>
+    ipcRenderer.invoke('createPlanetAffiliationAges', dataPoints),
+  deletePlanetAffiliationAge: (data: PlanetAffiliationAgeData) =>
+    ipcRenderer.invoke('deletePlanetAffiliationAge', data),
 });
 
 contextBridge.exposeInMainWorld('app', {

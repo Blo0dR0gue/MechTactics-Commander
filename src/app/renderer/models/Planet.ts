@@ -57,20 +57,26 @@ class Planet extends Circle {
    */
   public setText(text: string): void {
     this.text = text;
-    this.updatePlanetInDB();
+    this.updateInDB();
   }
 
-  private updatePlanetInDB(): void {
-    // FIXME:
-    window.sql.updatePlanet({
-      id: this.id,
-      affiliationID: this.affiliation.getID(),
-      age: this.universeAge,
-      coordinates: { x: this.coord.getX(), y: this.coord.getY() },
-      link: this.link,
-      name: this.name,
-      planetText: this.text,
-    });
+  private updateInDB(): void {
+    window.sql
+      .updatePlanet({
+        id: this.id,
+        x: this.coord.getX(),
+        y: this.coord.getY(),
+        link: this.link,
+        name: this.name,
+      })
+      .then(() => {
+        window.sql.updatePlanetAffiliationAge({
+          planetID: this.id,
+          affiliationID: this.getAffiliationID(),
+          age: this.universeAge,
+          planetText: this.text,
+        });
+      });
   }
 
   /**

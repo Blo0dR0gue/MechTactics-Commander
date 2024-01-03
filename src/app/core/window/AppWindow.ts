@@ -82,7 +82,7 @@ class AppWindow {
       return new Promise<PlanetData[]>((resolve) => {
         this.database
           .all<PlanetData[]>(
-            `SELECT id, name, x, y, link, planetText FROM Planet as ORDER BY id ASC;`
+            `SELECT id, name, x, y, link FROM Planet ORDER BY id ASC;`
           )
           .then((data) => {
             resolve(data);
@@ -100,8 +100,20 @@ class AppWindow {
       });
     });
 
+    ipcMain.handle('getAllPlanetAffiliationAges', () => {
+      return new Promise<PlanetAffiliationAgeData[]>((resolve) => {
+        this.database
+          .all(
+            `SELECT planetID, affiliationID, universeAge, planetText FROM PlanetAffiliationAge;`
+          )
+          .then((data) => {
+            resolve(data);
+          });
+      });
+    });
+
     ipcMain.handle('getAllUniverseAges', () => {
-      return new Promise<AffiliationData[]>((resolve) => {
+      return new Promise<{ universeAge: number }[]>((resolve) => {
         this.database
           .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
           .then((data) => {
@@ -223,7 +235,26 @@ class AppWindow {
     );
 
     ipcMain.handle(
-      'addPlanetToAge',
+      'updatePlanetAffiliationAge',
+      (event, data: PlanetAffiliationAgeData) =>
+        new Promise<boolean>((resolve, reject) => {
+          this.database
+            .run(
+              'UPDATE PlanetAffiliationAge SET affiliationID = ?, planetText = ? WHERE planetID = ? AND universeAge = ?;',
+              data.affiliationID,
+              data.planetText,
+              data.planetID,
+              data.age
+            )
+            .then(() => {
+              resolve(true);
+            })
+            .catch((reason) => reject(reason));
+        })
+    );
+
+    ipcMain.handle(
+      'createPlanetAffiliationAge',
       (event, data: PlanetAffiliationAgeData) =>
         new Promise<PlanetAffiliationAgeData>((resolve, reject) => {
           this.database
@@ -242,7 +273,7 @@ class AppWindow {
     );
 
     ipcMain.handle(
-      'addPlanetsToAge',
+      'createPlanetAffiliationAges',
       (event, dataPoints: PlanetAffiliationAgeData[]) =>
         new Promise<PlanetAffiliationAgeData[]>((resolve, reject) => {
           const insertPromises = dataPoints.map((point) => {
@@ -260,6 +291,24 @@ class AppWindow {
 
           Promise.all(insertPromises)
             .then((results) => resolve(results))
+            .catch((reason) => reject(reason));
+        })
+    );
+
+    ipcMain.handle(
+      'deletePlanetAffiliationAge',
+      (event, data: PlanetAffiliationAgeData) =>
+        new Promise<boolean>((resolve, reject) => {
+          this.database
+            .run(
+              'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND universeAge = ? AND affiliationID = ?;',
+              data.planetID,
+              data.age,
+              data.affiliationID
+            )
+            .then(() => {
+              resolve(true);
+            })
             .catch((reason) => reject(reason));
         })
     );

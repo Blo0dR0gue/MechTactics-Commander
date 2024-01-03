@@ -569,10 +569,8 @@ function setPlanetAffiliationAgeFormData(
   planetAffiliationAgeUniverseAge.value = String(data?.universeAge || 3025);
   planetAffiliationAgePlanetText.value = data?.planetText || '';
 
-  if (data) {
-    planetAffiliationAgePlanetID.disabled = true;
-    planetAffiliationAgeUniverseAge.disabled = true;
-  }
+  planetAffiliationAgePlanetID.disabled = data != undefined;
+  planetAffiliationAgeUniverseAge.disabled = data != undefined;
 }
 /**
  * Add all affiliations to the affiliation id select element

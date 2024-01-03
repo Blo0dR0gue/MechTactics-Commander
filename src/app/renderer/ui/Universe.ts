@@ -154,7 +154,7 @@ class Universe {
     if (this.universeAges.find((universeAge) => universeAge === configAge)) {
       this.selectedUniverseAge = configAge;
     } else {
-      this.selectedUniverseAge = this.universeAges[0] || -1;
+      this.setSelectedUniverseAge(this.universeAges[0] || -1);
     }
   };
 

@@ -1,4 +1,5 @@
 import { Icon } from '../../types/UtilityTypes';
+import { escapeHtmlTags } from './Utils';
 
 interface TabElement {
   icon?: Icon;
@@ -41,7 +42,7 @@ class TabGroup {
       }
 
       if (text) {
-        link.innerHTML += text;
+        link.innerHTML += escapeHtmlTags(text);
       }
 
       link.addEventListener('click', (event) => {

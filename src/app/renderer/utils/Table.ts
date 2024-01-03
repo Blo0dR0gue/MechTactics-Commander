@@ -148,7 +148,7 @@ class Table<T extends ObjectWithKeys> {
    * setData should be called before.
    */
   public render(): void {
-    if (!this.data || this.data.length < 1) {
+    if (!this.data) {
       throw new TableError(`No data defined`);
     }
 
@@ -409,51 +409,63 @@ class Table<T extends ObjectWithKeys> {
 
     const rowData = data.slice(startIndex, endIndex);
 
-    // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
-    for (const data of rowData) {
+    if (rowData.length <= 0) {
+      // we have no data, show no data row
       const tr = document.createElement('tr');
-      for (const columnDefinition of this.columnDefinitions) {
-        const { buttons, dataAttribute, formatter } = columnDefinition;
-        const td = document.createElement('td');
-
-        if (dataAttribute !== undefined) {
-          // render a text cell using data binding
-          const binding = new Binding(data, dataAttribute);
-          binding.addBinding(td, 'textContent', false, formatter, 'none');
-          this.bindings.push(binding);
-        } else if (buttons !== undefined && buttons.length > 0) {
-          // render the button cell
-
-          // for each button definition render one button
-          for (const button of buttons) {
-            const { onClick, enabled } = button;
-
-            const btn = new Button(td, button); //this.createBasicButton(button);
-
-            if (onClick) {
-              // Add the click event handler
-              btn.getButtonElement().addEventListener('click', () => {
-                onClick(data, this.data.indexOf(data), tr.rowIndex - 1);
-              });
-            }
-
-            if (enabled) {
-              btn.disable(
-                !enabled(data, this.data.indexOf(data), tr.rowIndex - 1)
-              );
-            }
-            btn.render();
-            //td.appendChild(btn);
-          }
-        } else {
-          throw new TableError(
-            `Either buttons or dataAttribute need to be defined ${columnDefinition}`
-          );
-        }
-
-        tr.appendChild(td);
-      }
+      const td = document.createElement('td');
+      td.textContent = 'No Data!';
+      tr.style.textAlign = 'center';
+      tr.style.fontSize = '25px';
+      td.colSpan = this.columnDefinitions.length;
+      tr.appendChild(td);
       tbody.appendChild(tr);
+    } else {
+      // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
+      for (const data of rowData) {
+        const tr = document.createElement('tr');
+        for (const columnDefinition of this.columnDefinitions) {
+          const { buttons, dataAttribute, formatter } = columnDefinition;
+          const td = document.createElement('td');
+
+          if (dataAttribute !== undefined) {
+            // render a text cell using data binding
+            const binding = new Binding(data, dataAttribute);
+            binding.addBinding(td, 'textContent', false, formatter, 'none');
+            this.bindings.push(binding);
+          } else if (buttons !== undefined && buttons.length > 0) {
+            // render the button cell
+
+            // for each button definition render one button
+            for (const button of buttons) {
+              const { onClick, enabled } = button;
+
+              const btn = new Button(td, button); //this.createBasicButton(button);
+
+              if (onClick) {
+                // Add the click event handler
+                btn.getButtonElement().addEventListener('click', () => {
+                  onClick(data, this.data.indexOf(data), tr.rowIndex - 1);
+                });
+              }
+
+              if (enabled) {
+                btn.disable(
+                  !enabled(data, this.data.indexOf(data), tr.rowIndex - 1)
+                );
+              }
+              btn.render();
+              //td.appendChild(btn);
+            }
+          } else {
+            throw new TableError(
+              `Either buttons or dataAttribute need to be defined ${columnDefinition}`
+            );
+          }
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
     }
 
     this.tableElement.appendChild(tbody);

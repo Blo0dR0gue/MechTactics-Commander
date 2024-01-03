@@ -73,7 +73,7 @@ class Planet extends Circle {
         window.sql.updatePlanetAffiliationAge({
           planetID: this.id,
           affiliationID: this.getAffiliationID(),
-          age: this.universeAge,
+          universeAge: this.universeAge,
           planetText: this.text,
         });
       });

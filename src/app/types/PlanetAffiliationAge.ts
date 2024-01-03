@@ -2,7 +2,12 @@ type PlanetAffiliationAgeData = {
   planetID: number;
   affiliationID: number;
   planetText: string;
-  age: number;
+  universeAge: number;
 };
 
-export { PlanetAffiliationAgeData };
+type PlanetAffiliationAgeWithNamesData = PlanetAffiliationAgeData & {
+  planetName: string;
+  affiliationName: string;
+};
+
+export { PlanetAffiliationAgeData, PlanetAffiliationAgeWithNamesData };

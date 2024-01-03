@@ -244,7 +244,7 @@ class AppWindow {
               data.affiliationID,
               data.planetText,
               data.planetID,
-              data.age
+              data.universeAge
             )
             .then(() => {
               resolve(true);
@@ -260,7 +260,7 @@ class AppWindow {
           this.database
             .run(
               'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID, planetText) VALUES (?, ?, ?, ?);',
-              data.age,
+              data.universeAge,
               data.planetID,
               data.affiliationID,
               data.planetText
@@ -280,7 +280,7 @@ class AppWindow {
             return this.database
               .run(
                 'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
-                point.age,
+                point.universeAge,
                 point.planetID,
                 point.affiliationID
               )
@@ -303,7 +303,7 @@ class AppWindow {
             .run(
               'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND universeAge = ? AND affiliationID = ?;',
               data.planetID,
-              data.age,
+              data.universeAge,
               data.affiliationID
             )
             .then(() => {

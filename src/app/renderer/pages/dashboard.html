@@ -239,6 +239,92 @@
         </div>
         <!--affiliation modal end-->
 
+        <!--planet affiliation age start-->
+        <div
+          class="modal fade"
+          id="planet-affiliation-age-modal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="planet-modal-title">
+                  Planet Affiliation Connection
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <!--planetaffiliation age edit form-->
+                <form id="planet-affiliation-age-form">
+                  <!--planet id select-->
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-age-planet-id">Planet</label>
+                    <select
+                      class="form-control"
+                      id="planet-affiliation-age-planet-id"
+                      name="planet-affiliation-age-planet-id"
+                    ></select>
+                  </div>
+                  <!--affiliation id select-->
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-age-affiliation-id"
+                      >Affiliation</label
+                    >
+                    <select
+                      class="form-control"
+                      id="planet-affiliation-age-affiliation-id"
+                      name="planet-affiliation-age-affiliation-id"
+                    ></select>
+                  </div>
+                  <!--universe age-->
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-age-universe-age">Age:</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="planet-affiliation-age-universe-age"
+                      name="planet-affiliation-age-universe-age"
+                    />
+                  </div>
+                  <!--planet text-->
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-age-planet-text">Planet Text:</label>
+                    <textarea
+                    id="planet-affiliation-age-planet-text"
+                    name"planet-affiliation-age-planet-text"
+                    cols="2"
+                    class="form-control"
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  id="planet-affiliation-age-save"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--planet affiliation age model end-->
+
         <!--planet age copy modal start-->
         <div
           class="modal fade"

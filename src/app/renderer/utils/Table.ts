@@ -264,29 +264,37 @@ class Table<T extends ObjectWithKeys> {
   private updateTable(): void {
     this.loader.show();
 
+    // TODO: do not clear like this?
+    this.tableElement.removeChild(this.tableElement.tBodies[0]);
+
+    this.clearDataBindings();
+
     // Calculate indices for the pagination (which items should be displayed)
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
 
     // Keep only the data, which matches the filter
+    // TODO: optimize that. if the formatter is slow this is also very slow!!!
     const filteredData = this.data.filter((obj) => {
       return Object.keys(obj).some((key) => {
-        const col = this.columnDefinitions.find(
+        const value = obj[key] as ObjectOfPropRec<T, keyof T>;
+
+        const cols = this.columnDefinitions.filter(
           (col) => col.dataAttribute == key
         );
-        if (col?.formatter) {
-          const value = obj[key] as ObjectOfPropRec<T, keyof T>;
-          return col.formatter(value).toLowerCase().includes(this.filterText);
-        } else {
-          return String(obj[key]).toLowerCase().includes(this.filterText);
-        }
+
+        // Maybe one data attribute is used for multiple column data fields, so we check all of them
+        return cols.some((col) => {
+          if (col?.formatter) {
+            const data = col.formatter(value).toLowerCase();
+            return data.includes(this.filterText);
+          } else {
+            return String(value).toLowerCase().includes(this.filterText);
+          }
+        });
       });
     });
 
-    // TODO: do not clear like this?
-    this.tableElement.removeChild(this.tableElement.tBodies[0]);
-
-    this.clearDataBindings();
     this.renderRows(startIndex, endIndex, filteredData);
     this.updatePagination(filteredData.length);
 

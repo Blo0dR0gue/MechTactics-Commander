@@ -150,9 +150,12 @@ class Universe {
     this.universeAges = (await window.sql.getAllUniverseAges()).map(
       (obj) => obj.universeAge
     );
-    this.selectedUniverseAge = Config.getInstance().get(
-      'selectedUniverseAge'
-    ) as number;
+    const configAge = Config.getInstance().get('selectedUniverseAge') as number;
+    if (this.universeAges.find((universeAge) => universeAge === configAge)) {
+      this.selectedUniverseAge = configAge;
+    } else {
+      this.selectedUniverseAge = this.universeAges[0] || -1;
+    }
   };
 
   private getPlanets = async (age: number = this.selectedUniverseAge) => {

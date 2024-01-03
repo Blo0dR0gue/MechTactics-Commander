@@ -3,20 +3,20 @@ import electronReload from 'electron-reload';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import sqlite3 = require('sqlite3');
+import * as sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 
 import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
-import { WindowController } from './window/WindowController';
+import { AppWindow } from './window/AppWindow';
 
 class Main {
   private isDevelopment: boolean;
   private database: Database;
 
   private config: CoreConfig;
-  private windowController: WindowController;
   private updater: Updater;
+  private appWindow: AppWindow;
 
   public constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
@@ -53,6 +53,7 @@ class Main {
       this.config.set('version', app.getVersion());
       this.config.set('jumpRange', 30);
       this.config.set('excludedAffiliationIDs', []);
+      this.config.set('selectedUniverseAge', 3025);
     }
     this.initHandlers();
     return this;
@@ -80,25 +81,20 @@ class Main {
         console.log(data);
       });
 
-      this.windowController = new WindowController(this.isDevelopment);
-
-      this.updater = new Updater(
-        this.windowController,
+      this.appWindow = new AppWindow(
+        this.isDevelopment,
         this.database,
         this.config
       );
 
+      this.updater = new Updater(this.database, this.config, this.appWindow);
       this.updater.checkForUpdates();
-
-      if (this.isDevelopment) {
-        this.windowController.openMainWindow(this.database, this.config);
-      }
     });
 
     app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.windowController.openMainWindow(this.database, this.config);
+        this.appWindow.loadPage('index.html');
       }
     });
 

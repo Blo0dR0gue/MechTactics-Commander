@@ -1,7 +1,7 @@
 import { Modal } from 'bootstrap';
 import { CameraController } from '../controller/CameraController';
 import { Universe } from '../ui/Universe';
-import { ToastHandler, ToastType } from './ToastHandler';
+import { ToastHandler, ToastType } from '../utils/ToastHandler';
 
 /**
  * Responsible for handling the header elements
@@ -69,6 +69,8 @@ class HeaderHandler {
     this.universe = universe;
     this.toastHandler = toastHandler;
 
+    this.setupUniverseAgeSelectionDropdown();
+
     // Add click listener to show the disclaimer modal
     this.disclaimer.addEventListener('click', this.showDisclaimer.bind(this));
 
@@ -77,6 +79,32 @@ class HeaderHandler {
       'keydown',
       this.onSearchTriggered.bind(this)
     );
+  }
+
+  private setupUniverseAgeSelectionDropdown() {
+    const selectedVersionVisual = document.getElementById(
+      'selected-universe-age'
+    );
+
+    selectedVersionVisual.textContent = this.universe
+      .getSelectedUniverseAge()
+      .toString();
+
+    const dropDownContainer = document.getElementById('age-dropdown-menu');
+    const ages = this.universe.getAvailableUniverseAges();
+
+    for (const age of ages) {
+      const ageElement = document.createElement('a');
+      ageElement.href = '#';
+      ageElement.textContent = age.toString();
+      ageElement.dataset.value = age.toString();
+      ageElement.classList.add('dropdown-item');
+      ageElement.addEventListener('click', () => {
+        selectedVersionVisual.textContent = ageElement.dataset.value;
+        this.universe.setSelectedUniverseAge(age);
+      });
+      dropDownContainer.appendChild(ageElement);
+    }
   }
 
   /**

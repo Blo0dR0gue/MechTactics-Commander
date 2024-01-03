@@ -9,25 +9,11 @@
   </head>
   <body class="overflow-hidden bg-background">
     <!--Loading indicator start-->
-    <div
-      id="loader"
-      class="d-flex justify-content-center align-items-center"
-      style="height: 100vh"
-    >
-      <div class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    </div>
+    <div id="loader" class="justify-content-center align-items-center"></div>
     <!--Loading indicator end-->
 
     <!--ToastContainer start-->
-    <div
-      class="toast-container top-0 end-0 p-3 text-white mt-5"
-      id="toast-container"
-    ></div>
+    <div id="toast-container"></div>
     <!--ToastContainer end-->
 
     <!--Disclaimer modal start-->
@@ -96,9 +82,7 @@
         <ul
           class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
         >
-          <div class="dropdown" id="version-dropdown">
-            <!--TODO: Get available ages from database and show them here-->
-            <!--TODO: Remember last selected age in config-->
+          <div class="dropdown" id="age-dropdown">
             <button
               class="btn btn-secondary dropdown-toggle"
               type="button"
@@ -107,18 +91,23 @@
               aria-haspopup="true"
               aria-expanded="false"
             >
-              Version: 3025
+              Version: <span id="selected-universe-age">xxx</span>
             </button>
             <div
               class="dropdown-menu"
               aria-labelledby="dropdownMenuButton"
-              id="version-dropdown-menu"
+              id="age-dropdown-menu"
             >
-              <a class="dropdown-item active" href="#">3025</a>
+              <!--Elements will be added here programmatically using the HeaderHandler-->
             </div>
           </div>
         </ul>
         <!--Right-->
+        <a
+          class="btn btn-primary d-flex align-items-center justify-content-center me-1"
+          href="./dashboard.html"
+          >Dashboard</a
+        >
         <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
           <input
             type="search"

@@ -4,27 +4,19 @@ import {
   UpdateInfo,
   autoUpdater,
 } from 'electron-updater';
-import { WindowController } from './window/WindowController';
 import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
 import appUpgradeInfos from './upgrades';
+import { AppWindow } from './window/AppWindow';
 
 class Updater {
-  private windowController: WindowController;
-  private database: Database;
-  private config: CoreConfig;
-
-  // TODO: Use separate files to define the upgrades
   private readonly appUpgradeInfoMap = appUpgradeInfos;
 
   public constructor(
-    windowController: WindowController,
-    database: Database,
-    config: CoreConfig
+    private database: Database,
+    private config: CoreConfig,
+    private appWindow: AppWindow
   ) {
-    this.windowController = windowController;
-    this.database = database;
-    this.config = config;
     this.setupHandlers();
   }
 
@@ -33,7 +25,7 @@ class Updater {
   }
 
   private isUpgradeNeeded() {
-    const currentVersion = this.config.get('version');
+    const currentVersion = this.config.get('version') as string;
     for (const version in this.appUpgradeInfoMap) {
       if (version > currentVersion) {
         return true; // Upgrade is needed
@@ -67,7 +59,7 @@ class Updater {
         this.database
       );
 
-      this.windowController.currentWindow.sendIpc(
+      this.appWindow.sendIpc(
         'updateText',
         `Upgrading to version ${upgradeInfo.version} - ${upgradeInfo.description}`,
         false
@@ -77,7 +69,7 @@ class Updater {
         await action(); // Perform action and wait for it to finish
         executedActions++;
         // Send upgrade percentage
-        this.windowController.currentWindow.sendIpc(
+        this.appWindow.sendIpc(
           'updatePercentage',
           (executedActions / actionsLength) * 100
         );
@@ -85,24 +77,20 @@ class Updater {
     }
 
     // Upgrade finished
-    this.windowController.currentWindow.sendIpc(
+    this.appWindow.sendIpc(
       'updateText',
       `Upgrade finished. Starting app please wait.`,
       false
     );
     // Wait 4 sec before starting the app.
     setTimeout(() => {
-      this.windowController.openMainWindow(this.database, this.config);
+      this.appWindow.loadPage('index.html');
     }, 4000);
-  }
-
-  public restartAndUpdate() {
-    autoUpdater.quitAndInstall();
   }
 
   private setupHandlers() {
     autoUpdater.on('checking-for-update', () => {
-      this.windowController.openUpdateWindow(this);
+      this.appWindow.loadPage('update.html');
       console.log('Checking for updates...');
     });
 
@@ -112,24 +100,18 @@ class Updater {
       if (this.isUpgradeNeeded()) {
         // TODO: Remove timeout and detect if window is visible
         setTimeout(() => {
-          this.windowController.currentWindow.sendIpc(
-            'updateTitle',
-            `Upgrade in progress`
-          );
+          this.appWindow.sendIpc('updateTitle', `Upgrade in progress`);
           this.handleAppUpgrade();
         }, 1000);
       } else {
         console.log('Everything up-to-date.');
-        this.windowController.openMainWindow(this.database, this.config);
+        this.appWindow.loadPage('index.html');
       }
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      this.windowController.currentWindow.sendIpc(
-        'updateTitle',
-        `Update in progress`
-      );
-      this.windowController.currentWindow.sendIpc(
+      this.appWindow.sendIpc('updateTitle', `Update in progress`);
+      this.appWindow.sendIpc(
         'updateText',
         `Downloading new update. Version: ${info.version}`,
         false
@@ -137,14 +119,11 @@ class Updater {
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {
-      this.windowController.currentWindow.sendIpc(
-        'updatePercentage',
-        info.percent
-      );
+      this.appWindow.sendIpc('updatePercentage', info.percent);
     });
 
     autoUpdater.on('update-downloaded', (event: UpdateDownloadedEvent) => {
-      this.windowController.currentWindow.sendIpc(
+      this.appWindow.sendIpc(
         'updateText',
         `A new version (${event?.version}) has been downloaded. Restart the application to apply the updates.`,
         true

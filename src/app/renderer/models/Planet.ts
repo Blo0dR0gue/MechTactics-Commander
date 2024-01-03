@@ -1,51 +1,29 @@
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
 
-/**
- * Represents a new planet
- */
 class Planet extends Circle {
   /**
-   * The id
-   */
-  private id: number;
-
-  /**
-   * The name of this planet
-   */
-  private name: string;
-  /**
-   * The link to the wiki page
-   */
-  private link: string;
-  /**
-   * Custom text for the planet
-   */
-  private text: string;
-  /**
-   * The affiliation object {@link Affiliation}
-   */
-  private affiliation: Affiliation;
-
-  /**
-   * Creates a new planet
-   * @param probs Properties for this planet
+   * Creates a new planet object
+   * @param id The id
+   * @param name  The name of this planet
+   * @param x The x coordinate
+   * @param y The y coordinate
+   * @param link The link to the wiki page
+   * @param text Custom text for the planet
+   * @param affiliation The affiliation object {@link Affiliation}
+   * @param universeAge The universe age this planet object is used in
    */
   public constructor(
-    id: number,
-    name: string,
+    private id: number,
+    private name: string,
     x: number,
     y: number,
-    link: string,
-    text: string,
-    affiliation: Affiliation
+    private link: string,
+    private text: string,
+    private affiliation: Affiliation,
+    private universeAge: number
   ) {
     super({ x: x, y: y, r: 0.01 });
-    this.id = id;
-    this.name = name;
-    this.link = link;
-    this.text = text;
-    this.affiliation = affiliation;
   }
 
   /**
@@ -79,8 +57,26 @@ class Planet extends Circle {
    */
   public setText(text: string): void {
     this.text = text;
-    // FIXME: Static universe age
-    window.sql.updatePlanetText(this.id, '3025', this.text);
+    this.updateInDB();
+  }
+
+  private updateInDB(): void {
+    window.sql
+      .updatePlanet({
+        id: this.id,
+        x: this.coord.getX(),
+        y: this.coord.getY(),
+        link: this.link,
+        name: this.name,
+      })
+      .then(() => {
+        window.sql.updatePlanetAffiliationAge({
+          planetID: this.id,
+          affiliationID: this.getAffiliationID(),
+          universeAge: this.universeAge,
+          planetText: this.text,
+        });
+      });
   }
 
   /**

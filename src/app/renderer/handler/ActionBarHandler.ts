@@ -3,7 +3,7 @@ import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
 import { RouteController } from '../controller/RouteController';
-import { ToastHandler } from './ToastHandler';
+import { ToastHandler } from '../utils/ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';
 import { Affiliation } from '../models/Affiliation';
@@ -114,12 +114,14 @@ class ActionBarHandler {
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
       if (this.selectedPlanet) {
-        this.selectedPlanet.setText(this.planetCustomText.value);
+        this.selectedPlanet.setText(
+          encodeURIComponent(this.planetCustomText.value)
+        );
       }
     });
 
     // Setup the camera event listeners
-    this.cameraController.selectionChangeEvent.subscribe(
+    this.universe.planetSelectionChangedEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
     this.cameraController.updateRouteEvent.subscribe(
@@ -151,7 +153,7 @@ class ActionBarHandler {
     const col2 = rowParent.children[1];
 
     // Get Affiliations to exclude
-    // TODO: Rework to make it more dynamic (Add others)
+    // TODO: Rework to make it more dynamic (Add others - add to dashboard in next version)
     const sepExcluded = [] as Affiliation[];
     // Max 4 elements per col
     const perCol = 4;
@@ -178,28 +180,30 @@ class ActionBarHandler {
       if (i >= perCol * 2) break;
       const affiliation = sepExcluded[i];
       const col = i < perCol ? col1 : col2;
-      col.appendChild(
-        this.createExcludeAffiliationToggle(
-          affiliation.getName(),
-          !excludedAffiliationIDs.includes(affiliation.getID()),
-          (input: HTMLInputElement) => {
-            if (input.checked) {
-              Config.getInstance().remove(
-                'excludedAffiliationIDs',
-                affiliation.getID()
-              );
-              this.routeController.removeExcludedAffiliation(affiliation);
-            } else {
-              Config.getInstance().add(
-                'excludedAffiliationIDs',
-                affiliation.getID()
-              );
-              this.routeController.addExcludedAffiliation(affiliation);
+      if (affiliation) {
+        col.appendChild(
+          this.createExcludeAffiliationToggle(
+            affiliation.getName(),
+            !excludedAffiliationIDs.includes(affiliation.getID()),
+            (input: HTMLInputElement) => {
+              if (input.checked) {
+                Config.getInstance().remove(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
+                this.routeController.removeExcludedAffiliation(affiliation);
+              } else {
+                Config.getInstance().add(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
+                this.routeController.addExcludedAffiliation(affiliation);
+              }
+              this.generateJumpCards();
             }
-            this.generateJumpCards();
-          }
-        )
-      );
+          )
+        );
+      }
     }
   }
 
@@ -255,7 +259,9 @@ class ActionBarHandler {
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
-      this.wikiLinkArea.href = this.selectedPlanet.getWikiURL();
+      this.wikiLinkArea.href =
+        this.selectedPlanet.getWikiURL() ||
+        'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
       this.planetCustomText.value = this.selectedPlanet.getText();
       // Select first button (Planet Details)
@@ -326,7 +332,6 @@ class ActionBarHandler {
    * Function, to generate all jump cards. It removes all first, calculates the route to all planets and added the jump cards between the corresponding planet cards.
    */
   private generateJumpCards(): void {
-    // TODO: Rework that. Only for first function tests!
     const routeGenerated = this.routeController.calculateRoute(
       Config.getInstance().get('jumpRange') as number
     );

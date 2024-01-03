@@ -5,6 +5,8 @@ import { Vector } from '../models/Vector';
 import { Config } from '../utils/Config';
 import { Affiliation } from '../models/Affiliation';
 import { RouteController } from '../controller/RouteController';
+import { EventHandler } from '../handler/EventHandler';
+import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
 
 // TODO: TESTS
 
@@ -70,6 +72,21 @@ class Universe {
   private distancePlanet: Planet | null;
 
   /**
+   * The active universe age
+   */
+  private selectedUniverseAge: number;
+
+  /**
+   * List of available universe ages
+   */
+  private universeAges: number[];
+
+  /**
+   * Planet selection changed event
+   */
+  public planetSelectionChangedEvent: EventHandler<SelectionChangeEvent>;
+
+  /**
    * Creates a new universe
    *
    * @param canvas The canvas html element to render on
@@ -77,6 +94,9 @@ class Universe {
   public constructor() {
     this.canvas = document.getElementById('universe') as HTMLCanvasElement;
     this.context = this.canvas.getContext('2d');
+    this.universeAges = [];
+
+    this.planetSelectionChangedEvent = new EventHandler();
   }
 
   /**
@@ -101,7 +121,7 @@ class Universe {
       this.zoom = 2.4;
       this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
 
-      this.getPlanetsAndAffiliations().then(() => {
+      this.initData().then(() => {
         this.render();
         resolve();
       });
@@ -112,15 +132,9 @@ class Universe {
     return this.canvas;
   }
 
-  /**
-   * Retrieves all planets & affiliations from the backend database and stores them in the corresponding local array
-   */
-  private getPlanetsAndAffiliations = async () => {
-    this.planets = [];
+  private getAffiliations = async () => {
     this.affiliations = [];
-
-    // TODO: No static universe age
-    const affiliationJSONData = await window.sql.getAllAffiliations('3025');
+    const affiliationJSONData = await window.sql.getAllAffiliations();
     affiliationJSONData.forEach((affiliationJSON) => {
       // Create object and add to affiliations array
       const affiliation = new Affiliation(
@@ -130,8 +144,28 @@ class Universe {
       );
       this.affiliations.push(affiliation);
     });
+  };
 
-    const planetJSONData = await window.sql.getAllPlanets('3025');
+  private getUniverseAges = async () => {
+    this.universeAges = (await window.sql.getAllUniverseAges()).map(
+      (obj) => obj.universeAge
+    );
+    const configAge = Config.getInstance().get('selectedUniverseAge') as number;
+    if (this.universeAges.find((universeAge) => universeAge === configAge)) {
+      this.selectedUniverseAge = configAge;
+    } else {
+      this.setSelectedUniverseAge(this.universeAges[0]);
+    }
+  };
+
+  private getPlanets = async (age: number = this.selectedUniverseAge) => {
+    this.planets = [];
+    this.tree.clear();
+    this.routeController.clearRoute();
+    this.setSelectedPlanet(null);
+    this.highlightPlanet(null);
+
+    const planetJSONData = await window.sql.getPlanetsAtAge(age);
     planetJSONData.forEach((planetJSON) => {
       // Find the affiliation for this planet
       const planetAffiliation = this.affiliations.find(
@@ -153,11 +187,21 @@ class Universe {
         planetJSON.y,
         planetJSON.link,
         planetJSON.planetText,
-        planetAffiliation
+        planetAffiliation,
+        this.selectedUniverseAge
       );
       this.planets.push(planet);
       this.tree.insert(planet);
     });
+  };
+
+  /**
+   * Retrieves all planets & affiliations from the backend database and stores them in the corresponding local array
+   */
+  private initData = async () => {
+    await this.getUniverseAges();
+    await this.getAffiliations();
+    await this.getPlanets();
   };
 
   /**
@@ -376,6 +420,9 @@ class Universe {
   public setSelectedPlanet(planet: Planet | null): void {
     this.distancePlanet = null;
     this.selectedPlanet = planet;
+    this.planetSelectionChangedEvent.invoke({
+      planet: this.selectedPlanet,
+    });
   }
 
   /**
@@ -392,8 +439,37 @@ class Universe {
    *
    * @param planet
    */
-  public showDistanceToPlanet(planet: Planet) {
+  public setDistanceToPlanet(planet: Planet) {
     this.distancePlanet = planet;
+  }
+
+  /**
+   * Gets the current active universe age
+   * @returns
+   */
+  public getSelectedUniverseAge(): number {
+    return this.selectedUniverseAge || -1;
+  }
+
+  /**
+   * Gets all available universe ages
+   * @returns
+   */
+  public getAvailableUniverseAges(): number[] {
+    return this.universeAges;
+  }
+
+  /**
+   * Sets the active universe age, if it is available
+   * @param {number} age The new age
+   */
+  public setSelectedUniverseAge(age: number): void {
+    if (this.selectedUniverseAge === age) return;
+    if (this.universeAges.includes(age)) {
+      this.selectedUniverseAge = age;
+      this.getPlanets();
+      Config.getInstance().set('selectedUniverseAge', age);
+    }
   }
 
   /**

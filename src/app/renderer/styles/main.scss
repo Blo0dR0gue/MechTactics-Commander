@@ -60,6 +60,11 @@ TODO: USE BOOTSTRAP
   display: none !important;
 }
 
+/* Navigation on dashboard */
+ul.nav a:hover:not(.active) {
+  background-color: rgb(228, 228, 228) !important;
+}
+
 /* Header */
 
 header {
@@ -104,10 +109,16 @@ canvas:focus {
   width: 64px;
   height: 64px;
   margin: 8px;
-  border: 8px solid #fff;
   border-radius: 50%;
   animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+.lds-ring-light div {
+  border: 8px solid #fff;
   border-color: #fff transparent transparent transparent;
+}
+.lds-ring-dark div {
+  border: 8px solid #1f1f1f;
+  border-color: #1f1f1f transparent transparent transparent;
 }
 .lds-ring div:nth-child(1) {
   animation-delay: -0.45s;

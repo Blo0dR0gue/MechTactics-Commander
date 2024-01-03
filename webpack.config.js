@@ -8,7 +8,8 @@ module.exports = {
   entry: {
     // Define your entry points here
     index: './src/app/renderer/index.ts',
-    update: './src/app/renderer/update.ts', // Add the entry for your update.html
+    update: './src/app/renderer/update.ts',
+    dashboard: './src/app/renderer/dashboard.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist/app/renderer'),

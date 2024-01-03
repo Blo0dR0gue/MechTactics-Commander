@@ -51,7 +51,8 @@ describe.each([
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
-        )
+        ),
+        3025
       );
       expect(planet).toBeInstanceOf(Planet);
     });
@@ -68,7 +69,8 @@ describe.each([
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
-        )
+        ),
+        3025
       );
       expect(planet.getName()).toBe(expectedName);
     });
@@ -85,7 +87,8 @@ describe.each([
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
-        )
+        ),
+        3025
       );
       expect(planet.getColor()).toBe(expectedColor);
     });
@@ -102,7 +105,8 @@ describe.each([
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
-        )
+        ),
+        3025
       );
       expect(planet.coord.get()).toEqual({ x: expectedX, y: expectedY });
     });

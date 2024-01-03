@@ -1,25 +1,36 @@
 import { Toast } from 'bootstrap';
 
 class ToastHandler {
-  private toastContainer: HTMLElement;
-  private static maxElements = 6;
   private currentToasts: ToastItem[];
+  private toastContainer: HTMLDivElement;
 
-  public constructor() {
+  public constructor(
+    parentElement: HTMLElement,
+    classNames: string[],
+    private maxElements = 6,
+    yPos: 'top-0' | 'bottom-0' = 'top-0',
+    xPos: 'end-0' | 'start-0' = 'end-0'
+  ) {
     this.currentToasts = [];
-    this.toastContainer = document.getElementById('toast-container');
+
+    // create toast container and add it to the parent
+    this.toastContainer = document.createElement('div');
+    this.toastContainer.classList.add(...classNames);
+    this.toastContainer.classList.add(...['toast-container', yPos, xPos]);
+    parentElement.appendChild(this.toastContainer);
   }
 
   public createAndShowToast(
     title: string,
     text: string,
-    type = ToastType.Default
+    type = ToastType.Default,
+    displayTime = 3000
   ) {
-    if (this.currentToasts.length >= ToastHandler.maxElements) {
+    if (this.currentToasts.length >= this.maxElements) {
       this.removeToastByIndex(0);
     }
 
-    const toast = new ToastItem(title, text, 3000, type, () => {
+    const toast = new ToastItem(title, text, displayTime, type, () => {
       this.removeToast(toast);
     });
     this.toastContainer.appendChild(toast.getToastDOMElement());

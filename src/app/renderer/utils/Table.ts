@@ -262,6 +262,9 @@ class Table<T extends ObjectWithKeys> {
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
   private updateTable(): void {
+    if (this.tableElement.parentNode != this.parentElement) {
+      throw new TableError("Table is not rendered. Can't update the table");
+    }
     this.loader.show();
 
     // TODO: do not clear like this?
@@ -496,7 +499,9 @@ class Table<T extends ObjectWithKeys> {
       this.data.push(data);
     }
 
-    this.updateTable();
+    if (this.tableElement.parentNode === this.parentElement) {
+      this.updateTable();
+    }
   }
 
   /**
@@ -517,7 +522,9 @@ class Table<T extends ObjectWithKeys> {
   public removeDataByIdx(idx: number) {
     this.clearDataBindings();
     this.data.splice(idx, 1);
-    this.updateTable();
+    if (this.tableElement.parentNode === this.parentElement) {
+      this.updateTable();
+    }
   }
 }
 

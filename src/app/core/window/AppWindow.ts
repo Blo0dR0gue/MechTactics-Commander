@@ -112,6 +112,18 @@ class AppWindow {
       });
     });
 
+    ipcMain.handle('getAllPlanetAffiliationAgesWithNames', () => {
+      return new Promise<PlanetAffiliationAgeData[]>((resolve) => {
+        this.database
+          .all(
+            `SELECT planetID, affiliationID, universeAge, planetText, p.name as planetName, a.name as affiliationName FROM PlanetAffiliationAge as u JOIN Planet as p ON p.id = u.planetID JOIN Affiliation as a ON a.id = u.affiliationID;`
+          )
+          .then((data) => {
+            resolve(data);
+          });
+      });
+    });
+
     ipcMain.handle('getAllUniverseAges', () => {
       return new Promise<{ universeAge: number }[]>((resolve) => {
         this.database

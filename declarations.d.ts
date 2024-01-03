@@ -14,6 +14,9 @@ interface Window {
     getAllPlanetAffiliationAges: () => Promise<
       import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData[]
     >;
+    getAllPlanetAffiliationAgesWithNames: () => Promise<
+      import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeWithNamesData[]
+    >;
     getAllUniverseAges: () => Promise<{ universeAge: number }[]>;
 
     // Manipulation queries

@@ -19,7 +19,10 @@ import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
 import { Dialog } from './utils/Dialog';
 import { AffiliationData } from '../types/AffiliationData';
 import { PlanetCoordData } from '../types/PlanetData';
-import { PlanetAffiliationAgeWithNamesData } from '../types/PlanetAffiliationAge';
+import {
+  PlanetAffiliationAgeData,
+  PlanetAffiliationAgeWithNamesData,
+} from '../types/PlanetAffiliationAge';
 import { TabGroup } from './utils/TabGroup';
 
 // get planet and affiliation data
@@ -30,18 +33,9 @@ const planets: PlanetCoordData[] = await window.sql
   .then((data) => data.map((planet) => planetDataToPlanetCoordData(planet)));
 
 // TODO: Remove mapping of the data with the names of the planet or affiliation. This is because the formatter on the table was to slow while searching. this needs to be optimized
+
 const planetAffiliationAges: PlanetAffiliationAgeWithNamesData[] =
-  await window.sql.getAllPlanetAffiliationAges().then((data) =>
-    data.map((obj) => {
-      return {
-        ...obj,
-        planetName: planets.find((planet) => planet.id === obj.planetID).name,
-        affiliationName: affiliations.find(
-          (affiliations) => affiliations.id === obj.affiliationID
-        ).name,
-      } as PlanetAffiliationAgeWithNamesData;
-    })
-  );
+  await window.sql.getAllPlanetAffiliationAgesWithNames();
 
 // icon setup
 const editIcon =
@@ -355,9 +349,11 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     )
     .map((data) => {
       return {
-        ...data,
-        age: destinationAge,
-      } as PlanetAffiliationAgeWithNamesData;
+        planetID: data.planetID,
+        affiliationID: data.affiliationID,
+        planetText: data.planetText,
+        universeAge: destinationAge,
+      } as PlanetAffiliationAgeData;
     });
 
   if (targetDataPoints.length <= 0) {
@@ -586,7 +582,9 @@ function addAllAffiliationsToSelect() {
   planetAffiliationAgeAffiliationID.innerHTML = '';
 
   // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
-  for (const affiliation of affiliations) {
+  for (const affiliation of affiliations.sort((a1, a2) =>
+    a1.name > a2.name ? 1 : -1
+  )) {
     const affiliationOption = document.createElement('option');
     affiliationOption.value = String(affiliation.id);
     affiliationOption.textContent = affiliation.name;
@@ -602,7 +600,7 @@ function addAllPlanetsToSelect() {
   planetAffiliationAgePlanetID.innerHTML = '';
 
   // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
-  for (const planet of planets) {
+  for (const planet of planets.sort((p1, p2) => (p1.name > p2.name ? 1 : -1))) {
     const affiliationOption = document.createElement('option');
     affiliationOption.value = String(planet.id);
     affiliationOption.textContent = planet.name;

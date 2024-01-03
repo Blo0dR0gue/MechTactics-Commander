@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('sql', {
   getAllAffiliations: () => ipcRenderer.invoke('getAllAffiliations'),
   getAllPlanetAffiliationAges: () =>
     ipcRenderer.invoke('getAllPlanetAffiliationAges'),
+  getAllPlanetAffiliationAgesWithNames: () =>
+    ipcRenderer.invoke('getAllPlanetAffiliationAgesWithNames'),
   getAllUniverseAges: () => ipcRenderer.invoke('getAllUniverseAges'),
 
   updatePlanet: (planet: PlanetData) =>

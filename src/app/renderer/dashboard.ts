@@ -948,7 +948,7 @@ const planetAffiliationAgeTable = new Table<PlanetAffiliationAgeWithNamesData>(
                         .deletePlanetAffiliationAge(data)
                         .then(() => {
                           dynamicDialog.hide();
-                          affiliationTable.removeDataByIdx(rowIdx);
+                          planetAffiliationAgeTable.removeDataByIdx(rowIdx);
                           toastHandler.createAndShowToast(
                             'Planet Affiliation Connection',
                             'Affiliation deleted',

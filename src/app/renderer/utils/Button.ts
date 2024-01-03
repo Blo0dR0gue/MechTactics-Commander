@@ -45,8 +45,9 @@ class Button {
     if (classNames) this.buttonElement.classList.add(...classNames);
 
     if (icon) {
-      if (text) icon.style.paddingRight = '1rem'; // add padding to the right, if also a text should be rendered
-      this.buttonElement.appendChild(icon.cloneNode(true));
+      const copy = icon.cloneNode(true) as Icon;
+      if (text) copy.style.marginRight = '0.3rem'; // add margin to the right, if also a text should be rendered
+      this.buttonElement.appendChild(copy);
     }
 
     if (text) {

@@ -452,7 +452,7 @@ class Table<T extends ObjectWithKeys> {
    * Remove this table from the dom
    */
   public remove() {
-    if (this.tableElement.parentNode) {
+    if (this.tableElement.parentNode === this.parentElement) {
       this.clearDataBindings();
       this.tableElement.innerHTML = '';
       this.parentElement.removeChild(this.headerElement);

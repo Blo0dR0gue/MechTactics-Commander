@@ -512,6 +512,9 @@ planetAffiliationAgeSaveBtn.addEventListener('click', () => {
   if (editPlanetAffiliationAgeData) {
     editPlanetAffiliationAgeData.affiliationID = affiliationID;
     editPlanetAffiliationAgeData.planetText = planetText;
+    editPlanetAffiliationAgeData.affiliationName = affiliations.find(
+      (affiliation) => affiliation.id === affiliationID
+    )?.name;
     window.sql.updatePlanetAffiliationAge(
       JSON.parse(JSON.stringify(editPlanetAffiliationAgeData))
     );

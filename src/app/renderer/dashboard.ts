@@ -515,9 +515,20 @@ planetAffiliationAgeSaveBtn.addEventListener('click', () => {
     editPlanetAffiliationAgeData.affiliationName = affiliations.find(
       (affiliation) => affiliation.id === affiliationID
     )?.name;
-    window.sql.updatePlanetAffiliationAge(
-      JSON.parse(JSON.stringify(editPlanetAffiliationAgeData))
-    );
+    window.sql
+      .updatePlanetAffiliationAge(
+        JSON.parse(JSON.stringify(editPlanetAffiliationAgeData))
+      )
+      .then(() => {
+        toastHandler.createAndShowToast(
+          'Planet Affiliation Connect',
+          'Data updated',
+          ToastType.Info
+        );
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   } else {
     // create
     if (
@@ -548,7 +559,15 @@ planetAffiliationAgeSaveBtn.addEventListener('click', () => {
           planetName: planets.find((planet) => planet.id === data.planetID)
             ?.name,
         });
-      });
+        toastHandler.createAndShowToast(
+          'Planet Affiliation Connect',
+          'Data created',
+          ToastType.Info
+        );
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   }
   planetAffiliationAgeModal.hide();
 });
@@ -953,7 +972,7 @@ const planetAffiliationAgeTable = new Table<PlanetAffiliationAgeWithNamesData>(
                           planetAffiliationAgeTable.removeDataByIdx(rowIdx);
                           toastHandler.createAndShowToast(
                             'Planet Affiliation Connection',
-                            'Affiliation deleted',
+                            'Data deleted',
                             ToastType.Info
                           );
                         })

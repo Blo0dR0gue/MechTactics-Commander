@@ -7,22 +7,22 @@
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
 import './styles/main.scss';
-import { Table } from './utils/Table';
+import { Table } from './utils/components/Table';
 import {
   createSVGElementFromString,
   planetCoordDataToPlanetData,
   planetDataToPlanetCoordData,
 } from './utils/Utils';
-import { ToastHandler, ToastType } from './utils/ToastHandler';
-import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
-import { Dialog } from './utils/Dialog';
+import { ToastHandler, ToastType } from './utils/components/ToastHandler';
+import { RingLoadingIndicator } from './utils/components/RingLoadingIndicator';
+import { Dialog } from './utils/components/Dialog';
 import { AffiliationData } from '../types/AffiliationData';
 import { PlanetCoordData } from '../types/PlanetData';
 import {
   PlanetAffiliationAgeData,
   PlanetAffiliationAgeWithNamesData,
 } from '../types/PlanetAffiliationAge';
-import { TabGroup } from './utils/TabGroup';
+import { TabGroup } from './utils/components/TabGroup';
 
 type DynamicPlanetAffiliationAge = {
   planetID: number;

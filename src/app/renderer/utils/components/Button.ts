@@ -1,5 +1,5 @@
-import { Icon } from '../../types/UtilityTypes';
-import { escapeHtmlTags } from './Utils';
+import { Icon } from '../../../types/UtilityTypes';
+import { escapeHtmlTags } from '../Utils';
 
 /**
  * A basic button definition for this table

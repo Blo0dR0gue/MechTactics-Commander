@@ -1,4 +1,4 @@
-import '../styles/dialog.scss';
+import '../../styles/dialog.scss';
 import { Button, IButton } from './Button';
 
 interface DialogHeader {

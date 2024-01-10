@@ -1,7 +1,7 @@
 import { Modal } from 'bootstrap';
 import { CameraController } from '../controller/CameraController';
 import { Universe } from '../ui/Universe';
-import { ToastHandler, ToastType } from '../utils/ToastHandler';
+import { ToastHandler, ToastType } from '../utils/components/ToastHandler';
 
 /**
  * Responsible for handling the header elements

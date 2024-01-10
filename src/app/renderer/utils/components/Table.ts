@@ -2,7 +2,7 @@ import {
   ObjectOfPropRec,
   ObjectPropsRec,
   ObjectWithKeys,
-} from '../../types/UtilityTypes';
+} from '../../../types/UtilityTypes';
 import { Binding } from './Binding';
 import { Button, IButton } from './Button';
 import { RingLoadingIndicator } from './RingLoadingIndicator';

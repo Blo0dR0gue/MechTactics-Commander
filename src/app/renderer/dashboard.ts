@@ -2,7 +2,7 @@
 
 // TODO: Update the dynamic modal to also hold forms
 // TODO: Short this file
-// TODO: Cleanup
+// TODO: Cleanup (PRIO!!!)
 
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
@@ -24,6 +24,17 @@ import {
 } from '../types/PlanetAffiliationAge';
 import { TabGroup } from './utils/TabGroup';
 
+type DynamicPlanetAffiliationAge = {
+  planetID: number;
+  planetName: string;
+  affiliationData: {
+    affiliationID: number;
+    planetText: string;
+    affiliationName: string;
+  };
+  [key: `age${number}`]: number;
+};
+
 // get planet and affiliation data
 const affiliations: AffiliationData[] = await window.sql.getAllAffiliations();
 
@@ -35,6 +46,35 @@ const planets: PlanetCoordData[] = await window.sql
 
 const planetAffiliationAges: PlanetAffiliationAgeWithNamesData[] =
   await window.sql.getAllPlanetAffiliationAgesWithNames();
+
+// TODO: Customer wants to have a smaller table where each planet is only once in the Planet Affiliation Connect table.
+const convertedArray: DynamicPlanetAffiliationAge[] =
+  planetAffiliationAges.reduce((acc, item) => {
+    const existingPlanet = acc.find((p) => p.planetID === item.planetID);
+
+    if (existingPlanet) {
+      // If the planet already exists in the new array, add a new age property
+      const newAgeKey = `age${item.universeAge}`;
+      existingPlanet[newAgeKey] = item.universeAge;
+    } else {
+      // If the planet does not exist in the new array, create a new entry
+      const newEntry = {
+        planetID: item.planetID,
+        planetName: item.planetName,
+        affiliationData: {
+          affiliationID: item.affiliationID,
+          planetText: item.planetText,
+          affiliationName: item.affiliationName,
+        },
+        [`age` + item.universeAge]: item.universeAge,
+      };
+      acc.push(newEntry);
+    }
+
+    return acc;
+  }, []);
+
+console.log(convertedArray);
 
 // icon setup
 const editIcon =

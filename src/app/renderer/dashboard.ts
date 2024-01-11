@@ -36,11 +36,13 @@ type DynamicPlanetAffiliationAge = {
   planetID: number;
   planetName: string;
   affiliationData: {
-    affiliationID: number;
-    planetText: string;
-    affiliationName: string;
+    [key: `age${number}`]: {
+      universeAge: number;
+      affiliationID: number;
+      planetText: string;
+      affiliationName: string;
+    };
   };
-  [key: `age${number}`]: number;
 };
 
 // get planet and affiliation data
@@ -55,33 +57,35 @@ const planets: PlanetCoordData[] = await window.sql
 const planetAffiliationAges: PlanetAffiliationAgeWithNamesData[] =
   await window.sql.getAllPlanetAffiliationAgesWithNames();
 
+const planetAffiliationMap = new Map<number, DynamicPlanetAffiliationAge>();
+
+console.time();
 // TODO: Customer wants to have a smaller table where each planet is only once in the Planet Affiliation Connect table.
-const convertedArray: DynamicPlanetAffiliationAge[] =
-  planetAffiliationAges.reduce((acc, item) => {
-    const existingPlanet = acc.find((p) => p.planetID === item.planetID);
-
-    if (existingPlanet) {
-      // If the planet already exists in the new array, add a new age property
-      const newAgeKey = `age${item.universeAge}`;
-      existingPlanet[newAgeKey] = item.universeAge;
-    } else {
-      // If the planet does not exist in the new array, create a new entry
-      const newEntry = {
-        planetID: item.planetID,
-        planetName: item.planetName,
-        affiliationData: {
-          affiliationID: item.affiliationID,
-          planetText: item.planetText,
-          affiliationName: item.affiliationName,
-        },
-        [`age` + item.universeAge]: item.universeAge,
-      };
-      acc.push(newEntry);
-    }
-
-    return acc;
-  }, []);
-
+planetAffiliationAges.forEach((planetAffiliationAge) => {
+  const item = planetAffiliationMap.get(planetAffiliationAge.planetID);
+  const key = `age${planetAffiliationAge.planetID}` as `age${number}`;
+  const affiliationData = {
+    universeAge: planetAffiliationAge.universeAge,
+    affiliationID: planetAffiliationAge.affiliationID,
+    planetText: planetAffiliationAge.planetText,
+    affiliationName: planetAffiliationAge.affiliationName,
+  };
+  if (item) {
+    item.affiliationData[key] = affiliationData;
+  } else {
+    planetAffiliationMap.set(planetAffiliationAge.planetID, {
+      planetID: planetAffiliationAge.planetID,
+      planetName: planetAffiliationAge.planetName,
+      affiliationData: {
+        [key]: affiliationData,
+      },
+    });
+  }
+});
+const convertedArray: DynamicPlanetAffiliationAge[] = [
+  ...planetAffiliationMap.values(),
+];
+console.timeEnd();
 console.log(convertedArray);
 
 // icon setup

@@ -4,7 +4,7 @@ import {
   ObjectWithKeys,
 } from '../../../types/UtilityTypes';
 import { Binding } from './Binding';
-import { Button, IButton } from './Button';
+import { Button, ButtonData } from './Button';
 import { RingLoadingIndicator } from './RingLoadingIndicator';
 
 type ColSizes =
@@ -19,7 +19,7 @@ type ColSizes =
 /**
  * A button which can be added to the header
  */
-interface HeaderButton extends IButton {
+interface HeaderButton extends ButtonData {
   /**
    * Callback handler, which is invoked on click
    */
@@ -29,7 +29,7 @@ interface HeaderButton extends IButton {
 /**
  * Defines one button which can be added to a column to be rendered in each row
  */
-interface RowButton<T extends ObjectWithKeys> extends IButton {
+interface RowButton<T extends ObjectWithKeys> extends ButtonData {
   /**
    * Callback handler, which is invoked on click
    * @param data The data of the row the button got clicked

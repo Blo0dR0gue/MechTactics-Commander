@@ -1,5 +1,5 @@
 import {
-  ObjectOfPropRec,
+  TypeOfObjectPropRec,
   ObjectPropsRec,
   ObjectWithKeys,
 } from '../../../types/UtilityTypes';
@@ -68,7 +68,7 @@ interface ColumnData<T extends ObjectWithKeys> {
    * @param value The value of the table block, which is displayed if no formatter is used
    * @returns The new string to display
    */
-  formatter?: (value: ObjectOfPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
+  formatter?: (value: TypeOfObjectPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
   /**
    * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
    */
@@ -280,7 +280,7 @@ class Table<T extends ObjectWithKeys> {
     // TODO: optimize that. if the formatter is slow this is also very slow!!!
     const filteredData = this.data.filter((obj) => {
       return Object.keys(obj).some((key) => {
-        const value = obj[key] as ObjectOfPropRec<T, keyof T>;
+        const value = obj[key] as TypeOfObjectPropRec<T, keyof T>;
 
         const cols = this.columnDefinitions.filter(
           (col) => col.dataAttribute == key

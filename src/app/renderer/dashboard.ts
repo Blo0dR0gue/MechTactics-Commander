@@ -31,6 +31,7 @@ import {
   planetAffiliationAgeIcon,
   planetIcon,
 } from './utils/Icons';
+import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
 
 type DynamicPlanetAffiliationAge = {
   planetID: number;
@@ -722,9 +723,7 @@ const planetTable = new Table<(typeof planets)[number]>(
       name: 'Coordinates',
       dataAttribute: 'coord',
       size: 'col-3',
-      formatter(value: { x: number; y: number }) {
-        return value.x + ' / ' + value.y;
-      },
+      formatter: new CoordStringFormatter(),
     },
     { name: 'Link', dataAttribute: 'link', size: 'col-3' },
     {

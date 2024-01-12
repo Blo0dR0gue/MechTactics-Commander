@@ -6,6 +6,7 @@ import {
 import { Binding } from './Binding';
 import { Button, ButtonData } from './Button';
 import { RingLoadingIndicator } from './RingLoadingIndicator';
+import { Formatter } from './formatter/Formatter';
 
 type ColSizes =
   | 'col-1'
@@ -68,7 +69,7 @@ interface ColumnData<T extends ObjectWithKeys> {
    * @param value The value of the table block, which is displayed if no formatter is used
    * @returns The new string to display
    */
-  formatter?: (value: TypeOfObjectPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
+  formatter?: Formatter<TypeOfObjectPropRec<T>, string>; // TODO: Optimize this, so that this is the real object type
   /**
    * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
    */
@@ -109,7 +110,7 @@ class Table<T extends ObjectWithKeys> {
   private footerElement: HTMLElement;
 
   private data: T[];
-  private bindings: Binding[];
+  private bindings: Binding<unknown>[];
 
   private loader: RingLoadingIndicator;
 
@@ -289,7 +290,7 @@ class Table<T extends ObjectWithKeys> {
         // Maybe one data attribute is used for multiple column data fields, so we check all of them
         return cols.some((col) => {
           if (col?.formatter) {
-            const data = col.formatter(value).toLowerCase();
+            const data = col.formatter.format(value).toLowerCase();
             return data.includes(this.filterText);
           } else {
             return String(value).toLowerCase().includes(this.filterText);
@@ -429,8 +430,8 @@ class Table<T extends ObjectWithKeys> {
 
           if (dataAttribute !== undefined) {
             // render a text cell using data binding
-            const binding = new Binding(data, dataAttribute);
-            binding.addBinding(td, 'textContent', false, formatter, 'none');
+            const binding = new Binding<unknown>(data, dataAttribute);
+            binding.addBinding(td, 'textContent', false, formatter);
             this.bindings.push(binding);
           } else if (buttons !== undefined && buttons.length > 0) {
             // render the button cell

@@ -73,13 +73,13 @@ type ArrayObjType<T> = T extends Array<infer E>
  */
 type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
   ? T[U] extends string | number | symbol
-    ? T[U] // If it is a primitive, return the property name
+    ? T[U] // If it is a primitive, return the property type
     : T[U] extends Map<unknown, unknown>
-    ? never // If it is a map, do not return the property name
+    ? never // If it is a map, do not return the property type
     : T[U] extends Array<unknown>
     ? T[U]
     : T[U] extends (...args: unknown[]) => unknown
-    ? never // If it is a function, do not return the property name
+    ? never // If it is a function, do not return the property type
     : T[U] extends object
     ? T[U] | TypeOfObjectPropRec<T[U]>
     : T[U]

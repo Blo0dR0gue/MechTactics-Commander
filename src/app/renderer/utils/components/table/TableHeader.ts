@@ -1,0 +1,3 @@
+class TableHeader {}
+
+export { TableHeader };

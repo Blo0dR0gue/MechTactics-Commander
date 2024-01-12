@@ -7,7 +7,7 @@
 // Import custom CSS to load bootstrap and override variables
 import { Modal } from 'bootstrap';
 import './styles/main.scss';
-import { Table } from './utils/components/Table';
+import { Table } from './utils/components/table/Table';
 import {
   planetCoordDataToPlanetData,
   planetDataToPlanetCoordData,

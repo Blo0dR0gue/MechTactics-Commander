@@ -450,6 +450,18 @@ class Table<T extends ObjectWithKeys> {
       this.updateTable();
     }
   }
+
+  public addColumn(columnData: TableColumnData<T>): void {
+    this.columnDefinitions.push(columnData);
+  }
+
+  public addColumnAt(columnData: TableColumnData<T>, index: number): void {
+    this.columnDefinitions.splice(index, 0, columnData);
+  }
+
+  public getColumns(): TableColumnData<T>[] {
+    return this.columnDefinitions;
+  }
 }
 
 export { Table, TableError };

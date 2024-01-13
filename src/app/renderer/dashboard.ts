@@ -62,9 +62,18 @@ const planetAffiliationMap = new Map<number, DynamicPlanetAffiliationAge>();
 
 console.time();
 // TODO: Customer wants to have a smaller table where each planet is only once in the Planet Affiliation Connect table.
+const currentUsedUniverseAges = await window.sql
+  .getAllUniverseAges()
+  .then((universeAges) =>
+    universeAges.reduce((acc, age) => {
+      acc.add(age.universeAge);
+      return acc;
+    }, new Set<number>())
+  );
+
 planetAffiliationAges.forEach((planetAffiliationAge) => {
   const item = planetAffiliationMap.get(planetAffiliationAge.planetID);
-  const key = `age${planetAffiliationAge.planetID}` as `age${number}`;
+  const key = `age${planetAffiliationAge.universeAge}` as `age${number}`;
   const affiliationData = {
     universeAge: planetAffiliationAge.universeAge,
     affiliationID: planetAffiliationAge.affiliationID,
@@ -935,7 +944,41 @@ const affiliationTable = new Table<(typeof affiliations)[number]>(
 );
 
 // planet affiliatoon age table
-const planetAffiliationAgeTable = new Table<PlanetAffiliationAgeWithNamesData>(
+
+function addUniverseAgeColumnsToPlanetAffiliationAgeTable(universeAge: number) {
+  planetAffiliationAgeTable.addColumnAt(
+    {
+      header: { name: 'Affiliation ID ' + universeAge, size: 'col-2' },
+      data: {
+        type: 'binding',
+        dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
+      },
+    },
+    planetAffiliationAgeTable.getColumns().length - 1
+  );
+  planetAffiliationAgeTable.addColumnAt(
+    {
+      header: { name: 'Affiliation Name ' + universeAge, size: 'col-2' },
+      data: {
+        type: 'binding',
+        dataAttribute: `affiliationData.age${universeAge}.affiliationName`,
+      },
+    },
+    planetAffiliationAgeTable.getColumns().length - 1
+  );
+  planetAffiliationAgeTable.addColumnAt(
+    {
+      header: { name: 'Planet Text ' + universeAge, size: 'col-2' },
+      data: {
+        type: 'binding',
+        dataAttribute: `affiliationData.age${universeAge}.planetText`,
+      },
+    },
+    planetAffiliationAgeTable.getColumns().length - 1
+  );
+}
+
+const planetAffiliationAgeTable = new Table<DynamicPlanetAffiliationAge>(
   tableParent,
   'table table-striped table-hover user-select-none'.split(' '),
   25,
@@ -981,46 +1024,6 @@ const planetAffiliationAgeTable = new Table<PlanetAffiliationAgeWithNamesData>(
       data: {
         type: 'binding',
         dataAttribute: 'planetName',
-      },
-    },
-    {
-      header: {
-        name: 'Affiliation-ID',
-        size: 'col-1',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'affiliationID',
-      },
-    },
-    {
-      header: {
-        name: 'Affiliation Name',
-        size: 'col-2',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'affiliationName',
-      },
-    },
-    {
-      header: {
-        name: 'Universe Age',
-        size: 'col-1',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'universeAge',
-      },
-    },
-    {
-      header: {
-        name: 'Planet Text',
-        size: 'col-3',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'planetText',
       },
     },
     {
@@ -1097,7 +1100,12 @@ const planetAffiliationAgeTable = new Table<PlanetAffiliationAgeWithNamesData>(
 // Set data to table
 planetTable.setData(planets);
 affiliationTable.setData(affiliations);
-planetAffiliationAgeTable.setData(planetAffiliationAges);
+planetAffiliationAgeTable.setData(convertedArray);
+
+// Add all current active universe ages to the planet affiliation connection table
+for (const universeAge of currentUsedUniverseAges) {
+  addUniverseAgeColumnsToPlanetAffiliationAgeTable(universeAge);
+}
 
 // Start dashboard with planet table
 planetTable.render();

@@ -95,7 +95,6 @@ class Table<T extends ObjectWithKeys> {
    * Clear data bindings
    */
   private clearRows() {
-    // TODO: Rework that, so that it only removes the active bindings. Best way is to create a row class and a header class
     for (const row of this.rows) {
       row.remove();
     }
@@ -337,8 +336,7 @@ class Table<T extends ObjectWithKeys> {
     const rowData = data.slice(startIndex, endIndex);
 
     if (rowData.length <= 0) {
-      // TODO: Use TableRow
-      // we have no data, show no data row
+      // if we have no data, show no data row
       this.rows.push(
         new TableRow<T>(tbody, {
           cells: [

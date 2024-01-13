@@ -340,7 +340,7 @@ class Table<T extends ObjectWithKeys> {
       // we have no data, show no data row
       this.rows.push(
         new TableRow<T>(tbody, {
-          columns: [
+          cells: [
             {
               data: { type: 'classic', text: 'No Data!' },
               span: this.columnDefinitions.length,
@@ -356,7 +356,7 @@ class Table<T extends ObjectWithKeys> {
         this.rows.push(
           new TableRow<T>(tbody, {
             rowIndex: this.data.indexOf(data),
-            columns: this.columnDefinitions.map((col) => {
+            cells: this.columnDefinitions.map((col) => {
               if (col.data.type === 'binding') {
                 const cellData = col.data as CellDataBinding<T>;
                 cellData.dataElement = data;

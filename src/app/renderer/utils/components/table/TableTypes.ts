@@ -68,11 +68,20 @@ type HeaderData = {
  * Defines one column
  */
 type TableColumnData<T extends ObjectWithKeys> = {
+  /**
+   * The column header definition
+   */
   header: HeaderData;
+  /**
+   * The value, each row should have
+   */
   data: ColumnDataBinding<T> | ColumnDataButton<T> | ColumnDataClassic;
 };
 
 type ColumnDataClassic = {
+  /**
+   * The used type
+   */
   type: 'classic';
   /**
    * To just define a text. Can only be used, iff dataAttribute and buttons is not set
@@ -81,6 +90,9 @@ type ColumnDataClassic = {
 };
 
 type ColumnDataButton<T extends ObjectWithKeys> = {
+  /**
+   * The used type
+   */
   type: 'button';
   /**
    * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
@@ -88,7 +100,13 @@ type ColumnDataButton<T extends ObjectWithKeys> = {
   buttons: RowButton<T>[];
 };
 
+/**
+ * Describes a col data, where each column gets one data point bound to, the value displayed is the dataAttribute of the object
+ */
 type ColumnDataBinding<T extends ObjectWithKeys> = {
+  /**
+   * The used type
+   */
   type: 'binding';
   /**
    * The prop of an object from the data, which should be displayed in this column. (Using data binding - one way)
@@ -102,24 +120,57 @@ type ColumnDataBinding<T extends ObjectWithKeys> = {
   formatter?: Formatter<TypeOfObjectPropRec<T>, string>; // TODO: Optimize this, so that this is the real object type
 };
 
+/**
+ * Data for a single row
+ */
 type TableRowData<T extends ObjectWithKeys> = {
+  /**
+   * The global index of this row (not only from the visible rows)
+   */
   rowIndex: number;
-  columns: TableCellData<T>[];
+  /**
+   * The cell definitions
+   */
+  cells: TableCellData<T>[];
+  /**
+   * A possible list of class names to add to the row element
+   */
   classNames?: string[];
 };
 
+/**
+ * Data for a single cell
+ */
 type TableCellData<T extends ObjectWithKeys> = {
+  /**
+   * A possible span of columns, which the cell should have
+   */
   span?: number;
+  /**
+   * The definition of the data displayed in this cell
+   */
   data: CellDataClassic | CellDataBinding<T> | CellDataButton<T>;
+  /**
+   * A possible list of class names to add to the cell element
+   */
   classNames?: string[];
 };
 
+/**
+ * Describes a cell which has a static text as content
+ */
 type CellDataClassic = ColumnDataClassic;
 
+/**
+ * Describes a cell, which has buttons as content
+ */
 type CellDataButton<T extends ObjectWithKeys> = ColumnDataButton<T> & {
   dataElement: T;
 };
 
+/**
+ * Describes a cell, which has a bound value from a object as content
+ */
 type CellDataBinding<T extends ObjectWithKeys> = ColumnDataBinding<T> & {
   dataElement: T;
 };

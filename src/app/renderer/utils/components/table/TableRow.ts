@@ -16,12 +16,12 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
   }
 
   private createElement() {
-    const { columns, classNames } = this.rowData;
+    const { cells, classNames } = this.rowData;
     this.rowElement = document.createElement('tr');
     if (classNames) this.rowElement.classList.add(...classNames);
 
-    for (const column of columns) {
-      this.cells.push(new TableCell<T>(this.rowElement, this, column).render());
+    for (const cell of cells) {
+      this.cells.push(new TableCell<T>(this.rowElement, this, cell).render());
     }
   }
 

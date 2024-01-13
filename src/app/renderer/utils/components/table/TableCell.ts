@@ -11,7 +11,7 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
   binding: Binding<unknown>;
 
   public constructor(
-    protected readonly parentElement: HTMLTableRowElement,
+    parentElement: HTMLTableRowElement,
     private readonly rowElement: TableRow<T>,
     private readonly cellData: TableCellData<T>
   ) {
@@ -50,8 +50,8 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
           btn.getButtonElement().addEventListener('click', () => {
             onClick(
               dataElement,
-              this.rowElement.getRowIndex(),
-              this.parentElement.rowIndex - 1
+              this.rowElement.getGlobalRowIndex(),
+              this.rowElement.getLocalRowIndex()
             );
           });
         }
@@ -60,8 +60,8 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
           btn.disable(
             !enabled(
               dataElement,
-              this.rowElement.getRowIndex(),
-              this.parentElement.rowIndex - 1
+              this.rowElement.getGlobalRowIndex(),
+              this.rowElement.getLocalRowIndex()
             )
           );
         }

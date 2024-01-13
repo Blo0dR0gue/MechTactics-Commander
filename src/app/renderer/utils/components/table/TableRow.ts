@@ -25,8 +25,20 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
     }
   }
 
-  public getRowIndex(): number {
+  /**
+   * Gets the global row index (not the index if the visible rows)
+   * @returns
+   */
+  public getGlobalRowIndex(): number {
     return this.rowData.rowIndex;
+  }
+
+  /**
+   * Gets the local row index of the visible rows
+   * @returns
+   */
+  public getLocalRowIndex(): number {
+    return this.rowElement.rowIndex - 1;
   }
 
   public render(): this {

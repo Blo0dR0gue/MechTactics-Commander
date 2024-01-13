@@ -12,7 +12,7 @@ import {
   CellDataClassic,
   TableCellData,
   TableColumnData,
-  TableHeaderData,
+  TableActionBarData,
 } from './TableTypes';
 
 class TableError extends Error {
@@ -53,7 +53,7 @@ class Table<T extends ObjectWithKeys> {
     private readonly parentElement: HTMLElement,
     classNames: string[],
     private itemsPerPage: number,
-    private readonly headerData: TableHeaderData,
+    private readonly headerData: TableActionBarData,
     private readonly columnDefinitions: TableColumnData<T>[]
   ) {
     this.tableElement = document.createElement('table');
@@ -303,19 +303,20 @@ class Table<T extends ObjectWithKeys> {
    * Render the table headers
    */
   private renderTableHeaders(): void {
-    // TODO: Use TableHeader
     const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-
-    // for each column definition create a th (column) element and add its name and size
-    for (const columnDefinition of this.columnDefinitions) {
-      const th = document.createElement('th');
-      th.textContent = columnDefinition.header.name;
-      th.classList.add(columnDefinition.header.size);
-      headerRow.appendChild(th);
-    }
-
-    thead.appendChild(headerRow);
+    new TableRow(thead, {
+      rowIndex: 0,
+      cells: this.columnDefinitions.map((col) => {
+        return {
+          data: {
+            type: 'classic',
+            text: col.header.name,
+          },
+          classNames: [col.header.size],
+          cellType: 'th',
+        } as TableCellData<T>;
+      }),
+    }).render();
     this.tableElement.appendChild(thead);
   }
 

@@ -53,7 +53,7 @@ type RowButton<T extends ObjectWithKeys> = ButtonData & {
   enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
 };
 
-type HeaderData = {
+type TableHeaderData = {
   /**
    * The display name of the column
    */
@@ -71,7 +71,7 @@ type TableColumnData<T extends ObjectWithKeys> = {
   /**
    * The column header definition
    */
-  header: HeaderData;
+  header: TableHeaderData;
   /**
    * The value, each row should have
    */
@@ -154,6 +154,10 @@ type TableCellData<T extends ObjectWithKeys> = {
    * A possible list of class names to add to the cell element
    */
   classNames?: string[];
+  /**
+   * Is it a 'normal' cell or a header cell. Default is td
+   */
+  cellType?: 'td' | 'th';
 };
 
 /**
@@ -178,7 +182,7 @@ type CellDataBinding<T extends ObjectWithKeys> = ColumnDataBinding<T> & {
 /**
  * Defines the header of the table
  */
-type TableHeaderData = {
+type TableActionBarData = {
   /**
    * Enable / Disable the search bar
    */
@@ -198,6 +202,7 @@ export {
   TableRowData,
   TableCellData,
   TableHeaderData,
+  TableActionBarData,
   CellDataBinding,
   CellDataButton,
   CellDataClassic,

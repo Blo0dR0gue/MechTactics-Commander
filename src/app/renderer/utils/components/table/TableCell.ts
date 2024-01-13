@@ -19,8 +19,8 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
   }
 
   private createElement() {
-    const { data, span, classNames } = this.cellData;
-    this.cellElement = document.createElement('td');
+    const { data, span, classNames, cellType } = this.cellData;
+    this.cellElement = document.createElement(cellType ? cellType : 'td');
     if (classNames) this.cellElement.classList.add(...classNames);
 
     if (span) this.cellElement.colSpan = span;

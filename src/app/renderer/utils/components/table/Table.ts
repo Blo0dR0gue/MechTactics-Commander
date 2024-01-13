@@ -1,103 +1,19 @@
 import {
   TypeOfObjectPropRec,
-  ObjectPropsRec,
   ObjectWithKeys,
 } from '../../../../types/UtilityTypes';
 import { Binding } from '../Binding';
-import { Button, ButtonData } from '../Button';
+import { Button } from '../Button';
 import { RingLoadingIndicator } from '../RingLoadingIndicator';
-import { Formatter } from '../formatter/Formatter';
 import { TableRow } from './TableRow';
-
-type ColSizes =
-  | 'col-1'
-  | 'col-2'
-  | 'col-3'
-  | 'col-4'
-  | 'col-5'
-  | 'col-6'
-  | 'col-auto';
-
-/**
- * A button which can be added to the header
- */
-interface HeaderButton extends ButtonData {
-  /**
-   * Callback handler, which is invoked on click
-   */
-  onClick?: () => void;
-}
-
-/**
- * Defines one button which can be added to a column to be rendered in each row
- */
-interface RowButton<T extends ObjectWithKeys> extends ButtonData {
-  /**
-   * Callback handler, which is invoked on click
-   * @param data The data of the row the button got clicked
-   * @param rowIdx The overall index of this row
-   * @param curRowIdx The current index of this row in the current pagination context
-   */
-  onClick?: (data: T, rowIdx: number, curRowIdx) => void;
-  /**
-   * Use this, to define if the button is enabled or not.
-   * @param data The data of the row the button got clicked
-   * @param rowIdx The overall index of this row
-   * @param curRowIdx The current index of this row in the current pagination context
-   * @returns true, if the button should be enabled
-   */
-  enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
-}
-
-/**
- * Defines one column
- */
-interface ColumnData<T extends ObjectWithKeys> {
-  /**
-   * The display name of the column
-   */
-  name: string;
-  /**
-   * The size of this column
-   */
-  size: ColSizes;
-  /**
-   * The prop of an object from the data, which should be displayed in this column. (Using data binding - one way)
-   */
-  dataAttribute?: ObjectPropsRec<T>;
-  /**
-   * A formatter which can be used to update the display of the bound object prop
-   * @param value The value of the table block, which is displayed if no formatter is used
-   * @returns The new string to display
-   */
-  formatter?: Formatter<TypeOfObjectPropRec<T>, string>; // TODO: Optimize this, so that this is the real object type
-  /**
-   * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
-   */
-  buttons?: RowButton<T>[];
-  /**
-   * To just define a text. Can only be used, iff dataAttribute and buttons is not set
-   */
-  text?: string;
-}
-
-/**
- * Defines the header of the table
- */
-interface HeaderData {
-  /**
-   * Enable / Disable the search bar
-   */
-  searchBar: boolean;
-  /**
-   * A list of class names to style the header
-   */
-  classNames: string[];
-  /**
-   * A possible list of buttons to display in the header.
-   */
-  buttons?: HeaderButton[];
-}
+import {
+  CellDataBinding,
+  CellDataButton,
+  CellDataClassic,
+  TableCellData,
+  TableColumnData,
+  TableHeaderData,
+} from './TableTypes';
 
 class TableError extends Error {
   public constructor(message: string) {
@@ -134,11 +50,11 @@ class Table<T extends ObjectWithKeys> {
    * @param columnDefinitions
    */
   public constructor(
-    private parentElement: HTMLElement,
+    private readonly parentElement: HTMLElement,
     classNames: string[],
     private itemsPerPage: number,
-    private headerData: HeaderData,
-    private columnDefinitions: ColumnData<T>[]
+    private readonly headerData: TableHeaderData,
+    private readonly columnDefinitions: TableColumnData<T>[]
   ) {
     this.tableElement = document.createElement('table');
     this.tableElement.classList.add(...classNames);
@@ -290,16 +206,18 @@ class Table<T extends ObjectWithKeys> {
         const value = obj[key] as TypeOfObjectPropRec<T, keyof T>;
 
         const cols = this.columnDefinitions.filter(
-          (col) => col.dataAttribute == key
+          (col) => col.data.type == 'binding' && col.data.dataAttribute == key
         );
 
         // Maybe one data attribute is used for multiple column data fields, so we check all of them
         return cols.some((col) => {
-          if (col?.formatter) {
-            const data = col.formatter.format(value).toLowerCase();
-            return data.includes(this.filterText);
-          } else {
-            return String(value).toLowerCase().includes(this.filterText);
+          if (col.data.type == 'binding') {
+            if (col.data?.formatter) {
+              const data = col.data.formatter.format(value).toLowerCase();
+              return data.includes(this.filterText);
+            } else {
+              return String(value).toLowerCase().includes(this.filterText);
+            }
           }
         });
       });
@@ -392,8 +310,8 @@ class Table<T extends ObjectWithKeys> {
     // for each column definition create a th (column) element and add its name and size
     for (const columnDefinition of this.columnDefinitions) {
       const th = document.createElement('th');
-      th.textContent = columnDefinition.name;
-      th.classList.add(columnDefinition.size);
+      th.textContent = columnDefinition.header.name;
+      th.classList.add(columnDefinition.header.size);
       headerRow.appendChild(th);
     }
 
@@ -420,22 +338,41 @@ class Table<T extends ObjectWithKeys> {
     if (rowData.length <= 0) {
       // TODO: Use TableRow
       // we have no data, show no data row
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.textContent = 'No Data!';
-      tr.style.textAlign = 'center';
-      tr.style.fontSize = '25px';
-      td.colSpan = this.columnDefinitions.length;
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+      new TableRow<T>(tbody, {
+        columns: [
+          {
+            data: { type: 'classic', text: 'No Data!' },
+            span: this.columnDefinitions.length,
+          },
+        ],
+        rowIndex: 0,
+      }).render();
     } else {
       // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
       for (const data of rowData) {
         this.rows.push(
-          new TableRow(tbody, {
-            data: data,
+          new TableRow<T>(tbody, {
             rowIndex: this.data.indexOf(data),
-            columns: this.columnDefinitions,
+            columns: this.columnDefinitions.map((col) => {
+              if (col.data.type === 'binding') {
+                const cellData = col.data as CellDataBinding<T>;
+                cellData.dataElement = data;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
+              } else if (col.data.type === 'button') {
+                const cellData = col.data as CellDataButton<T>;
+                cellData.dataElement = data;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
+              } else if (col.data.type === 'classic') {
+                const cellData = col.data as CellDataClassic;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
+              }
+            }),
           }).render()
         );
       }
@@ -513,4 +450,4 @@ class Table<T extends ObjectWithKeys> {
   }
 }
 
-export { Table, TableError, ColumnData, RowButton };
+export { Table, TableError };

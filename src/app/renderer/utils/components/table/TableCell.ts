@@ -1,29 +1,10 @@
-import {
-  ObjectPropsRec,
-  ObjectWithKeys,
-  TypeOfObjectPropRec,
-} from '../../../../types/UtilityTypes';
+import { ObjectWithKeys } from '../../../../types/UtilityTypes';
 import { BaseElement } from '../BaseElement';
 import { Binding } from '../Binding';
 import { Button } from '../Button';
-import { Formatter } from '../formatter/Formatter';
-import { RowButton } from './Table';
-
-type CellData<T extends ObjectWithKeys> = {
-  rowIndex: number;
-  classic?: {
-    text: string;
-  };
-  button?: {
-    data: T;
-    buttons: RowButton<T>[];
-  };
-  binding?: {
-    data: T;
-    dataAttribute: ObjectPropsRec<T>;
-    formatter: Formatter<TypeOfObjectPropRec<T>, unknown>;
-  };
-};
+import { TableError } from './Table';
+import { TableRow } from './TableRow';
+import { TableCellData } from './TableTypes';
 
 class TableCell<T extends ObjectWithKeys> extends BaseElement {
   private cellElement: HTMLTableCellElement;
@@ -31,28 +12,31 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
 
   public constructor(
     protected readonly parentElement: HTMLTableRowElement,
-    private readonly cellData: CellData<T>
+    private readonly rowElement: TableRow<T>,
+    private readonly cellData: TableCellData<T>
   ) {
     super(parentElement);
   }
 
   private createElement() {
-    const { classic, button, binding, rowIndex } = this.cellData;
+    const { data, span } = this.cellData;
     this.cellElement = document.createElement('td');
 
-    if (binding) {
-      const { data, dataAttribute, formatter } = binding;
+    if (span) this.cellElement.colSpan = span;
+
+    if (data.type === 'binding') {
+      const { dataElement, dataAttribute, formatter } = data;
       // render a text cell using data binding
-      this.binding = new Binding<unknown>(data, dataAttribute);
+      this.binding = new Binding<unknown>(dataElement, dataAttribute);
       this.binding.addBinding(
         this.cellElement,
         'textContent',
         false,
         formatter
       );
-    } else if (button) {
+    } else if (data.type === 'button') {
       // render the button cell
-      const { buttons, data } = button;
+      const { buttons, dataElement } = data;
 
       // for each button definition render one button
       for (const button of buttons) {
@@ -63,22 +47,30 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
         if (onClick) {
           // Add the click event handler
           btn.getButtonElement().addEventListener('click', () => {
-            onClick(data, rowIndex, this.parentElement.rowIndex - 1);
+            onClick(
+              dataElement,
+              this.rowElement.getRowIndex(),
+              this.parentElement.rowIndex - 1
+            );
           });
         }
 
         if (enabled) {
           btn.disable(
-            !enabled(data, rowIndex, this.parentElement.rowIndex - 1)
+            !enabled(
+              dataElement,
+              this.rowElement.getRowIndex(),
+              this.parentElement.rowIndex - 1
+            )
           );
         }
         btn.render();
       }
-    } else if (classic) {
-      const { text } = classic;
+    } else if (data.type === 'classic') {
+      const { text } = data;
       this.cellElement.textContent = text;
     } else {
-      throw new Error(
+      throw new TableError(
         `classic, binding or button needs to be defined ${this.cellData}`
       );
     }

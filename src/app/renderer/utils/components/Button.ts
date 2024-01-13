@@ -4,7 +4,7 @@ import { escapeHtmlTags } from '../Utils';
 /**
  * A basic button definition for this table
  */
-interface ButtonData {
+type ButtonData = {
   /**
    * The display text of the button
    */
@@ -17,7 +17,7 @@ interface ButtonData {
    * A possible icon element, which is displayed before a possible text
    */
   icon?: Icon;
-}
+};
 
 class Button {
   /**

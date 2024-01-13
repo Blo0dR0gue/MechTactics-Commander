@@ -1,13 +1,7 @@
 import { ObjectWithKeys } from '../../../../types/UtilityTypes';
 import { BaseElement } from '../BaseElement';
-import { ColumnData } from './Table';
 import { TableCell } from './TableCell';
-
-type RowData<T extends ObjectWithKeys> = {
-  data: T;
-  rowIndex: number;
-  columns: ColumnData<T>[];
-};
+import { TableRowData } from './TableTypes';
 
 class TableRow<T extends ObjectWithKeys> extends BaseElement {
   private rowElement: HTMLTableRowElement;
@@ -16,51 +10,22 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
 
   public constructor(
     baseElement: HTMLElement,
-    private readonly rowData: RowData<T>
+    private readonly rowData: TableRowData<T>
   ) {
     super(baseElement);
   }
 
   private createElement() {
-    const { data, rowIndex, columns } = this.rowData;
+    const { columns } = this.rowData;
     this.rowElement = document.createElement('tr');
 
     for (const column of columns) {
-      const { buttons, dataAttribute, formatter, text } = column;
-
-      // TODO: Optimize that
-      if (dataAttribute) {
-        this.cells.push(
-          new TableCell<T>(this.rowElement, {
-            rowIndex: rowIndex,
-            binding: {
-              data: data,
-              dataAttribute: dataAttribute,
-              formatter: formatter,
-            },
-          }).render()
-        );
-      } else if (buttons) {
-        this.cells.push(
-          new TableCell<T>(this.rowElement, {
-            rowIndex: rowIndex,
-            button: {
-              buttons: buttons,
-              data: data,
-            },
-          }).render()
-        );
-      } else if (text) {
-        this.cells.push(
-          new TableCell<T>(this.rowElement, {
-            rowIndex: rowIndex,
-            classic: {
-              text: text,
-            },
-          }).render()
-        );
-      }
+      this.cells.push(new TableCell<T>(this.rowElement, this, column).render());
     }
+  }
+
+  public getRowIndex(): number {
+    return this.rowData.rowIndex;
   }
 
   public render(): this {

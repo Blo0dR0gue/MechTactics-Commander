@@ -16,8 +16,9 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
   }
 
   private createElement() {
-    const { columns } = this.rowData;
+    const { columns, classNames } = this.rowData;
     this.rowElement = document.createElement('tr');
+    if (classNames) this.rowElement.classList.add(...classNames);
 
     for (const column of columns) {
       this.cells.push(new TableCell<T>(this.rowElement, this, column).render());

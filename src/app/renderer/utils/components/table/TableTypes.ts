@@ -105,11 +105,13 @@ type ColumnDataBinding<T extends ObjectWithKeys> = {
 type TableRowData<T extends ObjectWithKeys> = {
   rowIndex: number;
   columns: TableCellData<T>[];
+  classNames?: string[];
 };
 
 type TableCellData<T extends ObjectWithKeys> = {
   span?: number;
   data: CellDataClassic | CellDataBinding<T> | CellDataButton<T>;
+  classNames?: string[];
 };
 
 type CellDataClassic = ColumnDataClassic;

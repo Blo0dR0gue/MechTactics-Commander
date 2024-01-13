@@ -338,15 +338,18 @@ class Table<T extends ObjectWithKeys> {
     if (rowData.length <= 0) {
       // TODO: Use TableRow
       // we have no data, show no data row
-      new TableRow<T>(tbody, {
-        columns: [
-          {
-            data: { type: 'classic', text: 'No Data!' },
-            span: this.columnDefinitions.length,
-          },
-        ],
-        rowIndex: 0,
-      }).render();
+      this.rows.push(
+        new TableRow<T>(tbody, {
+          columns: [
+            {
+              data: { type: 'classic', text: 'No Data!' },
+              span: this.columnDefinitions.length,
+              classNames: ['text-center', 'h5'], //TODO: Remove bootstrap classes
+            },
+          ],
+          rowIndex: 0,
+        }).render()
+      );
     } else {
       // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
       for (const data of rowData) {

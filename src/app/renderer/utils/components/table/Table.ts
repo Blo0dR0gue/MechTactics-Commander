@@ -191,6 +191,7 @@ class Table<T extends ObjectWithKeys> {
 
     // TODO: do not clear like this?
     this.tableElement.removeChild(this.tableElement.tBodies[0]);
+    this.tableElement.removeChild(this.tableElement.tHead);
 
     this.clearRows();
 
@@ -222,6 +223,7 @@ class Table<T extends ObjectWithKeys> {
       });
     });
 
+    this.renderTableHeaders();
     this.renderRows(startIndex, endIndex, filteredData);
     this.updatePagination(filteredData.length);
 
@@ -453,10 +455,12 @@ class Table<T extends ObjectWithKeys> {
 
   public addColumn(columnData: TableColumnData<T>): void {
     this.columnDefinitions.push(columnData);
+    this.updateTable();
   }
 
   public addColumnAt(columnData: TableColumnData<T>, index: number): void {
     this.columnDefinitions.splice(index, 0, columnData);
+    this.updateTable();
   }
 
   public getColumns(): TableColumnData<T>[] {

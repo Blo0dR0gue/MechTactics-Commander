@@ -1041,56 +1041,6 @@ const planetAffiliationAgeTable = new Table<DynamicPlanetAffiliationAge>(
               openPlanetAffiliationAgeModalWith(data);
             },
           },
-          {
-            icon: deleteIcon,
-            classNames: ['btn', 'btn-sm', 'btn-danger', 'me-1', 'p-1'],
-            onClick(data, rowIdx) {
-              dynamicDialog.show(
-                {
-                  title: 'Delete Planet Affiliation Connection?',
-                  classNames: ['fs-5'],
-                },
-                {
-                  content: `Do you want to delete the data point?`,
-                },
-                {
-                  buttons: [
-                    {
-                      text: 'Ok',
-                      classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
-                      onClick() {
-                        window.sql
-                          .deletePlanetAffiliationAge(data)
-                          .then(() => {
-                            dynamicDialog.hide();
-                            planetAffiliationAgeTable.removeDataByIdx(rowIdx);
-                            toastHandler.createAndShowToast(
-                              'Planet Affiliation Connection',
-                              'Data deleted',
-                              ToastType.Info
-                            );
-                          })
-                          .catch((reason) =>
-                            toastHandler.createAndShowToast(
-                              'Error',
-                              reason,
-                              ToastType.Danger
-                            )
-                          );
-                      },
-                    },
-                    {
-                      text: 'Cancel',
-                      classNames: ['btn', 'btn-secondary'],
-                      onClick() {
-                        dynamicDialog.hide();
-                      },
-                    },
-                  ],
-                }
-              );
-            },
-          },
         ],
       },
     },

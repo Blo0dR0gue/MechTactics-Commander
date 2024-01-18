@@ -127,13 +127,13 @@ const planetAgeCopyForm = document.getElementById('planet-age-copy-form');
 const planetAgeCopySaveBtn = document.getElementById('planet-age-copy-save');
 
 const planetAffiliationConnectModalElement = document.getElementById(
-  'planet-affiliation-age-modal'
+  'planet-affiliation-connect-modal'
 );
 const planetAffiliationConnectForm = document.getElementById(
-  'planet-affiliation-age-form'
+  'planet-affiliation-connect-form'
 );
 const planetAffiliationConnectSaveBtn = document.getElementById(
-  'planet-affiliation-age-save'
+  'planet-affiliation-connect-save'
 );
 
 const toastContainer = document.getElementById('toast-container');
@@ -167,16 +167,16 @@ const affiliationFormColor = document.getElementById(
 
 // planet affiliation connect from elements
 const planetAffiliationConnectPlanetID = document.getElementById(
-  'planet-affiliation-age-planet-id'
+  'planet-affiliation-connect-planet-id'
 ) as HTMLSelectElement;
 const planetAffiliationConnectAffiliationID = document.getElementById(
-  'planet-affiliation-age-affiliation-id'
+  'planet-affiliation-connect-affiliation-id'
 ) as HTMLSelectElement;
 const planetAffiliationConnectUniverseAge = document.getElementById(
-  'planet-affiliation-age-universe-age'
+  'planet-affiliation-connect-universe-age'
 ) as HTMLInputElement;
 const planetAffiliationConnectPlanetText = document.getElementById(
-  'planet-affiliation-age-planet-text'
+  'planet-affiliation-connect-planet-text'
 ) as HTMLTextAreaElement;
 
 // planet age copy form elements

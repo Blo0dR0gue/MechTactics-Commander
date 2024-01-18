@@ -455,12 +455,12 @@ class Table<T extends ObjectWithKeys> {
 
   public addColumn(columnData: TableColumnData<T>): void {
     this.columnDefinitions.push(columnData);
-    this.updateTable();
+    if (this.tableElement.parentNode === this.parentElement) this.updateTable();
   }
 
   public addColumnAt(columnData: TableColumnData<T>, index: number): void {
     this.columnDefinitions.splice(index, 0, columnData);
-    this.updateTable();
+    if (this.tableElement.parentNode === this.parentElement) this.updateTable();
   }
 
   public getColumns(): TableColumnData<T>[] {

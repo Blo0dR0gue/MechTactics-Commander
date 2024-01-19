@@ -740,17 +740,68 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     }
   } else {
     // create new planet affiliation connect data point
-    if (selectedUniverseAge === -1) {
-      // add to new universe age
-    } else {
-      // add to selected universe age
-    }
 
     window.sql
       .createPlanetAffiliationAge(
         JSON.parse(JSON.stringify(planetAffiliationAgeElement))
       )
-      .then(() => {
+      .then((newData) => {
+        const newPlanetAffiliationConnectDataPoint = {
+          planetID: newData.planetID,
+          planetName: planetsData.find(
+            (planet) => planet.id === newData.planetID
+          )?.name,
+          affiliationData: {},
+        } as DynamicPlanetAffiliationConnectData;
+
+        newPlanetAffiliationConnectDataPoint.affiliationData[
+          `age${universeAge}`
+        ] = {
+          affiliationID: affiliationID,
+          planetText: planetText,
+          affiliationName: affiliationsData.find(
+            (affiliation) => affiliation.id === affiliationID
+          )?.name,
+          universeAge: universeAge,
+        };
+
+        for (const createUniverseAge of currentUsedUniverseAges) {
+          if (createUniverseAge !== universeAge) {
+            newPlanetAffiliationConnectDataPoint.affiliationData[
+              `age${createUniverseAge}`
+            ] = {
+              affiliationID: undefined,
+              planetText: undefined,
+              affiliationName: undefined,
+              universeAge: undefined,
+            };
+          }
+        }
+
+        if (selectedUniverseAge === -1) {
+          // add new universe age to all existing elements
+          for (const planetAffiliationAgeDataPoint of planetAffiliationConnectData) {
+            planetAffiliationAgeDataPoint.affiliationData[`age${universeAge}`] =
+              {
+                affiliationID: undefined,
+                planetText: undefined,
+                affiliationName: undefined,
+                universeAge: undefined,
+              };
+          }
+          currentUsedUniverseAges.add(universeAge);
+          addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
+        }
+
+        // Add new data point to dataset and map
+        planetAffiliationConnectTable.addData(
+          newPlanetAffiliationConnectDataPoint
+        );
+        planetAffiliationConnectMap.set(
+          newPlanetAffiliationConnectDataPoint.planetID,
+          newPlanetAffiliationConnectDataPoint
+        );
+
         toastHandler.createAndShowToast(
           'Planet Affiliation Connect',
           'Data created',

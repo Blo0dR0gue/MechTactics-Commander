@@ -624,30 +624,32 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     return;
   }
 
-  if (editPlanetAffiliationConnectData) {
-    const planetAffiliationAgeElement = {
-      affiliationID: affiliationID,
-      planetID: planetID,
-      planetText: planetText,
-      universeAge: universeAge,
-    } as PlanetAffiliationAgeData;
+  const planetAffiliationAgeElement = {
+    affiliationID: affiliationID,
+    planetID: planetID,
+    planetText: planetText,
+    universeAge: universeAge,
+  } as PlanetAffiliationAgeData;
 
+  if (editPlanetAffiliationConnectData) {
     if (selectedUniverseAge === -1) {
       // add new universe age
-      editPlanetAffiliationConnectData.affiliationData[`age${universeAge}`] = {
-        affiliationID: affiliationID,
-        planetText: planetText,
-        affiliationName: affiliationsData.find(
-          (affiliation) => affiliation.id === affiliationID
-        )?.name,
-        universeAge: universeAge,
-      };
-
       window.sql
         .createPlanetAffiliationAge(
           JSON.parse(JSON.stringify(planetAffiliationAgeElement))
         )
         .then(() => {
+          editPlanetAffiliationConnectData.affiliationData[
+            `age${universeAge}`
+          ] = {
+            affiliationID: affiliationID,
+            planetText: planetText,
+            affiliationName: affiliationsData.find(
+              (affiliation) => affiliation.id === affiliationID
+            )?.name,
+            universeAge: universeAge,
+          };
+
           // add universe age data to all other data points as undefined
           for (const planetAffiliationConnectElement of planetAffiliationConnectData) {
             if (
@@ -681,6 +683,23 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     } else {
       // update data with existing universe age
 
+      const updatePlanetAffiliationAgeObject = () => {
+        editPlanetAffiliationConnectData.affiliationData[
+          `age${universeAge}`
+        ].affiliationID = affiliationID;
+        editPlanetAffiliationConnectData.affiliationData[
+          `age${universeAge}`
+        ].planetText = planetText;
+        editPlanetAffiliationConnectData.affiliationData[
+          `age${universeAge}`
+        ].affiliationName = affiliationsData.find(
+          (affiliation) => affiliation.id === affiliationID
+        )?.name;
+        editPlanetAffiliationConnectData.affiliationData[
+          `age${universeAge}`
+        ].universeAge = universeAge;
+      };
+
       if (
         editPlanetAffiliationConnectData.affiliationData[`age${universeAge}`]
           .universeAge === undefined
@@ -691,6 +710,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
             JSON.parse(JSON.stringify(planetAffiliationAgeElement))
           )
           .then(() => {
+            updatePlanetAffiliationAgeObject();
             toastHandler.createAndShowToast(
               'Planet Affiliation Connect',
               'Data updated',
@@ -706,6 +726,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
             JSON.parse(JSON.stringify(planetAffiliationAgeElement))
           )
           .then(() => {
+            updatePlanetAffiliationAgeObject();
             toastHandler.createAndShowToast(
               'Planet Affiliation Connect',
               'Data updated',
@@ -716,30 +737,29 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
             toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
           );
       }
-
-      editPlanetAffiliationConnectData.affiliationData[
-        `age${universeAge}`
-      ].affiliationID = affiliationID;
-      editPlanetAffiliationConnectData.affiliationData[
-        `age${universeAge}`
-      ].planetText = planetText;
-      editPlanetAffiliationConnectData.affiliationData[
-        `age${universeAge}`
-      ].affiliationName = affiliationsData.find(
-        (affiliation) => affiliation.id === affiliationID
-      )?.name;
-      editPlanetAffiliationConnectData.affiliationData[
-        `age${universeAge}`
-      ].universeAge = universeAge;
     }
   } else {
-    // TODO: Logic for a new planet
     // create new planet affiliation connect data point
     if (selectedUniverseAge === -1) {
       // add to new universe age
     } else {
       // add to selected universe age
     }
+
+    window.sql
+      .createPlanetAffiliationAge(
+        JSON.parse(JSON.stringify(planetAffiliationAgeElement))
+      )
+      .then(() => {
+        toastHandler.createAndShowToast(
+          'Planet Affiliation Connect',
+          'Data created',
+          ToastType.Info
+        );
+      })
+      .catch((reason) =>
+        toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
+      );
   }
   planetAffiliationConnectModal.hide();
 });

@@ -271,6 +271,19 @@
                       name="planet-affiliation-connect-planet-id"
                     ></select>
                   </div>
+
+                  <div class="form-group mb-1">
+                    <label for="planet-affiliation-connect-age">Universe Age</label>
+                    <select id="planet-affiliation-connect-age" 
+                    name="planet-affiliation-connect-age" 
+                    class="form-control">
+                      <option value="-1">New</option>
+                    </select>
+                    <input type="number" id="planet-affiliation-connect-new-age" placeholder="3025" class="form-control"/>
+                  </div>
+                  
+                  <hr />
+
                   <!--affiliation id select-->
                   <div class="form-group mb-1">
                     <label for="planet-affiliation-connect-affiliation-id"
@@ -282,16 +295,6 @@
                       name="planet-affiliation-connect-affiliation-id"
                     ></select>
                   </div>
-                  <!--universe age-->
-                  <div class="form-group mb-1">
-                    <label for="planet-affiliation-connect-universe-age">Age:</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="planet-affiliation-connect-universe-age"
-                      name="planet-affiliation-connect-universe-age"
-                    />
-                  </div>
                   <!--planet text-->
                   <div class="form-group mb-1">
                     <label for="planet-affiliation-connect-planet-text">Planet Text:</label>
@@ -301,6 +304,8 @@
                     cols="2"
                     class="form-control"
                     ></textarea>
+
+
                   </div>
                 </form>
               </div>

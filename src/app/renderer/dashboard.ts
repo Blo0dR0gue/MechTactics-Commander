@@ -184,6 +184,10 @@ const planetAffiliationConnectUniverseNewAgeInput = document.getElementById(
   'planet-affiliation-connect-new-age'
 ) as HTMLSelectElement;
 
+const planetAffiliationConnectDeleteBtn = document.getElementById(
+  'planet-affiliation-connect-delete'
+) as HTMLButtonElement;
+
 // planet age copy form elements
 const planetAgeCopyFormTarget = document.getElementById(
   'planet-age-copy-target'
@@ -543,7 +547,7 @@ function setAffiliationFormData(affiliation: AffiliationData) {
 }
 
 // planet affiliation connect modal and form setups
-// TODO: Delete a planet affiliation connect data point for a specific age
+// TODO: Logic to delete a planet affiliation connect data point for a specific age
 
 let editPlanetAffiliationConnectData: DynamicPlanetAffiliationConnectData =
   undefined;
@@ -557,10 +561,12 @@ planetAffiliationConnectUniverseAgeSelect.addEventListener(
     );
     if (selectedUniverseAge === -1) {
       planetAffiliationConnectUniverseNewAgeInput.style.display = '';
+      planetAffiliationConnectDeleteBtn.disabled = true;
       planetAffiliationConnectPlanetText.value = '';
       planetAffiliationConnectAffiliationID.value = '0';
     } else {
       planetAffiliationConnectUniverseNewAgeInput.style.display = 'none';
+      planetAffiliationConnectDeleteBtn.disabled = false;
       setPlanetAffiliationConnectFormData(
         editPlanetAffiliationConnectData,
         selectedUniverseAge
@@ -827,6 +833,7 @@ function openPlanetAffiliationConnectModalWith(
   planetAffiliationConnectPlanetID.disabled = data != undefined;
   planetAffiliationConnectUniverseNewAgeInput.style.display = '';
   planetAffiliationConnectAffiliationID.value = '0';
+  planetAffiliationConnectDeleteBtn.disabled = true;
   setPlanetAffiliationConnectFormData(undefined, -1);
 
   planetAffiliationConnectModal.show();

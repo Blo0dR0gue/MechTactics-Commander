@@ -575,6 +575,58 @@ planetAffiliationConnectUniverseAgeSelect.addEventListener(
   }
 );
 
+planetAffiliationConnectDeleteBtn.addEventListener('click', () => {
+  const selectedUniverseAge = parseFloat(
+    planetAffiliationConnectUniverseAgeSelect.value
+  );
+
+  // we can't delete anything which does not exist yet
+  if (selectedUniverseAge === -1 || !editPlanetAffiliationConnectData) return;
+
+  const planetAffiliationAgeDataToDelete = {
+    affiliationID:
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].affiliationID,
+    planetID: editPlanetAffiliationConnectData.planetID,
+    planetText:
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].planetText,
+    universeAge: selectedUniverseAge,
+  } as PlanetAffiliationAgeData;
+
+  window.sql
+    .deletePlanetAffiliationAge(
+      JSON.parse(JSON.stringify(planetAffiliationAgeDataToDelete))
+    )
+    .then(() => {
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].planetText = undefined;
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].affiliationID = undefined;
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].universeAge = undefined;
+      editPlanetAffiliationConnectData.affiliationData[
+        `age${selectedUniverseAge}`
+      ].affiliationName = undefined;
+
+      initPlanetAffiliationConnectForm(editPlanetAffiliationConnectData);
+
+      toastHandler.createAndShowToast(
+        'Planet Affiliation Connect',
+        'Data deleted',
+        ToastType.Info
+      );
+    })
+    .catch((reason) => {
+      toastHandler.createAndShowToast('Error', reason, ToastType.Danger);
+    });
+});
+
 const planetAffiliationConnectModal = new Modal(
   planetAffiliationConnectModalElement,
   {}
@@ -825,18 +877,25 @@ function openPlanetAffiliationConnectModalWith(
   data: DynamicPlanetAffiliationConnectData = undefined
 ) {
   editPlanetAffiliationConnectData = data;
-  addAllPlanetsToSelect(data);
-  addAllAffiliationsToSelect();
-  addUniverseAgesToSelect();
 
-  planetAffiliationConnectPlanetID.value = String(data?.planetID || -1);
-  planetAffiliationConnectPlanetID.disabled = data != undefined;
-  planetAffiliationConnectUniverseNewAgeInput.style.display = '';
-  planetAffiliationConnectAffiliationID.value = '0';
-  planetAffiliationConnectDeleteBtn.disabled = true;
+  initPlanetAffiliationConnectForm(data);
   setPlanetAffiliationConnectFormData(undefined, -1);
 
   planetAffiliationConnectModal.show();
+}
+
+function initPlanetAffiliationConnectForm(
+  data: DynamicPlanetAffiliationConnectData
+) {
+  addAllPlanetsToSelect(data);
+  addAllAffiliationsToSelect();
+  addUniverseAgesToSelect();
+  planetAffiliationConnectPlanetID.value = String(data?.planetID || -1);
+  planetAffiliationConnectPlanetID.disabled = data != undefined;
+  planetAffiliationConnectUniverseAgeSelect.value = '-1';
+  planetAffiliationConnectUniverseNewAgeInput.style.display = '';
+  planetAffiliationConnectAffiliationID.value = '0';
+  planetAffiliationConnectDeleteBtn.disabled = true;
 }
 
 function setPlanetAffiliationConnectFormData(
@@ -1203,7 +1262,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
 ) {
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Affiliation ID ' + universeAge, size: 'col-2' },
+      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-1' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
@@ -1213,7 +1272,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
   );
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Affiliation Name ' + universeAge, size: 'col-2' },
+      header: { name: 'Affiliation Name ' + universeAge, size: 'col-space-3' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.affiliationName`,
@@ -1223,7 +1282,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
   );
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Planet Text ' + universeAge, size: 'col-2' },
+      header: { name: 'Planet Text ' + universeAge, size: 'col-space-5' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.planetText`,
@@ -1265,7 +1324,7 @@ const planetAffiliationConnectTable =
       {
         header: {
           name: 'Planet-ID',
-          size: 'col-1',
+          size: 'col-space-1',
         },
         data: {
           type: 'binding',
@@ -1275,7 +1334,7 @@ const planetAffiliationConnectTable =
       {
         header: {
           name: 'Planet Name',
-          size: 'col-2',
+          size: 'col-space-4',
         },
         data: {
           type: 'binding',
@@ -1285,7 +1344,7 @@ const planetAffiliationConnectTable =
       {
         header: {
           name: 'Actions',
-          size: 'col-2',
+          size: 'col-space-1',
         },
         data: {
           type: 'button',
@@ -1306,7 +1365,10 @@ const planetAffiliationConnectTable =
 // Set data to table
 planetTable.setData(planetsData);
 affiliationTable.setData(affiliationsData);
-planetAffiliationConnectTable.setData(planetAffiliationConnectData);
+planetAffiliationConnectTable.setData(
+  planetAffiliationConnectData,
+  (v1, v2) => v1.planetID - v2.planetID
+);
 
 // Add all current active universe ages to the planet affiliation connection table
 for (const universeAge of currentUsedUniverseAges) {

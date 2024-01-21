@@ -1039,35 +1039,9 @@ const planetTable = new Table<(typeof planetsData)[number]>(
   },
   [
     {
-      header: { name: 'Planet-ID', size: 'col-1' },
-      data: { type: 'binding', dataAttribute: 'id' },
-    },
-    {
-      header: { name: 'Name', size: 'col-3' },
-      data: { type: 'binding', dataAttribute: 'name' },
-    },
-    {
-      header: { name: 'Coordinates', size: 'col-3' },
-      data: {
-        type: 'binding',
-        dataAttribute: 'coord',
-        formatter: new CoordStringFormatter(),
-      },
-    },
-    {
-      header: {
-        name: 'Link',
-        size: 'col-3',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'link',
-      },
-    },
-    {
       header: {
         name: 'Action',
-        size: 'col-2',
+        size: 'col-1',
       },
       data: {
         type: 'button',
@@ -1135,6 +1109,32 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         ],
       },
     },
+    {
+      header: { name: 'ID', size: 'col-1' },
+      data: { type: 'binding', dataAttribute: 'id' },
+    },
+    {
+      header: { name: 'Name', size: 'col-4' },
+      data: { type: 'binding', dataAttribute: 'name' },
+    },
+    {
+      header: { name: 'Coordinates', size: 'col-3' },
+      data: {
+        type: 'binding',
+        dataAttribute: 'coord',
+        formatter: new CoordStringFormatter(),
+      },
+    },
+    {
+      header: {
+        name: 'Link',
+        size: 'col-3',
+      },
+      data: {
+        type: 'binding',
+        dataAttribute: 'link',
+      },
+    },
   ]
 );
 
@@ -1160,24 +1160,6 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
     ],
   },
   [
-    {
-      header: { name: 'ID', size: 'col-1' },
-      data: { type: 'binding', dataAttribute: 'id' },
-    },
-    {
-      header: { name: 'Name', size: 'col-2' },
-      data: { type: 'binding', dataAttribute: 'name' },
-    },
-    {
-      header: {
-        name: 'Color',
-        size: 'col-2',
-      },
-      data: {
-        type: 'binding',
-        dataAttribute: 'color',
-      },
-    },
     {
       header: {
         name: 'Action',
@@ -1252,6 +1234,24 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
         ],
       },
     },
+    {
+      header: { name: 'ID', size: 'col-1' },
+      data: { type: 'binding', dataAttribute: 'id' },
+    },
+    {
+      header: { name: 'Name', size: 'col-5' },
+      data: { type: 'binding', dataAttribute: 'name' },
+    },
+    {
+      header: {
+        name: 'Color',
+        size: 'col-5',
+      },
+      data: {
+        type: 'binding',
+        dataAttribute: 'color',
+      },
+    },
   ]
 );
 
@@ -1268,7 +1268,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
         dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
       },
     },
-    planetAffiliationConnectTable.getColumns().length - 1
+    planetAffiliationConnectTable.getColumns().length
   );
   planetAffiliationConnectTable.addColumnAt(
     {
@@ -1278,7 +1278,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
         dataAttribute: `affiliationData.age${universeAge}.affiliationName`,
       },
     },
-    planetAffiliationConnectTable.getColumns().length - 1
+    planetAffiliationConnectTable.getColumns().length
   );
   planetAffiliationConnectTable.addColumnAt(
     {
@@ -1288,7 +1288,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
         dataAttribute: `affiliationData.age${universeAge}.planetText`,
       },
     },
-    planetAffiliationConnectTable.getColumns().length - 1
+    planetAffiliationConnectTable.getColumns().length
   );
 }
 
@@ -1323,6 +1323,24 @@ const planetAffiliationConnectTable =
     [
       {
         header: {
+          name: 'Action',
+          size: 'col-space-1',
+        },
+        data: {
+          type: 'button',
+          buttons: [
+            {
+              icon: editIcon,
+              classNames: ['btn', 'btn-sm', 'btn-primary', 'me-1', 'p-1'],
+              onClick(data) {
+                openPlanetAffiliationConnectModalWith(data);
+              },
+            },
+          ],
+        },
+      },
+      {
+        header: {
           name: 'Planet-ID',
           size: 'col-space-1',
         },
@@ -1339,24 +1357,6 @@ const planetAffiliationConnectTable =
         data: {
           type: 'binding',
           dataAttribute: 'planetName',
-        },
-      },
-      {
-        header: {
-          name: 'Actions',
-          size: 'col-space-1',
-        },
-        data: {
-          type: 'button',
-          buttons: [
-            {
-              icon: editIcon,
-              classNames: ['btn', 'btn-sm', 'btn-primary', 'me-1', 'p-1'],
-              onClick(data) {
-                openPlanetAffiliationConnectModalWith(data);
-              },
-            },
-          ],
         },
       },
     ]

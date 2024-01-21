@@ -1,97 +1,21 @@
 import {
-  ObjectOfPropRec,
-  ObjectPropsRec,
+  TypeOfObjectPropRec,
   ObjectWithKeys,
-} from '../../types/UtilityTypes';
-import { Binding } from './Binding';
-import { Button, IButton } from './Button';
-import { RingLoadingIndicator } from './RingLoadingIndicator';
+} from '../../../../types/UtilityTypes';
+import { Binding } from '../Binding';
+import { Button } from '../Button';
+import { RingLoadingIndicator } from '../RingLoadingIndicator';
+import { TableRow } from './TableRow';
+import {
+  CellDataBinding,
+  CellDataButton,
+  CellDataClassic,
+  TableCellData,
+  TableColumnData,
+  TableActionBarData,
+} from './TableTypes';
 
-type ColSizes =
-  | 'col-1'
-  | 'col-2'
-  | 'col-3'
-  | 'col-4'
-  | 'col-5'
-  | 'col-6'
-  | 'col-auto';
-
-/**
- * A button which can be added to the header
- */
-interface HeaderButton extends IButton {
-  /**
-   * Callback handler, which is invoked on click
-   */
-  onClick?: () => void;
-}
-
-/**
- * Defines one button which can be added to a column to be rendered in each row
- */
-interface RowButton<T extends ObjectWithKeys> extends IButton {
-  /**
-   * Callback handler, which is invoked on click
-   * @param data The data of the row the button got clicked
-   * @param rowIdx The overall index of this row
-   * @param curRowIdx The current index of this row in the current pagination context
-   */
-  onClick?: (data: T, rowIdx: number, curRowIdx) => void;
-  /**
-   * Use this, to define if the button is enabled or not.
-   * @param data The data of the row the button got clicked
-   * @param rowIdx The overall index of this row
-   * @param curRowIdx The current index of this row in the current pagination context
-   * @returns true, if the button should be enabled
-   */
-  enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
-}
-
-/**
- * Defines one column
- */
-interface ColumnData<T extends ObjectWithKeys> {
-  /**
-   * The display name of the column
-   */
-  name: string;
-  /**
-   * The size of this column
-   */
-  size: ColSizes;
-  /**
-   * The prop of an object from the data, which should be displayed in this column. (Using data binding - one way)
-   */
-  dataAttribute?: ObjectPropsRec<T>;
-  /**
-   * A formatter which can be used to update the display of the bound object prop
-   * @param value The value of the table block, which is displayed if no formatter is used
-   * @returns The new string to display
-   */
-  formatter?: (value: ObjectOfPropRec<T>) => string; // TODO: Optimize this, so that this is the real object type
-  /**
-   * A possible list of buttons to display in this column. If dataAttribute is set, this will be ignored
-   */
-  buttons?: RowButton<T>[];
-}
-
-/**
- * Defines the header of the table
- */
-interface HeaderData {
-  /**
-   * Enable / Disable the search bar
-   */
-  searchBar: boolean;
-  /**
-   * A list of class names to style the header
-   */
-  classNames: string[];
-  /**
-   * A possible list of buttons to display in the header.
-   */
-  buttons?: HeaderButton[];
-}
+import './table.scss';
 
 class TableError extends Error {
   public constructor(message: string) {
@@ -109,13 +33,18 @@ class Table<T extends ObjectWithKeys> {
   private footerElement: HTMLElement;
 
   private data: T[];
-  private bindings: Binding[];
+  private bindings: Binding<unknown>[];
 
   private loader: RingLoadingIndicator;
 
   private currentPage: number;
   private filterText: string;
   private paginationContainer: HTMLDivElement;
+
+  private rows: TableRow<T>[] = [];
+  private sorter: (v1: T, v2: T) => number;
+
+  private tableHolder: HTMLDivElement;
 
   /**
    * Create a new dynamic table
@@ -126,13 +55,17 @@ class Table<T extends ObjectWithKeys> {
    * @param columnDefinitions
    */
   public constructor(
-    private parentElement: HTMLElement,
+    private readonly parentElement: HTMLElement,
     classNames: string[],
     private itemsPerPage: number,
-    private headerData: HeaderData,
-    private columnDefinitions: ColumnData<T>[]
+    private readonly headerData: TableActionBarData,
+    private readonly columnDefinitions: TableColumnData<T>[]
   ) {
+    this.tableHolder = document.createElement('div');
+    this.tableHolder.classList.add('overflow-auto');
+    this.tableHolder.style.flex = '1';
     this.tableElement = document.createElement('table');
+    this.tableElement.classList.add('flex', 'overflow-auto', 'flex-grow-1');
     this.tableElement.classList.add(...classNames);
     this.loader = new RingLoadingIndicator(this.parentElement, 'lds-ring-dark');
 
@@ -152,7 +85,7 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
-    if (this.tableElement.parentNode) {
+    if (this.tableHolder.parentNode) {
       throw new TableError('Table is already rendered!');
     }
 
@@ -170,13 +103,11 @@ class Table<T extends ObjectWithKeys> {
   /**
    * Clear data bindings
    */
-  private clearDataBindings() {
-    if (!this.bindings || this.bindings.length < 1) this.bindings = [];
-
-    for (const binding of this.bindings) {
-      binding.unbind();
+  private clearRows() {
+    for (const row of this.rows) {
+      row.remove();
     }
-    this.bindings = [];
+    this.rows = [];
   }
 
   /**
@@ -233,7 +164,8 @@ class Table<T extends ObjectWithKeys> {
     this.renderTableHeaders();
     this.renderRows(0, this.itemsPerPage, this.data);
 
-    this.parentElement.appendChild(this.tableElement);
+    this.tableHolder.appendChild(this.tableElement);
+    this.parentElement.appendChild(this.tableHolder);
   }
 
   private renderFooter(): void {
@@ -262,15 +194,16 @@ class Table<T extends ObjectWithKeys> {
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
   private updateTable(): void {
-    if (this.tableElement.parentNode != this.parentElement) {
+    if (this.tableHolder.parentNode != this.parentElement) {
       throw new TableError("Table is not rendered. Can't update the table");
     }
     this.loader.show();
 
     // TODO: do not clear like this?
     this.tableElement.removeChild(this.tableElement.tBodies[0]);
+    this.tableElement.removeChild(this.tableElement.tHead);
 
-    this.clearDataBindings();
+    this.clearRows();
 
     // Calculate indices for the pagination (which items should be displayed)
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -280,24 +213,27 @@ class Table<T extends ObjectWithKeys> {
     // TODO: optimize that. if the formatter is slow this is also very slow!!!
     const filteredData = this.data.filter((obj) => {
       return Object.keys(obj).some((key) => {
-        const value = obj[key] as ObjectOfPropRec<T, keyof T>;
+        const value = obj[key] as TypeOfObjectPropRec<T, keyof T>;
 
         const cols = this.columnDefinitions.filter(
-          (col) => col.dataAttribute == key
+          (col) => col.data.type == 'binding' && col.data.dataAttribute == key
         );
 
         // Maybe one data attribute is used for multiple column data fields, so we check all of them
         return cols.some((col) => {
-          if (col?.formatter) {
-            const data = col.formatter(value).toLowerCase();
-            return data.includes(this.filterText);
-          } else {
-            return String(value).toLowerCase().includes(this.filterText);
+          if (col.data.type == 'binding') {
+            if (col.data?.formatter) {
+              const data = col.data.formatter.format(value).toLowerCase();
+              return data.includes(this.filterText);
+            } else {
+              return String(value).toLowerCase().includes(this.filterText);
+            }
           }
         });
       });
     });
 
+    this.renderTableHeaders();
     this.renderRows(startIndex, endIndex, filteredData);
     this.updatePagination(filteredData.length);
 
@@ -379,17 +315,19 @@ class Table<T extends ObjectWithKeys> {
    */
   private renderTableHeaders(): void {
     const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-
-    // for each column definition create a th (column) element and add its name and size
-    for (const columnDefinition of this.columnDefinitions) {
-      const th = document.createElement('th');
-      th.textContent = columnDefinition.name;
-      th.classList.add(columnDefinition.size);
-      headerRow.appendChild(th);
-    }
-
-    thead.appendChild(headerRow);
+    new TableRow(thead, {
+      rowIndex: 0,
+      cells: this.columnDefinitions.map((col) => {
+        return {
+          data: {
+            type: 'classic',
+            text: col.header.name,
+          },
+          classNames: [col.header.size],
+          cellType: 'th',
+        } as TableCellData<T>;
+      }),
+    }).render();
     this.tableElement.appendChild(thead);
   }
 
@@ -410,61 +348,47 @@ class Table<T extends ObjectWithKeys> {
     const rowData = data.slice(startIndex, endIndex);
 
     if (rowData.length <= 0) {
-      // we have no data, show no data row
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.textContent = 'No Data!';
-      tr.style.textAlign = 'center';
-      tr.style.fontSize = '25px';
-      td.colSpan = this.columnDefinitions.length;
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+      // if we have no data, show no data row
+      this.rows.push(
+        new TableRow<T>(tbody, {
+          cells: [
+            {
+              data: { type: 'classic', text: 'No Data!' },
+              span: this.columnDefinitions.length,
+              classNames: ['text-center', 'h5'], //TODO: Remove bootstrap classes
+            },
+          ],
+          rowIndex: 0,
+        }).render()
+      );
     } else {
       // for each data element create a row and add for each column a td (table cell) element with its content. Either text with binding or a column with buttons (action buttons)
       for (const data of rowData) {
-        const tr = document.createElement('tr');
-        for (const columnDefinition of this.columnDefinitions) {
-          const { buttons, dataAttribute, formatter } = columnDefinition;
-          const td = document.createElement('td');
-
-          if (dataAttribute !== undefined) {
-            // render a text cell using data binding
-            const binding = new Binding(data, dataAttribute);
-            binding.addBinding(td, 'textContent', false, formatter, 'none');
-            this.bindings.push(binding);
-          } else if (buttons !== undefined && buttons.length > 0) {
-            // render the button cell
-
-            // for each button definition render one button
-            for (const button of buttons) {
-              const { onClick, enabled } = button;
-
-              const btn = new Button(td, button); //this.createBasicButton(button);
-
-              if (onClick) {
-                // Add the click event handler
-                btn.getButtonElement().addEventListener('click', () => {
-                  onClick(data, this.data.indexOf(data), tr.rowIndex - 1);
-                });
+        this.rows.push(
+          new TableRow<T>(tbody, {
+            rowIndex: this.data.indexOf(data),
+            cells: this.columnDefinitions.map((col) => {
+              if (col.data.type === 'binding') {
+                const cellData = col.data as CellDataBinding<T>;
+                cellData.dataElement = data;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
+              } else if (col.data.type === 'button') {
+                const cellData = col.data as CellDataButton<T>;
+                cellData.dataElement = data;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
+              } else if (col.data.type === 'classic') {
+                const cellData = col.data as CellDataClassic;
+                return {
+                  data: cellData,
+                } as TableCellData<T>;
               }
-
-              if (enabled) {
-                btn.disable(
-                  !enabled(data, this.data.indexOf(data), tr.rowIndex - 1)
-                );
-              }
-              btn.render();
-              //td.appendChild(btn);
-            }
-          } else {
-            throw new TableError(
-              `Either buttons or dataAttribute need to be defined ${columnDefinition}`
-            );
-          }
-
-          tr.appendChild(td);
-        }
-        tbody.appendChild(tr);
+            }),
+          }).render()
+        );
       }
     }
 
@@ -475,11 +399,12 @@ class Table<T extends ObjectWithKeys> {
    * Remove this table from the dom
    */
   public remove() {
-    if (this.tableElement.parentNode === this.parentElement) {
-      this.clearDataBindings();
+    if (this.tableHolder.parentNode === this.parentElement) {
+      this.clearRows();
+      this.tableHolder.innerHTML = '';
       this.tableElement.innerHTML = '';
       this.parentElement.removeChild(this.headerElement);
-      this.parentElement.removeChild(this.tableElement);
+      this.parentElement.removeChild(this.tableHolder);
       this.parentElement.removeChild(this.footerElement);
       this.currentPage = 1;
       this.filterText = '';
@@ -490,10 +415,12 @@ class Table<T extends ObjectWithKeys> {
    * Set the data of this table.
    * @param data The new data
    */
-  public setData(data: T[]): void {
-    if (this.tableElement.parentNode)
+  public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
+    if (this.tableHolder.parentNode)
       throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
+    this.sorter = sorter;
+    if (sorter) this.data.sort(sorter);
   }
 
   /**
@@ -503,13 +430,14 @@ class Table<T extends ObjectWithKeys> {
   public addData(data: T): void;
   public addData(data: T[]): void;
   public addData(data: T | T[]): void {
-    this.clearDataBindings();
+    this.clearRows();
 
     if (Array.isArray(data)) {
       this.data.push(...data);
     } else {
       this.data.push(data);
     }
+    if (this.sorter) this.data.sort(this.sorter);
 
     if (this.tableElement.parentNode === this.parentElement) {
       this.updateTable();
@@ -532,11 +460,26 @@ class Table<T extends ObjectWithKeys> {
    * @param data
    */
   public removeDataByIdx(idx: number) {
-    this.clearDataBindings();
+    this.clearRows();
     this.data.splice(idx, 1);
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.sorter) this.data.sort(this.sorter);
+    if (this.tableHolder.parentNode === this.parentElement) {
       this.updateTable();
     }
+  }
+
+  public addColumn(columnData: TableColumnData<T>): void {
+    this.columnDefinitions.push(columnData);
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
+  }
+
+  public addColumnAt(columnData: TableColumnData<T>, index: number): void {
+    this.columnDefinitions.splice(index, 0, columnData);
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
+  }
+
+  public getColumns(): TableColumnData<T>[] {
+    return this.columnDefinitions;
   }
 }
 

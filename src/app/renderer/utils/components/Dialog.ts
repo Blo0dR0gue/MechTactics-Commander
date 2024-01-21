@@ -1,5 +1,5 @@
-import '../styles/dialog.scss';
-import { Button, IButton } from './Button';
+import '../../styles/dialog.scss';
+import { Button, ButtonData } from './Button';
 
 interface DialogHeader {
   /**
@@ -26,7 +26,7 @@ interface DialogFooter {
   buttons: CallBackButton[];
 }
 
-interface CallBackButton extends IButton {
+interface CallBackButton extends ButtonData {
   /**
    * Invoked on click
    */

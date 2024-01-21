@@ -1,3 +1,5 @@
+import { Formatter } from './formatter/Formatter';
+
 class BindingError extends Error {
   public constructor(message: string) {
     super(message);
@@ -5,37 +7,50 @@ class BindingError extends Error {
   }
 }
 
-interface BindingData {
+interface BindingData<Target, Destination> {
   obj: object;
   prop: string;
   twoWay: boolean;
   event?: string;
   eventListener?: () => void;
-  formatter?: (value: unknown) => unknown;
+  formatter?: Formatter<Target, Destination>;
 }
 
 /**
  * TODO: if parameter not set define it in object instead of throwing an error
  */
-class Binding {
-  private value: unknown;
+class Binding<BindingType> {
+  private value: BindingType;
 
-  private bindings: BindingData[] = [];
+  private bindings: BindingData<BindingType, unknown>[] = [];
 
   private objBinding: boolean = false;
-  private oldObj: object;
 
-  public constructor(
-    private readonly bindingObject: object,
-    private readonly bindingProp: string
-  ) {
-    this.value = this.getValue(this.bindingObject, this.bindingProp);
+  bindingObject: object;
+  bindingProp: string;
+
+  public constructor(obj: object, prop: string) {
+    this.bindingObject = this.getDeepestObject(obj, prop);
+    this.bindingProp = this.getLastPathPart(prop);
+
+    if (!Object.hasOwn(this.bindingObject, '__binding__'))
+      this.bindingObject['__binding__'] = {};
+
+    if (Object.hasOwn(this.bindingObject['__binding__'], this.bindingProp)) {
+      return this.bindingObject['__binding__'][this.bindingProp]['model'];
+    }
+
+    this.bindingObject['__binding__'][this.bindingProp] = {};
+    this.bindingObject['__binding__'][this.bindingProp]['model'] = this;
+
+    this.value = this.bindingObject[this.bindingProp];
+
     if (this.value instanceof Object) {
       // if we bind an object, create a proxy object for this property
-      this.oldObj = this.value;
-      this.value = this.defineProxy();
+      this.value = this.defineProxy(this.bindingObject, this.bindingProp);
       this.objBinding = true;
     }
+
     this.defineProperty(this.bindingObject, this.bindingProp);
   }
 
@@ -85,25 +100,34 @@ class Binding {
     return last;
   }
 
-  private getValue(obj: object, prop: string): unknown {
-    const deepestObj = this.getDeepestObject(obj, prop);
-    return deepestObj[this.getLastPathPart(prop)];
-  }
-
-  private setter = (newValue: unknown): void => {
-    if (newValue === this.value) return;
+  private setter = (newValue: BindingType): void => {
+    if (
+      (this.objBinding && this.value['target'] === newValue) ||
+      this.value === newValue
+    )
+      return;
     this.value = newValue;
+    if (this.objBinding) {
+      this.value = this.defineProxy(this.bindingObject, this.bindingProp);
+    }
     this.updateBindings();
   };
 
-  private getter = (): unknown => {
+  private getter = (): BindingType | ProxyConstructor => {
     return this.value;
   };
 
-  private defineProxy(): typeof Proxy {
+  private defineProxy(obj: object, prop: string) {
+    if (!Object.hasOwn(obj, prop)) {
+      throw new BindingError(
+        `Object ${obj} does not have the property ${prop}`
+      );
+    }
+
     const handler = {
       get: (target, key) => {
-        if (key == 'isProxy') return true;
+        if (key === 'isProxy') return true;
+        if (key === 'target') return target;
 
         const prop = target[key];
 
@@ -117,24 +141,41 @@ class Binding {
         return target[key];
       },
       set: (target, key, value) => {
+        if (key === target) return false;
         target[key] = value;
         this.updateBindings();
         return true;
       },
     };
 
-    const deepestObj = this.getDeepestObject(
-      this.bindingObject,
-      this.bindingProp
-    );
-    const lastPart = this.getLastPathPart(this.bindingProp);
+    const proxy = new Proxy(obj[prop], handler) as BindingType;
 
-    deepestObj[lastPart] = new Proxy(deepestObj[lastPart], handler);
-    return deepestObj[lastPart];
+    return proxy;
+  }
+
+  private removeProxy(obj: object, prop: string) {
+    if (!Object.hasOwn(obj, prop)) {
+      throw new BindingError(
+        `Object ${obj} does not have the property ${prop}`
+      );
+    }
+    if (!obj[prop]['isProxy']) {
+      `${obj[prop]} is not a proxy element`;
+    }
+
+    for (const key of Object.keys(obj[prop])) {
+      if (obj[prop][key]['isProxy']) {
+        this.removeProxy(obj[prop], key);
+      }
+    }
+
+    obj[prop] = obj[prop]['target'];
+
+    return obj[prop];
   }
 
   private defineProperty(obj: object, prop: string): void {
-    if (this.objectHasProperty(obj, prop)) {
+    if (Object.hasOwn(obj, prop)) {
       const deepestObj = this.getDeepestObject(obj, prop);
       const lastPart = this.getLastPathPart(prop);
 
@@ -143,9 +184,7 @@ class Binding {
         get: this.getter,
       });
     } else {
-      throw new BindingError(
-        `Property ${this.bindingProp} not found in object`
-      );
+      throw new BindingError(`Property ${prop} not found in object ${obj}`);
     }
   }
 
@@ -156,6 +195,7 @@ class Binding {
       value: this.value,
       writable: true,
     });
+    delete deepestObj['__binding__'][prop];
   }
 
   private updateBindings(): void {
@@ -163,27 +203,21 @@ class Binding {
       const { obj, prop, formatter } = binding;
       const elem = this.getDeepestObject(obj, prop);
       elem[this.getLastPathPart(prop)] = formatter
-        ? formatter(this.value)
+        ? formatter.format(this.value)
         : this.value;
     }
   }
 
-  public addBinding(
+  public addBinding<Type>(
     obj: object | HTMLElement,
     prop: string,
     twoWay: boolean,
-    formatter?: (value: unknown) => unknown,
+    formatter?: Formatter<BindingType, Type>,
     event?: string
   ): void {
     if (!this.objectHasProperty(obj, prop)) {
       throw new BindingError(
         `Property ${this.bindingProp} not found in object`
-      );
-    }
-
-    if (twoWay && formatter) {
-      throw new BindingError(
-        `It is not allowed to use twoWay data binding with an formatter`
       );
     }
 
@@ -193,20 +227,24 @@ class Binding {
 
     if (twoWay) {
       if (obj instanceof HTMLElement) {
-        if (this.objBinding) {
+        if (!formatter) {
           throw new BindingError(
-            `It is not allowed to use two way data binding on an object type via an html element`
+            `It is not allowed to use two way data binding with an html element without an formatter!!!`
           );
         }
 
         if (event === undefined) {
           throw new BindingError(
-            `Event can't be undefined, if element is an HTML-Element and twoWay is true. Set it to 'none' if no event handler should be used.`
+            `Event can't be undefined, if element is an HTML-Element and twoWay is true.`
           );
         }
 
         listener = () => {
-          this.setter(deepestObj[lastPart]);
+          this.setter(
+            formatter
+              ? formatter.parse(deepestObj[lastPart])
+              : deepestObj[lastPart]
+          );
         };
         obj.addEventListener(event, listener);
       } else {
@@ -221,7 +259,7 @@ class Binding {
       event: event,
       eventListener: listener,
       formatter: formatter,
-    } as BindingData;
+    } as BindingData<BindingType, Type>;
 
     this.bindings.push(binding);
 
@@ -254,7 +292,7 @@ class Binding {
         this.bindingProp
       );
       const lastPart = this.getLastPathPart(this.bindingProp);
-      deepestObj[lastPart] = this.oldObj;
+      this.removeProxy(deepestObj, lastPart);
     }
 
     for (const binding of this.bindings) {

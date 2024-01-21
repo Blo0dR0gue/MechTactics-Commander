@@ -7,12 +7,12 @@ import { CameraController } from './controller/CameraController';
 import { RouteController } from './controller/RouteController';
 import { ActionBarHandler } from './handler/ActionBarHandler';
 import { HeaderHandler } from './handler/HeaderHandler';
-import { ToastHandler } from './utils/ToastHandler';
+import { ToastHandler } from './utils/components/ToastHandler';
 import { Universe } from './ui/Universe';
 import { Config } from './utils/Config';
 
 import { Tooltip } from 'bootstrap';
-import { RingLoadingIndicator } from './utils/RingLoadingIndicator';
+import { RingLoadingIndicator } from './utils/components/RingLoadingIndicator';
 
 const loader = document.getElementById('loader');
 

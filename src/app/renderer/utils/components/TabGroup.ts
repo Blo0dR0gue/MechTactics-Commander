@@ -1,5 +1,5 @@
-import { Icon } from '../../types/UtilityTypes';
-import { escapeHtmlTags } from './Utils';
+import { Icon } from '../../../types/UtilityTypes';
+import { escapeHtmlTags } from '../Utils';
 
 interface TabElement {
   icon?: Icon;

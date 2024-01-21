@@ -1,10 +1,10 @@
-import { Icon } from '../../types/UtilityTypes';
-import { escapeHtmlTags } from './Utils';
+import { Icon } from '../../../types/UtilityTypes';
+import { escapeHtmlTags } from '../Utils';
 
 /**
  * A basic button definition for this table
  */
-interface IButton {
+type ButtonData = {
   /**
    * The display text of the button
    */
@@ -17,7 +17,7 @@ interface IButton {
    * A possible icon element, which is displayed before a possible text
    */
   icon?: Icon;
-}
+};
 
 class Button {
   /**
@@ -32,7 +32,10 @@ class Button {
    * @param classNames A list of css class names to style this button
    * @param icon A possible icon element, which is displayed before a possible text
    */
-  public constructor(private parentElement: HTMLElement, basicButton: IButton) {
+  public constructor(
+    private parentElement: HTMLElement,
+    basicButton: ButtonData
+  ) {
     const { text, icon, classNames } = basicButton;
 
     if (!text && !icon) {
@@ -80,4 +83,4 @@ class Button {
   }
 }
 
-export { Button, IButton };
+export { Button, ButtonData };

@@ -40,6 +40,7 @@ class Table<T extends ObjectWithKeys> {
   private paginationContainer: HTMLDivElement;
 
   private rows: TableRow<T>[] = [];
+  private sorter: (v1: T, v2: T) => number;
 
   /**
    * Create a new dynamic table
@@ -404,10 +405,12 @@ class Table<T extends ObjectWithKeys> {
    * Set the data of this table.
    * @param data The new data
    */
-  public setData(data: T[]): void {
+  public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
     if (this.tableElement.parentNode)
       throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
+    this.sorter = sorter;
+    if (sorter) this.data.sort(sorter);
   }
 
   /**
@@ -424,6 +427,7 @@ class Table<T extends ObjectWithKeys> {
     } else {
       this.data.push(data);
     }
+    if (this.sorter) this.data.sort(this.sorter);
 
     if (this.tableElement.parentNode === this.parentElement) {
       this.updateTable();
@@ -448,6 +452,7 @@ class Table<T extends ObjectWithKeys> {
   public removeDataByIdx(idx: number) {
     this.clearRows();
     this.data.splice(idx, 1);
+    if (this.sorter) this.data.sort(this.sorter);
     if (this.tableElement.parentNode === this.parentElement) {
       this.updateTable();
     }

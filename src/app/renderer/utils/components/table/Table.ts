@@ -15,6 +15,8 @@ import {
   TableActionBarData,
 } from './TableTypes';
 
+import './table.scss';
+
 class TableError extends Error {
   public constructor(message: string) {
     super(message);
@@ -42,6 +44,8 @@ class Table<T extends ObjectWithKeys> {
   private rows: TableRow<T>[] = [];
   private sorter: (v1: T, v2: T) => number;
 
+  private tableHolder: HTMLDivElement;
+
   /**
    * Create a new dynamic table
    * @param parentElement The dom element, in which this table should be rendered
@@ -57,7 +61,11 @@ class Table<T extends ObjectWithKeys> {
     private readonly headerData: TableActionBarData,
     private readonly columnDefinitions: TableColumnData<T>[]
   ) {
+    this.tableHolder = document.createElement('div');
+    this.tableHolder.classList.add('overflow-auto');
+    this.tableHolder.style.flex = '1';
     this.tableElement = document.createElement('table');
+    this.tableElement.classList.add('flex', 'overflow-auto', 'flex-grow-1');
     this.tableElement.classList.add(...classNames);
     this.loader = new RingLoadingIndicator(this.parentElement, 'lds-ring-dark');
 
@@ -77,7 +85,7 @@ class Table<T extends ObjectWithKeys> {
       throw new TableError(`No data defined`);
     }
 
-    if (this.tableElement.parentNode) {
+    if (this.tableHolder.parentNode) {
       throw new TableError('Table is already rendered!');
     }
 
@@ -156,7 +164,8 @@ class Table<T extends ObjectWithKeys> {
     this.renderTableHeaders();
     this.renderRows(0, this.itemsPerPage, this.data);
 
-    this.parentElement.appendChild(this.tableElement);
+    this.tableHolder.appendChild(this.tableElement);
+    this.parentElement.appendChild(this.tableHolder);
   }
 
   private renderFooter(): void {
@@ -185,7 +194,7 @@ class Table<T extends ObjectWithKeys> {
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
   private updateTable(): void {
-    if (this.tableElement.parentNode != this.parentElement) {
+    if (this.tableHolder.parentNode != this.parentElement) {
       throw new TableError("Table is not rendered. Can't update the table");
     }
     this.loader.show();
@@ -390,11 +399,12 @@ class Table<T extends ObjectWithKeys> {
    * Remove this table from the dom
    */
   public remove() {
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.tableHolder.parentNode === this.parentElement) {
       this.clearRows();
+      this.tableHolder.innerHTML = '';
       this.tableElement.innerHTML = '';
       this.parentElement.removeChild(this.headerElement);
-      this.parentElement.removeChild(this.tableElement);
+      this.parentElement.removeChild(this.tableHolder);
       this.parentElement.removeChild(this.footerElement);
       this.currentPage = 1;
       this.filterText = '';
@@ -406,7 +416,7 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
-    if (this.tableElement.parentNode)
+    if (this.tableHolder.parentNode)
       throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
     this.sorter = sorter;
@@ -453,19 +463,19 @@ class Table<T extends ObjectWithKeys> {
     this.clearRows();
     this.data.splice(idx, 1);
     if (this.sorter) this.data.sort(this.sorter);
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.tableHolder.parentNode === this.parentElement) {
       this.updateTable();
     }
   }
 
   public addColumn(columnData: TableColumnData<T>): void {
     this.columnDefinitions.push(columnData);
-    if (this.tableElement.parentNode === this.parentElement) this.updateTable();
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
   }
 
   public addColumnAt(columnData: TableColumnData<T>, index: number): void {
     this.columnDefinitions.splice(index, 0, columnData);
-    if (this.tableElement.parentNode === this.parentElement) this.updateTable();
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
   }
 
   public getColumns(): TableColumnData<T>[] {

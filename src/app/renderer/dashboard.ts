@@ -1262,7 +1262,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
 ) {
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-1' },
+      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-2' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
@@ -1282,7 +1282,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
   );
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Planet Text ' + universeAge, size: 'col-space-5' },
+      header: { name: 'Planet Text ' + universeAge, size: 'col-space-7' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.planetText`,

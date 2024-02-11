@@ -30,6 +30,7 @@ class ActionBarHandler {
   private settingsRange30: HTMLInputElement;
   private settingsRange60: HTMLInputElement;
   private excludedAffiliationsParent: HTMLElement;
+  private settingsBackgroundColor: HTMLInputElement;
 
   // TODO: Rework (remove here)
   private routeController: RouteController;
@@ -68,6 +69,9 @@ class ActionBarHandler {
     this.excludedAffiliationsParent = document.getElementById(
       'jump-settings-excluded-affiliations'
     );
+    this.settingsBackgroundColor = document.getElementById(
+      'settings-background-color'
+    ) as HTMLInputElement;
   }
 
   /**
@@ -143,6 +147,14 @@ class ActionBarHandler {
       Config.getInstance().set('jumpRange', 30);
       // TODO: Use Event???
       this.generateJumpCards();
+    });
+
+    this.settingsBackgroundColor.value = this.universe.getBackgroundColor();
+
+    this.settingsBackgroundColor.addEventListener('change', (event) => {
+      this.universe.setBackgroundColor(
+        (event.target as HTMLInputElement).value
+      );
     });
 
     // Setup exclude affiliations toggles

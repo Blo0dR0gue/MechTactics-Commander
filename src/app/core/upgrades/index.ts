@@ -4,6 +4,7 @@ import { Upgrade010 } from './Upgrade010';
 import { Upgrade011 } from './Upgrade011';
 import { Upgrade012 } from './Upgrade012';
 import { Upgrade013 } from './Upgrade013';
+import { Upgrade014 } from './Upgrade014';
 
 // TODO Use class instead which creates the upgrade objects
 export default {
@@ -13,4 +14,5 @@ export default {
   '0.1.1': Upgrade011,
   '0.1.2': Upgrade012,
   '0.1.3': Upgrade013,
+  '0.1.4': Upgrade014,
 };

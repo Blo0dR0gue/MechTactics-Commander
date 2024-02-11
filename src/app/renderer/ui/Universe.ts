@@ -82,6 +82,11 @@ class Universe {
   private universeAges: number[];
 
   /**
+   * Background color for the app
+   */
+  private backgroundColor: string;
+
+  /**
    * Planet selection changed event
    */
   public planetSelectionChangedEvent: EventHandler<SelectionChangeEvent>;
@@ -120,6 +125,10 @@ class Universe {
       this.canvas.height = window.innerHeight;
       this.zoom = 2.4;
       this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
+
+      this.setBackgroundColor(
+        Config.getInstance().get('backgroundColor') as string
+      );
 
       this.initData().then(() => {
         this.render();
@@ -572,6 +581,24 @@ class Universe {
    */
   public getAllAffiliations(): Affiliation[] {
     return this.affiliations;
+  }
+
+  /**
+   * Set the background color of the app
+   * @param color
+   */
+  public setBackgroundColor(color: string) {
+    this.backgroundColor = color;
+    this.canvas.style.backgroundColor = color;
+    Config.getInstance().set('backgroundColor', color);
+  }
+
+  /**
+   * Get the current background color
+   * @return
+   */
+  public getBackgroundColor() {
+    return this.backgroundColor;
   }
 }
 

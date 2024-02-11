@@ -54,6 +54,7 @@ class Main {
       this.config.set('jumpRange', 30);
       this.config.set('excludedAffiliationIDs', []);
       this.config.set('selectedUniverseAge', 3025);
+      this.config.set('backgroundColor', '#08001f');
     }
     this.initHandlers();
     return this;

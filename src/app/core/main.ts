@@ -10,6 +10,9 @@ import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
 import { AppWindow } from './window/AppWindow';
 
+import { insertCSVIntoDatabase } from './CSVHelper';
+import { AppConstants } from './AppConstants';
+
 class Main {
   private isDevelopment: boolean;
   private database: Database;
@@ -22,6 +25,8 @@ class Main {
     this.isDevelopment = process.env.NODE_ENV === 'development';
     // TODO: Use Instance instead???
     this.config = new CoreConfig(this.isDevelopment);
+
+    insertCSVIntoDatabase(AppConstants.ROOT_DIR + '../' + 'test.csv', '');
   }
 
   public init() {

@@ -70,6 +70,7 @@
     "@popperjs/core": "^2.11.8",
     "@types/bootstrap": "^5.2.7",
     "bootstrap": "^5.3.2",
+    "csv": "^6.3.8",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",

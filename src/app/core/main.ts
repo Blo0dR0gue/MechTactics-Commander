@@ -10,7 +10,7 @@ import { CoreConfig } from './CoreConfig';
 import { Updater } from './Updater';
 import { AppWindow } from './window/AppWindow';
 
-import { insertCSVIntoDatabase } from './CSVHelper';
+import { insertCSVIntoDatabase, exportDatabaseToCSV } from './CSVHelper';
 import { AppConstants } from './AppConstants';
 
 class Main {
@@ -26,7 +26,11 @@ class Main {
     // TODO: Use Instance instead???
     this.config = new CoreConfig(this.isDevelopment);
 
-    insertCSVIntoDatabase(AppConstants.ROOT_DIR + '../' + 'test.csv', '');
+    exportDatabaseToCSV(AppConstants.ROOT_DIR + '../' + 'test.csv', '').then(
+      () => {
+        insertCSVIntoDatabase(AppConstants.ROOT_DIR + '../' + 'test.csv', '');
+      }
+    );
   }
 
   public init() {

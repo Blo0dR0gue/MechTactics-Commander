@@ -50,6 +50,10 @@ class AppWindow {
     this.setupHandler();
   }
 
+  public getWindow(): BrowserWindow {
+    return this.window;
+  }
+
   public loadPage(pageName: 'update.html' | 'dashboard.html' | 'index.html') {
     this.window.loadFile(path.join(AppConstants.PAGES_DIR, pageName));
     this.window.maximize();

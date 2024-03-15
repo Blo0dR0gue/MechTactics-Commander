@@ -49,6 +49,8 @@ contextBridge.exposeInMainWorld('app', {
     const cache = await ipcRenderer.invoke('getConfigCache');
     return cache;
   },
+  saveDatabaseToCSV: async () => {},
+  loadDatabaseFromCSV: async () => {},
 });
 
 contextBridge.exposeInMainWorld('update', {

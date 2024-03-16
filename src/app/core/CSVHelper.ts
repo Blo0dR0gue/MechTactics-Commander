@@ -62,6 +62,7 @@ async function importTableFromCSV(
   });
 }
 
+// TODO: Export PlanetAffiliationAge like in the app. for one planet only one row
 async function exportTableToCSV(
   database: Database,
   tableName: DatabaseTables,

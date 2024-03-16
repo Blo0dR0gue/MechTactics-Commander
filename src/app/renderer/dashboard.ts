@@ -27,9 +27,11 @@ import {
   affiliationIcon,
   copyIcon,
   deleteIcon,
+  downloadIcon,
   editIcon,
   planetAffiliationAgeIcon,
   planetIcon,
+  uploadIcon,
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
 
@@ -1035,6 +1037,46 @@ const planetTable = new Table<(typeof planetsData)[number]>(
           openPlanetModalWith();
         },
       },
+      {
+        icon: uploadIcon,
+        classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .importTableFromCSV('Planet')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Import der CSV.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
+      {
+        icon: downloadIcon,
+        classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .exportTableToCSV('Planet')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Export der Table.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
     ],
   },
   [
@@ -1155,6 +1197,46 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
         classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
         onClick() {
           openAffiliationModalWith();
+        },
+      },
+      {
+        icon: uploadIcon,
+        classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .importTableFromCSV('Affiliation')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Import der CSV.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
+      {
+        icon: downloadIcon,
+        classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .exportTableToCSV('Affiliation')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Export der Table.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
         },
       },
     ],
@@ -1316,6 +1398,46 @@ const planetAffiliationConnectTable =
           classNames: ['btn', 'btn-sm', 'btn-warning', 'me-2'],
           onClick() {
             openPlanetAgeCopyModal();
+          },
+        },
+        {
+          icon: uploadIcon,
+          classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+          onClick() {
+            loadingIndicator.show();
+            window.app
+              .importTableFromCSV('PlanetAffiliationAge')
+              .then(() => {
+                loadingIndicator.hide();
+              })
+              .catch((reason) => {
+                toastHandler.createAndShowToast(
+                  'Error',
+                  'Fehler beim Import der CSV.\n' + reason,
+                  ToastType.Danger
+                );
+                loadingIndicator.hide();
+              });
+          },
+        },
+        {
+          icon: downloadIcon,
+          classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+          onClick() {
+            loadingIndicator.show();
+            window.app
+              .exportTableToCSV('PlanetAffiliationAge')
+              .then(() => {
+                loadingIndicator.hide();
+              })
+              .catch((reason) => {
+                toastHandler.createAndShowToast(
+                  'Error',
+                  'Fehler beim Export der Table.\n' + reason,
+                  ToastType.Danger
+                );
+                loadingIndicator.hide();
+              });
           },
         },
       ],

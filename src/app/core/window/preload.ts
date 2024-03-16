@@ -49,8 +49,13 @@ contextBridge.exposeInMainWorld('app', {
     const cache = await ipcRenderer.invoke('getConfigCache');
     return cache;
   },
-  saveDatabaseToCSV: async () => {},
-  loadDatabaseFromCSV: async () => {},
+
+  exportTableToCSV: (tableName) =>
+    ipcRenderer.invoke('exportTableToCSV', tableName),
+  importTableFromCSV: (tableName) =>
+    ipcRenderer.invoke('importTableFromCSV', tableName),
+  exportDatabaseToCSVs: () => ipcRenderer.invoke('exportDatabaseToCSV'),
+  importDatabaseFromCSVs: () => ipcRenderer.invoke('importDatabaseFromCSV'),
 });
 
 contextBridge.exposeInMainWorld('update', {

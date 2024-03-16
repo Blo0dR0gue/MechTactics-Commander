@@ -10,6 +10,14 @@ import {
 import { AffiliationData } from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
+import {
+  exportDatabaseToCSVs,
+  exportTableToCSV,
+  importDatabaseFromCSVs,
+  importTableFromCSV,
+  selectCSVDestination,
+} from '../CSVHelper';
+import { DatabaseTables } from '../../types/UtilityTypes';
 
 // TODO: Use only one window and switch loaded files
 
@@ -345,6 +353,38 @@ class AppWindow {
 
     ipcMain.handle('restartAndUpdate', () => {
       autoUpdater.quitAndInstall();
+    });
+
+    ipcMain.handle(
+      'exportTableToCSV',
+      async (event, tableName: DatabaseTables) => {
+        const filePath = await selectCSVDestination(this, true, false);
+        if (!filePath)
+          return new Promise<void>((resolve) => {
+            resolve();
+          });
+        return exportTableToCSV(this.database, tableName, filePath);
+      }
+    );
+
+    ipcMain.handle(
+      'importTableFromCSV',
+      async (event, tableName: DatabaseTables) => {
+        const filePath = await selectCSVDestination(this, false, false);
+        if (!filePath)
+          return new Promise<void>((resolve) => {
+            resolve();
+          });
+        return importTableFromCSV(this.database, tableName, filePath);
+      }
+    );
+
+    ipcMain.handle('exportDatabaseToCSVs', () => {
+      return exportDatabaseToCSVs(this, this.database);
+    });
+
+    ipcMain.handle('importDatabaseFromCSVs', () => {
+      return importDatabaseFromCSVs(this, this.database);
     });
   }
 }

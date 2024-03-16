@@ -5,28 +5,46 @@ import { dialog } from 'electron/main';
 import { AppWindow } from './window/AppWindow';
 import { Database, ISqlite } from 'sqlite';
 import { Statement } from 'sqlite3';
+import { DatabaseTables } from '../types/UtilityTypes';
 
-async function selectCSVDestination(window: AppWindow, save: boolean) {
-  const destinationData = await dialog.showOpenDialog(window.getWindow(), {
-    title: save ? 'Speichern unter...' : 'Laden',
-    properties: ['openDirectory', 'createDirectory'],
-  });
-  return destinationData?.filePaths[0];
+async function selectCSVDestination(
+  window: AppWindow,
+  save: boolean,
+  dir?: boolean
+) {
+  if (save && !dir) {
+    const destinationData = await dialog.showSaveDialog(window.getWindow(), {
+      title: 'Speichern unter...',
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      properties: ['createDirectory'],
+    });
+    return destinationData?.filePath;
+  } else {
+    const destinationData = await dialog.showOpenDialog(window.getWindow(), {
+      title: 'Laden',
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      properties: [dir ? 'openDirectory' : 'openFile', 'createDirectory'],
+    });
+    return destinationData?.filePaths[0];
+  }
 }
 
-type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';
-
-async function insertCSVIntoTable(
+async function importTableFromCSV(
   database: Database,
   tableName: DatabaseTables,
-  csvFolderPath: string
+  csvPath: string
 ) {
-  const csvPath = csvFolderPath + path.sep + tableName + '.csv';
+  let csvFilePath;
+  if (csvPath.endsWith('.csv')) {
+    csvFilePath = csvPath;
+  } else {
+    csvFilePath = csvPath + path.sep + tableName + '.csv';
+  }
 
   const insertPromises: Promise<ISqlite.RunResult<Statement>>[] = [];
 
   return new Promise<void>((resolve, reject) => {
-    fs.createReadStream(csvPath)
+    fs.createReadStream(csvFilePath)
       .pipe(parse({ delimiter: ';', columns: true, encoding: 'utf-8' }))
       .on('data', (data) => {
         const keys = Object.keys(data).join(', ');
@@ -42,6 +60,21 @@ async function insertCSVIntoTable(
           .catch((err) => reject(err));
       });
   });
+}
+
+async function exportTableToCSV(
+  database: Database,
+  tableName: DatabaseTables,
+  csvPath: string
+) {
+  let csvFilePath;
+  if (csvPath.endsWith('.csv')) {
+    csvFilePath = csvPath;
+  } else {
+    csvFilePath = csvPath + path.sep + tableName + '.csv';
+  }
+  const rows = await database.all(`SELECT * FROM ${tableName};`);
+  return writeDataToCSV(rows, csvFilePath);
 }
 
 async function writeDataToCSV(dataRows: object[], pathToCSV: string) {
@@ -72,38 +105,46 @@ async function writeDataToCSV(dataRows: object[], pathToCSV: string) {
   });
 }
 
-async function exportTableToCSV(
-  database: Database,
-  tableName: DatabaseTables,
-  csvFolderPath: string
-) {
-  const csvPath = csvFolderPath + path.sep + tableName + '.csv';
-  const rows = await database.all(`SELECT * FROM ${tableName};`);
-  await writeDataToCSV(rows, csvPath);
-}
-
 async function exportDatabaseToCSVs(window: AppWindow, database: Database) {
-  const csvFolderPath = await selectCSVDestination(window, false);
+  const csvFolderPath = await selectCSVDestination(window, true, true);
 
   if (!csvFolderPath) {
     return;
   }
 
-  await exportTableToCSV(database, 'Planet', csvFolderPath);
-  await exportTableToCSV(database, 'Affiliation', csvFolderPath);
-  await exportTableToCSV(database, 'PlanetAffiliationAge', csvFolderPath);
+  const exports: Promise<void>[] = [];
+
+  exports.push(exportTableToCSV(database, 'Planet', csvFolderPath));
+  exports.push(exportTableToCSV(database, 'Affiliation', csvFolderPath));
+  exports.push(
+    exportTableToCSV(database, 'PlanetAffiliationAge', csvFolderPath)
+  );
+
+  return Promise.all(exports);
 }
 
-async function importCSVsIntoDatabase(window: AppWindow, database: Database) {
-  const csvFolderPath = await selectCSVDestination(window, false);
+async function importDatabaseFromCSVs(window: AppWindow, database: Database) {
+  const csvFolderPath = await selectCSVDestination(window, false, true);
 
   if (!csvFolderPath) {
     return;
   }
 
-  await insertCSVIntoTable(database, 'Planet', csvFolderPath);
-  await insertCSVIntoTable(database, 'Affiliation', csvFolderPath);
-  await insertCSVIntoTable(database, 'PlanetAffiliationAge', csvFolderPath);
+  const exports: Promise<void>[] = [];
+
+  exports.push(importTableFromCSV(database, 'Planet', csvFolderPath));
+  exports.push(importTableFromCSV(database, 'Affiliation', csvFolderPath));
+  exports.push(
+    importTableFromCSV(database, 'PlanetAffiliationAge', csvFolderPath)
+  );
+
+  return Promise.all(exports);
 }
 
-export { exportDatabaseToCSVs, importCSVsIntoDatabase };
+export {
+  selectCSVDestination,
+  exportTableToCSV,
+  importTableFromCSV,
+  exportDatabaseToCSVs,
+  importDatabaseFromCSVs,
+};

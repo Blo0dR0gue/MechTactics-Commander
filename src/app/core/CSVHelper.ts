@@ -43,11 +43,16 @@ async function importTableFromCSV(
   }
 
   const insertPromises: Promise<ISqlite.RunResult<Statement>>[] = [];
-
+  let transactionStarted = false;
   return new Promise<void>((resolve, reject) => {
     fs.createReadStream(csvFilePath)
       .pipe(parse({ delimiter: ';', columns: true, encoding: 'utf-8' }))
       .on('data', (data) => {
+        if (!transactionStarted) {
+          database.run('BEGIN TRANSACTION;');
+          transactionStarted = true;
+        }
+
         if (tableName === 'PlanetAffiliationAge') {
           // We need to convert the one line per planet to multi lines per planet for each age like in the database
 
@@ -98,8 +103,14 @@ async function importTableFromCSV(
       })
       .on('end', () => {
         Promise.all(insertPromises)
-          .then(() => resolve())
-          .catch((err) => reject(err));
+          .then(() => {
+            database.run('COMMIT;');
+            resolve();
+          })
+          .catch((err) => {
+            database.run('ROLLBACK;');
+            reject(err);
+          });
       });
   });
 }

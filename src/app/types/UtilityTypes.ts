@@ -85,6 +85,8 @@ type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
     : T[U]
   : never;
 
+type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';
+
 export {
   Icon,
   ObjectWithKeys,
@@ -92,4 +94,5 @@ export {
   ObjectPropsRec,
   ArrayObjType,
   ArrayPropPath,
+  DatabaseTables,
 };

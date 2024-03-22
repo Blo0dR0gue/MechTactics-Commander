@@ -18,6 +18,7 @@ import { Dialog } from './utils/components/Dialog';
 import { AffiliationData } from '../types/AffiliationData';
 import { PlanetCoordData } from '../types/PlanetData';
 import {
+  DynamicPlanetAffiliationConnectData,
   PlanetAffiliationAgeData,
   PlanetAffiliationAgeWithNamesData,
 } from '../types/PlanetAffiliationAge';
@@ -27,24 +28,13 @@ import {
   affiliationIcon,
   copyIcon,
   deleteIcon,
+  downloadIcon,
   editIcon,
   planetAffiliationAgeIcon,
   planetIcon,
+  uploadIcon,
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
-
-type DynamicPlanetAffiliationConnectData = {
-  planetID: number;
-  planetName: string;
-  affiliationData: {
-    [key: `age${number}`]: {
-      universeAge: number;
-      affiliationID: number;
-      planetText: string;
-      affiliationName: string;
-    };
-  };
-};
 
 // get planet and affiliation data
 const affiliationsData: AffiliationData[] =
@@ -64,15 +54,7 @@ const planetAffiliationConnectMap = new Map<
   DynamicPlanetAffiliationConnectData
 >();
 
-// TODO: Customer wants to have a smaller table where each planet is only once in the Planet Affiliation Connect table.
-const currentUsedUniverseAges = await window.sql
-  .getAllUniverseAges()
-  .then((universeAges) =>
-    universeAges.reduce((acc, age) => {
-      acc.add(age.universeAge);
-      return acc;
-    }, new Set<number>())
-  );
+const currentUsedUniverseAges = await window.sql.getAllUniverseAges();
 
 tmpPlanetAffiliationAgeData.forEach((planetAffiliationAge) => {
   let item = planetAffiliationConnectMap.get(planetAffiliationAge.planetID);
@@ -1035,6 +1017,47 @@ const planetTable = new Table<(typeof planetsData)[number]>(
           openPlanetModalWith();
         },
       },
+      {
+        icon: uploadIcon,
+        classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .importTableFromCSV('Planet')
+            .then(() => {
+              loadingIndicator.hide();
+              location.reload();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Import der CSV.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
+      {
+        icon: downloadIcon,
+        classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .exportTableToCSV('Planet')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Export der Table.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
     ],
   },
   [
@@ -1157,6 +1180,47 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
           openAffiliationModalWith();
         },
       },
+      {
+        icon: uploadIcon,
+        classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .importTableFromCSV('Affiliation')
+            .then(() => {
+              loadingIndicator.hide();
+              location.reload();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Import der CSV.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
+      {
+        icon: downloadIcon,
+        classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+        onClick() {
+          loadingIndicator.show();
+          window.app
+            .exportTableToCSV('Affiliation')
+            .then(() => {
+              loadingIndicator.hide();
+            })
+            .catch((reason) => {
+              toastHandler.createAndShowToast(
+                'Error',
+                'Fehler beim Export der Table.\n' + reason,
+                ToastType.Danger
+              );
+              loadingIndicator.hide();
+            });
+        },
+      },
     ],
   },
   [
@@ -1262,7 +1326,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
 ) {
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-2' },
+      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-3' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
@@ -1316,6 +1380,47 @@ const planetAffiliationConnectTable =
           classNames: ['btn', 'btn-sm', 'btn-warning', 'me-2'],
           onClick() {
             openPlanetAgeCopyModal();
+          },
+        },
+        {
+          icon: uploadIcon,
+          classNames: ['btn', 'btn-danger', 'btn-sm', 'me-1'],
+          onClick() {
+            loadingIndicator.show();
+            window.app
+              .importTableFromCSV('PlanetAffiliationAge')
+              .then(() => {
+                loadingIndicator.hide();
+                location.reload();
+              })
+              .catch((reason) => {
+                toastHandler.createAndShowToast(
+                  'Error',
+                  'Fehler beim Import der CSV.\n' + reason,
+                  ToastType.Danger
+                );
+                loadingIndicator.hide();
+              });
+          },
+        },
+        {
+          icon: downloadIcon,
+          classNames: ['btn', 'btn-info', 'btn-sm', 'me-1'],
+          onClick() {
+            loadingIndicator.show();
+            window.app
+              .exportTableToCSV('PlanetAffiliationAge')
+              .then(() => {
+                loadingIndicator.hide();
+              })
+              .catch((reason) => {
+                toastHandler.createAndShowToast(
+                  'Error',
+                  'Fehler beim Export der Table.\n' + reason,
+                  ToastType.Danger
+                );
+                loadingIndicator.hide();
+              });
           },
         },
       ],

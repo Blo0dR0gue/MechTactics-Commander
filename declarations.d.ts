@@ -17,7 +17,7 @@ interface Window {
     getAllPlanetAffiliationAgesWithNames: () => Promise<
       import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeWithNamesData[]
     >;
-    getAllUniverseAges: () => Promise<{ universeAge: number }[]>;
+    getAllUniverseAges: () => Promise<Set<number>>;
 
     // Manipulation queries
     updatePlanet: (
@@ -62,6 +62,14 @@ interface Window {
     version: () => Promise<string>;
     setConfigData: (key: string, value: unknown) => void;
     getConfigCache: () => Promise<Record<string, unknown>>;
+    exportTableToCSV: (
+      tableName: import('./src/app/types/UtilityTypes').DatabaseTables
+    ) => Promise<void>;
+    importTableFromCSV: (
+      tableName: import('./src/app/types/UtilityTypes').DatabaseTables
+    ) => Promise<void>;
+    exportDatabaseToCSVs: () => Promise<void>[];
+    importDatabaseFromCSVs: () => Promise<void>[];
   };
 
   update: {

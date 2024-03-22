@@ -49,9 +49,17 @@ async function importTableFromCSV(
       .pipe(parse({ delimiter: ';', columns: true, encoding: 'utf-8' }))
       .on('data', (data) => {
         if (tableName === 'PlanetAffiliationAge') {
+          // We need to convert the one line per planet to multi lines per planet for each age like in the database
+
           const affiliationIDKeys = Object.keys(data).filter((key) =>
             key.includes('affiliationID')
           );
+
+          if (affiliationIDKeys.length === 0) {
+            reject('No affiliation data found');
+            return;
+          }
+
           const ages = affiliationIDKeys.reduce((acc, key) => {
             if (data[key]) {
               acc.push(key.replace('affiliationID', ''));
@@ -96,7 +104,6 @@ async function importTableFromCSV(
   });
 }
 
-// TODO: Export PlanetAffiliationAge like in the app. for one planet only one row
 async function exportTableToCSV(
   database: Database,
   tableName: DatabaseTables,
@@ -116,7 +123,11 @@ async function exportTableToCSV(
   }[] = [];
 
   if (tableName === 'PlanetAffiliationAge') {
+    // We need to export the PlanetAffiliationAge in a different way then the other tables, because one planet can be in different affiliations in different universe ages.
+    // The Customer wants to have one row per planet in the CSV-file.
+
     // TODO: Clean way via database instance
+    // Get all ages stored in the database
     let ages = await database.all(
       'SELECT DISTINCT universeAge FROM PlanetAffiliationAge;'
     );
@@ -125,6 +136,7 @@ async function exportTableToCSV(
       return acc;
     }, new Set<number>());
 
+    // Format the data from the database to archive the structure of DynamicPlanetAffiliationConnectData
     const formatter = new PlanetAffiliationAgeDynFormatter();
     const formattedData = formatter.format(rows);
 
@@ -134,6 +146,7 @@ async function exportTableToCSV(
     });
 
     ages.forEach((age) => {
+      // Add headers fo the affiliation-id and the planet-text for the different universe ages we have
       columnKeys.push({
         header: `affiliationID${age}`,
         key: `affiliationData.age${age}.affiliationID`,
@@ -143,6 +156,7 @@ async function exportTableToCSV(
         key: `affiliationData.age${age}.planetText`,
       });
     });
+
     rows = formattedData;
   } else {
     Object.keys(rows[0]).forEach((key) =>

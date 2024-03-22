@@ -79,7 +79,7 @@ async function importTableFromCSV(
               universeAge: age,
               planetID: data['planetID'],
               affiliationID: data[`affiliationID${age}`],
-              planetText: data[`planetText${age}`],
+              planetText: data[`planetText${age}`] || '',
             };
             const values = Object.values(elem)
               .map((value) => `"${value}"`)

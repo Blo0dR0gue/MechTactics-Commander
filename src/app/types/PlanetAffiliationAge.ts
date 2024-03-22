@@ -10,4 +10,21 @@ type PlanetAffiliationAgeWithNamesData = PlanetAffiliationAgeData & {
   affiliationName: string;
 };
 
-export { PlanetAffiliationAgeData, PlanetAffiliationAgeWithNamesData };
+type DynamicPlanetAffiliationConnectData = {
+  planetID: number;
+  planetName: string;
+  affiliationData: {
+    [key: `age${number}`]: {
+      universeAge: number;
+      affiliationID: number;
+      planetText: string;
+      affiliationName: string;
+    };
+  };
+};
+
+export {
+  PlanetAffiliationAgeData,
+  PlanetAffiliationAgeWithNamesData,
+  DynamicPlanetAffiliationConnectData,
+};

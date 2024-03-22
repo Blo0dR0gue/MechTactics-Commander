@@ -141,7 +141,12 @@ class AppWindow {
         this.database
           .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
           .then((data) => {
-            resolve(data);
+            resolve(
+              data.reduce((acc, val) => {
+                acc.add(val.universeAge);
+                return acc;
+              }, new Set<number>())
+            );
           });
       });
     });

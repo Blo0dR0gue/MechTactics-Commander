@@ -6,6 +6,7 @@ import { AppWindow } from './window/AppWindow';
 import { Database, ISqlite } from 'sqlite';
 import { Statement } from 'sqlite3';
 import { DatabaseTables } from '../types/UtilityTypes';
+import PlanetAffiliationAgeDynFormatter from '../renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter';
 
 async function selectCSVDestination(
   window: AppWindow,
@@ -47,12 +48,45 @@ async function importTableFromCSV(
     fs.createReadStream(csvFilePath)
       .pipe(parse({ delimiter: ';', columns: true, encoding: 'utf-8' }))
       .on('data', (data) => {
-        const keys = Object.keys(data).join(', ');
-        const values = Object.values(data)
-          .map((value) => `"${value}"`)
-          .join(', ');
-        const query = `INSERT OR REPLACE INTO ${tableName} (${keys}) VALUES (${values})`;
-        insertPromises.push(database.run(query));
+        if (tableName === 'PlanetAffiliationAge') {
+          const affiliationIDKeys = Object.keys(data).filter((key) =>
+            key.includes('affiliationID')
+          );
+          const ages = affiliationIDKeys.reduce((acc, key) => {
+            if (data[key]) {
+              acc.push(key.replace('affiliationID', ''));
+            }
+            return acc;
+          }, []);
+
+          const databaseKeys = [
+            'universeAge',
+            'planetID',
+            'affiliationID',
+            'planetText',
+          ];
+
+          ages.forEach((age) => {
+            const elem = {
+              universeAge: age,
+              planetID: data['planetID'],
+              affiliationID: data[`affiliationID${age}`],
+              planetText: data[`planetText${age}`],
+            };
+            const values = Object.values(elem)
+              .map((value) => `"${value}"`)
+              .join(', ');
+            const query = `INSERT OR REPLACE INTO ${tableName} (${databaseKeys}) VALUES (${values})`;
+            insertPromises.push(database.run(query));
+          });
+        } else {
+          const databaseKeys = Object.keys(data).join(', ');
+          const values = Object.values(data)
+            .map((value) => `"${value}"`)
+            .join(', ');
+          const query = `INSERT OR REPLACE INTO ${tableName} (${databaseKeys}) VALUES (${values})`;
+          insertPromises.push(database.run(query));
+        }
       })
       .on('end', () => {
         Promise.all(insertPromises)
@@ -74,17 +108,63 @@ async function exportTableToCSV(
   } else {
     csvFilePath = csvPath + path.sep + tableName + '.csv';
   }
-  const rows = await database.all(`SELECT * FROM ${tableName};`);
-  return writeDataToCSV(rows, csvFilePath);
+  let rows = await database.all(`SELECT * FROM ${tableName};`);
+
+  const columnKeys: {
+    key: string;
+    header: string;
+  }[] = [];
+
+  if (tableName === 'PlanetAffiliationAge') {
+    // TODO: Clean way via database instance
+    let ages = await database.all(
+      'SELECT DISTINCT universeAge FROM PlanetAffiliationAge;'
+    );
+    ages = ages.reduce((acc, val) => {
+      acc.add(val.universeAge);
+      return acc;
+    }, new Set<number>());
+
+    const formatter = new PlanetAffiliationAgeDynFormatter();
+    const formattedData = formatter.format(rows);
+
+    columnKeys.push({
+      header: 'planetID',
+      key: 'planetID',
+    });
+
+    ages.forEach((age) => {
+      columnKeys.push({
+        header: `affiliationID${age}`,
+        key: `affiliationData.age${age}.affiliationID`,
+      });
+      columnKeys.push({
+        header: `planetText${age}`,
+        key: `affiliationData.age${age}.planetText`,
+      });
+    });
+    rows = formattedData;
+  } else {
+    Object.keys(rows[0]).forEach((key) =>
+      columnKeys.push({
+        key: key,
+        header: key,
+      })
+    );
+  }
+
+  return writeDataToCSV(rows, columnKeys, csvFilePath);
 }
 
-async function writeDataToCSV(dataRows: object[], pathToCSV: string) {
+async function writeDataToCSV(
+  dataRows: object[],
+  columnKeys: {
+    key: string;
+    header: string;
+  }[],
+  pathToCSV: string
+) {
   return new Promise<void>((resolve, reject) => {
-    const columnKeys = Object.keys(dataRows[0]).map((key) => ({
-      key: key,
-      header: key,
-    }));
-
     stringify(
       dataRows,
       {

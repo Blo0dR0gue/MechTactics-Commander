@@ -79,7 +79,7 @@ class Universe {
   /**
    * List of available universe ages
    */
-  private universeAges: number[];
+  private universeAges: Set<number>;
 
   /**
    * Background color for the app
@@ -99,7 +99,7 @@ class Universe {
   public constructor() {
     this.canvas = document.getElementById('universe') as HTMLCanvasElement;
     this.context = this.canvas.getContext('2d');
-    this.universeAges = [];
+    this.universeAges = new Set();
 
     this.planetSelectionChangedEvent = new EventHandler();
   }
@@ -156,11 +156,9 @@ class Universe {
   };
 
   private getUniverseAges = async () => {
-    this.universeAges = (await window.sql.getAllUniverseAges()).map(
-      (obj) => obj.universeAge
-    );
+    this.universeAges = await window.sql.getAllUniverseAges();
     const configAge = Config.getInstance().get('selectedUniverseAge') as number;
-    if (this.universeAges.find((universeAge) => universeAge === configAge)) {
+    if (this.universeAges.has(configAge)) {
       this.selectedUniverseAge = configAge;
     } else {
       this.setSelectedUniverseAge(this.universeAges[0]);
@@ -464,7 +462,7 @@ class Universe {
    * Gets all available universe ages
    * @returns
    */
-  public getAvailableUniverseAges(): number[] {
+  public getAvailableUniverseAges(): Set<number> {
     return this.universeAges;
   }
 
@@ -474,7 +472,7 @@ class Universe {
    */
   public setSelectedUniverseAge(age: number): void {
     if (this.selectedUniverseAge === age) return;
-    if (this.universeAges.includes(age)) {
+    if (this.universeAges.has(age)) {
       this.selectedUniverseAge = age;
       this.getPlanets();
       Config.getInstance().set('selectedUniverseAge', age);

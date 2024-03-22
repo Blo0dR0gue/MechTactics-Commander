@@ -17,7 +17,7 @@ interface Window {
     getAllPlanetAffiliationAgesWithNames: () => Promise<
       import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeWithNamesData[]
     >;
-    getAllUniverseAges: () => Promise<{ universeAge: number }[]>;
+    getAllUniverseAges: () => Promise<Set<number>>;
 
     // Manipulation queries
     updatePlanet: (

@@ -18,6 +18,7 @@ import { Dialog } from './utils/components/Dialog';
 import { AffiliationData } from '../types/AffiliationData';
 import { PlanetCoordData } from '../types/PlanetData';
 import {
+  DynamicPlanetAffiliationConnectData,
   PlanetAffiliationAgeData,
   PlanetAffiliationAgeWithNamesData,
 } from '../types/PlanetAffiliationAge';
@@ -34,19 +35,6 @@ import {
   uploadIcon,
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
-
-type DynamicPlanetAffiliationConnectData = {
-  planetID: number;
-  planetName: string;
-  affiliationData: {
-    [key: `age${number}`]: {
-      universeAge: number;
-      affiliationID: number;
-      planetText: string;
-      affiliationName: string;
-    };
-  };
-};
 
 // get planet and affiliation data
 const affiliationsData: AffiliationData[] =
@@ -66,15 +54,7 @@ const planetAffiliationConnectMap = new Map<
   DynamicPlanetAffiliationConnectData
 >();
 
-// TODO: Customer wants to have a smaller table where each planet is only once in the Planet Affiliation Connect table.
-const currentUsedUniverseAges = await window.sql
-  .getAllUniverseAges()
-  .then((universeAges) =>
-    universeAges.reduce((acc, age) => {
-      acc.add(age.universeAge);
-      return acc;
-    }, new Set<number>())
-  );
+const currentUsedUniverseAges = await window.sql.getAllUniverseAges();
 
 tmpPlanetAffiliationAgeData.forEach((planetAffiliationAge) => {
   let item = planetAffiliationConnectMap.get(planetAffiliationAge.planetID);
@@ -1046,6 +1026,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
             .importTableFromCSV('Planet')
             .then(() => {
               loadingIndicator.hide();
+              location.reload();
             })
             .catch((reason) => {
               toastHandler.createAndShowToast(
@@ -1208,6 +1189,7 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
             .importTableFromCSV('Affiliation')
             .then(() => {
               loadingIndicator.hide();
+              location.reload();
             })
             .catch((reason) => {
               toastHandler.createAndShowToast(
@@ -1344,7 +1326,7 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
 ) {
   planetAffiliationConnectTable.addColumnAt(
     {
-      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-2' },
+      header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-3' },
       data: {
         type: 'binding',
         dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
@@ -1409,6 +1391,7 @@ const planetAffiliationConnectTable =
               .importTableFromCSV('PlanetAffiliationAge')
               .then(() => {
                 loadingIndicator.hide();
+                location.reload();
               })
               .catch((reason) => {
                 toastHandler.createAndShowToast(

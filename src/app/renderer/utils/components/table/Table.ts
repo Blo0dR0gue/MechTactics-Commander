@@ -1,19 +1,8 @@
-import {
-  TypeOfObjectPropRec,
-  ObjectWithKeys,
-} from '../../../../types/UtilityTypes';
-import { Binding } from '../Binding';
+import { TypeOfObjectPropRec, ObjectWithKeys } from '../../../../types/UtilityTypes';
 import { Button } from '../Button';
 import { RingLoadingIndicator } from '../RingLoadingIndicator';
 import { TableRow } from './TableRow';
-import {
-  CellDataBinding,
-  CellDataButton,
-  CellDataClassic,
-  TableCellData,
-  TableColumnData,
-  TableActionBarData,
-} from './TableTypes';
+import { CellDataBinding, CellDataButton, CellDataClassic, TableCellData, TableColumnData, TableActionBarData } from './TableTypes';
 
 import './table.scss';
 
@@ -28,21 +17,20 @@ class TableError extends Error {
  * Dynamic table renderer with data binding
  */
 class Table<T extends ObjectWithKeys> {
-  private headerElement: HTMLElement;
-  private tableElement: HTMLTableElement;
-  private footerElement: HTMLElement;
+  private headerElement: HTMLElement | undefined;
+  private tableElement: HTMLTableElement | undefined;
+  private footerElement: HTMLElement | undefined;
 
-  private data: T[];
-  private bindings: Binding<unknown>[];
+  private data: T[] = [];
 
   private loader: RingLoadingIndicator;
 
   private currentPage: number;
   private filterText: string;
-  private paginationContainer: HTMLDivElement;
+  private paginationContainer: HTMLDivElement | undefined;
 
   private rows: TableRow<T>[] = [];
-  private sorter: (v1: T, v2: T) => number;
+  private sorter: ((v1: T, v2: T) => number) | undefined;
 
   private tableHolder: HTMLDivElement;
 
@@ -71,8 +59,6 @@ class Table<T extends ObjectWithKeys> {
 
     this.currentPage = 1;
     this.filterText = '';
-
-    this.bindings = [];
   }
 
   /**
@@ -103,7 +89,7 @@ class Table<T extends ObjectWithKeys> {
   /**
    * Clear data bindings
    */
-  private clearRows() {
+  private clearRows(): void {
     for (const row of this.rows) {
       row.remove();
     }
@@ -164,7 +150,7 @@ class Table<T extends ObjectWithKeys> {
     this.renderTableHeaders();
     this.renderRows(0, this.itemsPerPage, this.data);
 
-    this.tableHolder.appendChild(this.tableElement);
+    this.tableHolder.appendChild(this.tableElement!);
     this.parentElement.appendChild(this.tableHolder);
   }
 
@@ -172,11 +158,7 @@ class Table<T extends ObjectWithKeys> {
     // TODO: make dynamic like the css and to be able to enable the pagination
     this.footerElement = document.createElement('footer');
 
-    this.footerElement.classList.add(
-      ...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom flex-row'.split(
-        ' '
-      )
-    );
+    this.footerElement.classList.add(...'navbar border-bottom d-flex justify-content-center bg-light sticky-bottom flex-row'.split(' '));
 
     this.paginationContainer = document.createElement('div');
     this.paginationContainer.classList.add('d-flex');
@@ -194,14 +176,14 @@ class Table<T extends ObjectWithKeys> {
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
   private updateTable(): void {
-    if (this.tableHolder.parentNode != this.parentElement) {
+    if (!this.tableElement || this.tableHolder.parentNode != this.parentElement) {
       throw new TableError("Table is not rendered. Can't update the table");
     }
     this.loader.show();
 
     // TODO: do not clear like this?
     this.tableElement.removeChild(this.tableElement.tBodies[0]);
-    this.tableElement.removeChild(this.tableElement.tHead);
+    this.tableElement.removeChild(this.tableElement.tHead!);
 
     this.clearRows();
 
@@ -215,12 +197,10 @@ class Table<T extends ObjectWithKeys> {
       return Object.keys(obj).some((key) => {
         const value = obj[key] as TypeOfObjectPropRec<T, keyof T>;
 
-        const cols = this.columnDefinitions.filter(
-          (col) => col.data.type == 'binding' && col.data.dataAttribute == key
-        );
+        const cols = this.columnDefinitions.filter((col) => col.data.type == 'binding' && col.data.dataAttribute == key);
 
         // Maybe one data attribute is used for multiple column data fields, so we check all of them
-        return cols.some((col) => {
+        return cols.some((col): boolean => {
           if (col.data.type == 'binding') {
             if (col.data?.formatter) {
               const data = col.data.formatter.format(value).toLowerCase();
@@ -229,6 +209,7 @@ class Table<T extends ObjectWithKeys> {
               return String(value).toLowerCase().includes(this.filterText);
             }
           }
+          return false;
         });
       });
     });
@@ -245,6 +226,9 @@ class Table<T extends ObjectWithKeys> {
    * @param maxItems The number of items which are currently selectable
    */
   private updatePagination(maxItems: number): void {
+    if (!this.paginationContainer) {
+      return;
+    }
     this.paginationContainer.innerHTML = '';
 
     // show 2 page items before and after the current selected page
@@ -273,11 +257,7 @@ class Table<T extends ObjectWithKeys> {
       this.createPaginationItem(String(totalPages), totalPages, true);
     }
 
-    this.createPaginationItem(
-      '>',
-      this.currentPage + 1,
-      this.currentPage < totalPages
-    );
+    this.createPaginationItem('>', this.currentPage + 1, this.currentPage < totalPages);
   }
 
   /**
@@ -286,18 +266,17 @@ class Table<T extends ObjectWithKeys> {
    * @param itemNr
    * @param enabled
    */
-  private createPaginationItem(
-    itemText: string,
-    itemNr: number,
-    enabled: boolean
-  ) {
+  private createPaginationItem(itemText: string, itemNr: number, enabled: boolean): void {
+    if (!this.paginationContainer) {
+      return;
+    }
+
     const paginationItem = document.createElement('button');
     paginationItem.textContent = itemText;
 
     // styling
     paginationItem.classList.add(...'pagination btn btn-sm'.split(' '));
-    if (itemNr === this.currentPage)
-      paginationItem.classList.add('btn-primary');
+    if (itemNr === this.currentPage) paginationItem.classList.add('btn-primary');
     if (!enabled) paginationItem.classList.add('btn-secondary');
     paginationItem.disabled = !enabled;
 
@@ -314,6 +293,9 @@ class Table<T extends ObjectWithKeys> {
    * Render the table headers
    */
   private renderTableHeaders(): void {
+    if (!this.tableElement) {
+      return;
+    }
     const thead = document.createElement('thead');
     new TableRow(thead, {
       rowIndex: 0,
@@ -321,12 +303,12 @@ class Table<T extends ObjectWithKeys> {
         return {
           data: {
             type: 'classic',
-            text: col.header.name,
+            text: col.header.name
           },
           classNames: [col.header.size],
-          cellType: 'th',
+          cellType: 'th'
         } as TableCellData<T>;
-      }),
+      })
     }).render();
     this.tableElement.appendChild(thead);
   }
@@ -338,11 +320,11 @@ class Table<T extends ObjectWithKeys> {
    * @param endIndex Index until where the data should be displayed
    * @param data The data to display. To display all the data set startIndex to 0 and endIndex to Infinity
    */
-  private renderRows(
-    startIndex: number = 0,
-    endIndex: number = this.data.length,
-    data: T[]
-  ): void {
+  private renderRows(startIndex: number = 0, endIndex: number = this.data.length, data: T[]): void {
+    if (!this.tableElement) {
+      return;
+    }
+
     const tbody = document.createElement('tbody');
 
     const rowData = data.slice(startIndex, endIndex);
@@ -355,10 +337,10 @@ class Table<T extends ObjectWithKeys> {
             {
               data: { type: 'classic', text: 'No Data!' },
               span: this.columnDefinitions.length,
-              classNames: ['text-center', 'h5'], //TODO: Remove bootstrap classes
-            },
+              classNames: ['text-center', 'h5'] //TODO: Remove bootstrap classes
+            }
           ],
-          rowIndex: 0,
+          rowIndex: 0
         }).render()
       );
     } else {
@@ -367,26 +349,33 @@ class Table<T extends ObjectWithKeys> {
         this.rows.push(
           new TableRow<T>(tbody, {
             rowIndex: this.data.indexOf(data),
-            cells: this.columnDefinitions.map((col) => {
+            cells: this.columnDefinitions.map((col): TableCellData<T> => {
               if (col.data.type === 'binding') {
                 const cellData = col.data as CellDataBinding<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'button') {
                 const cellData = col.data as CellDataButton<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'classic') {
                 const cellData = col.data as CellDataClassic;
                 return {
-                  data: cellData,
+                  data: cellData
+                } as TableCellData<T>;
+              } else {
+                return {
+                  data: {
+                    type: 'classic',
+                    text: 'NaN'
+                  }
                 } as TableCellData<T>;
               }
-            }),
+            })
           }).render()
         );
       }
@@ -398,14 +387,14 @@ class Table<T extends ObjectWithKeys> {
   /**
    * Remove this table from the dom
    */
-  public remove() {
+  public remove(): void {
     if (this.tableHolder.parentNode === this.parentElement) {
       this.clearRows();
       this.tableHolder.innerHTML = '';
-      this.tableElement.innerHTML = '';
-      this.parentElement.removeChild(this.headerElement);
+      this.tableElement!.innerHTML = '';
+      this.parentElement.removeChild(this.headerElement!);
       this.parentElement.removeChild(this.tableHolder);
-      this.parentElement.removeChild(this.footerElement);
+      this.parentElement.removeChild(this.footerElement!);
       this.currentPage = 1;
       this.filterText = '';
     }
@@ -416,8 +405,7 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
-    if (this.tableHolder.parentNode)
-      throw new TableError("Table is already rendered. Can't change data!");
+    if (this.tableHolder.parentNode) throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
     this.sorter = sorter;
     if (sorter) this.data.sort(sorter);
@@ -439,7 +427,7 @@ class Table<T extends ObjectWithKeys> {
     }
     if (this.sorter) this.data.sort(this.sorter);
 
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.tableElement && this.tableElement.parentNode === this.parentElement) {
       this.updateTable();
     }
   }
@@ -459,7 +447,7 @@ class Table<T extends ObjectWithKeys> {
    * Remove a data element from the table by an index. This also removes the data element from the real data array
    * @param data
    */
-  public removeDataByIdx(idx: number) {
+  public removeDataByIdx(idx: number): void {
     this.clearRows();
     this.data.splice(idx, 1);
     if (this.sorter) this.data.sort(this.sorter);

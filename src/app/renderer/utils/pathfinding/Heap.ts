@@ -13,7 +13,7 @@ class Heap<Type> {
   }
 
   public add(element: Type, priority: number): void {
-    const item = new HeapElement<Type>();
+    const item = {} as HeapElement<Type>;
     item.heapIndex = this.itemCount;
     item.element = element;
     item.priority = priority;
@@ -73,10 +73,7 @@ class Heap<Type> {
         swapIndex = childIndexLeft;
 
         if (childIndexRight < this.itemCount) {
-          if (
-            this.items[childIndexLeft].priority >
-            this.items[childIndexRight].priority
-          ) {
+          if (this.items[childIndexLeft].priority > this.items[childIndexRight].priority) {
             swapIndex = childIndexRight;
           }
         }
@@ -107,9 +104,7 @@ class Heap<Type> {
   private displayHeapTreeRecursive(index: number, indent: string): void {
     if (index < this.itemCount) {
       const item = this.items[index];
-      console.log(
-        indent + `Priority: ${item.priority}, Element: ${item.element}`
-      );
+      console.log(indent + `Priority: ${item.priority}, Element: ${item.element}`);
       const childIndent = indent + '  ';
       this.displayHeapTreeRecursive(2 * index + 1, childIndent); // Left child
       this.displayHeapTreeRecursive(2 * index + 2, childIndent); // Right child
@@ -117,10 +112,10 @@ class Heap<Type> {
   }
 }
 
-class HeapElement<Type> {
+type HeapElement<Type> = {
   heapIndex: number;
   priority: number;
   element: Type;
-}
+};
 
 export { Heap };

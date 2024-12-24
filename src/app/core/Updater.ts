@@ -1,9 +1,4 @@
-import {
-  ProgressInfo,
-  UpdateDownloadedEvent,
-  UpdateInfo,
-  autoUpdater,
-} from 'electron-updater';
+import { ProgressInfo, UpdateDownloadedEvent, UpdateInfo, autoUpdater } from 'electron-updater';
 import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
 import appUpgradeInfos from './upgrades';
@@ -21,11 +16,11 @@ class Updater {
     this.setupHandlers();
   }
 
-  public checkForUpdates() {
+  public checkForUpdates(): void {
     autoUpdater.checkForUpdates();
   }
 
-  private isUpgradeNeeded() {
+  private isUpgradeNeeded(): boolean {
     const currentVersion = this.config.get('version') as string;
     for (const version in this.appUpgradeInfoMap) {
       if (version > currentVersion) {
@@ -35,36 +30,23 @@ class Updater {
     return false; // No upgrades are needed
   }
 
-  private async handleAppUpgrade() {
-    const currentVersion = this.config.get('version');
+  private async handleAppUpgrade(): Promise<void> {
+    const currentVersion = this.config.get('version') as string;
     // Get all upgrades todo
-    const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter(
-      (version) => version > currentVersion
-    );
+    const upgradeVersions = Object.keys(this.appUpgradeInfoMap).filter((version) => version > currentVersion);
     // TODO: Rework to not create the upgrade objects here
     // Get the amount of actions todo
     const actionsLength = upgradeVersions
-      .map(
-        (value) =>
-          new this.appUpgradeInfoMap[value](this.config, this.database).actions
-            .length
-      )
+      .map((value) => new this.appUpgradeInfoMap[value](this.config, this.database).actions.length)
       .reduce((acc, curr) => acc + curr, 0);
 
     let executedActions = 0;
 
     // Execute actions per upgrade version one by one and update progress bar.
     for (const version of upgradeVersions) {
-      const upgradeInfo = new this.appUpgradeInfoMap[version](
-        this.config,
-        this.database
-      ) as AppUpgradeInfo;
+      const upgradeInfo = new this.appUpgradeInfoMap[version](this.config, this.database) as AppUpgradeInfo;
 
-      this.appWindow.sendIpc(
-        'updateText',
-        `Upgrading to version ${upgradeInfo.version} - ${upgradeInfo.description}`,
-        false
-      );
+      this.appWindow.sendIpc('updateText', `Upgrading to version ${upgradeInfo.version} - ${upgradeInfo.description}`, false);
 
       for (const action of upgradeInfo.actions) {
         // TODO: Create log file???
@@ -73,26 +55,19 @@ class Updater {
         }); // Perform action and wait for it to finish and catch all errors.
         executedActions++;
         // Send upgrade percentage
-        this.appWindow.sendIpc(
-          'updatePercentage',
-          (executedActions / actionsLength) * 100
-        );
+        this.appWindow.sendIpc('updatePercentage', (executedActions / actionsLength) * 100);
       }
     }
 
     // Upgrade finished
-    this.appWindow.sendIpc(
-      'updateText',
-      `Upgrade finished. Starting app please wait.`,
-      false
-    );
+    this.appWindow.sendIpc('updateText', `Upgrade finished. Starting app please wait.`, false);
     // Wait 4 sec before starting the app.
     setTimeout(() => {
       this.appWindow.loadPage('index.html');
     }, 4000);
   }
 
-  private setupHandlers() {
+  private setupHandlers(): void {
     autoUpdater.on('checking-for-update', () => {
       this.appWindow.loadPage('update.html');
       console.log('Checking for updates...');
@@ -115,11 +90,7 @@ class Updater {
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
       this.appWindow.sendIpc('updateTitle', `Update in progress`);
-      this.appWindow.sendIpc(
-        'updateText',
-        `Downloading new update. Version: ${info.version}`,
-        false
-      );
+      this.appWindow.sendIpc('updateText', `Downloading new update. Version: ${info.version}`, false);
     });
 
     autoUpdater.on('download-progress', (info: ProgressInfo) => {

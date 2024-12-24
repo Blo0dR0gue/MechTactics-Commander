@@ -28,17 +28,17 @@ class Universe {
   /**
    * The array which contains all planets
    */
-  private planets: Planet[];
+  private planets: Planet[] = [];
 
   /**
    * The array which contains all affiliations
    */
-  private affiliations: Affiliation[];
+  private affiliations: Affiliation[] = [];
 
   /**
    * The search tree (quadtree) to get all close planets to a specific point (Faster lookup)
    */
-  private tree: Quadtree<Planet | Circle>;
+  private tree!: Quadtree<Planet | Circle>;
 
   /**
    * The current zoom amount <br>
@@ -54,27 +54,27 @@ class Universe {
   /**
    * The route controller
    */
-  private routeController: RouteController;
+  private routeController!: RouteController;
 
   /**
    * The currently selected planet which gets highlighted
    */
-  private selectedPlanet: Planet | null;
+  private selectedPlanet: Planet | null = null;
 
   /**
    * Holds the current hovered planet
    */
-  private hoveredPlanet: Planet | null;
+  private hoveredPlanet: Planet | null = null;
 
   /**
    * Second planet to which the distance should be displayed
    */
-  private distancePlanet: Planet | null;
+  private distancePlanet: Planet | null = null;
 
   /**
    * The active universe age
    */
-  private selectedUniverseAge: number;
+  private selectedUniverseAge!: number;
 
   /**
    * List of available universe ages
@@ -84,7 +84,7 @@ class Universe {
   /**
    * Background color for the app
    */
-  private backgroundColor: string;
+  private backgroundColor!: string;
 
   /**
    * Planet selection changed event
@@ -98,7 +98,14 @@ class Universe {
    */
   public constructor() {
     this.canvas = document.getElementById('universe') as HTMLCanvasElement;
-    this.context = this.canvas.getContext('2d');
+    if (!this.canvas) {
+      throw new Error('Canvas not found');
+    }
+    const context = this.canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Context not found');
+    }
+    this.context = context;
     this.universeAges = new Set();
 
     this.planetSelectionChangedEvent = new EventHandler();
@@ -118,7 +125,7 @@ class Universe {
       this.tree = new Quadtree({
         height: 5000,
         width: 5000,
-        maxObjects: 4,
+        maxObjects: 4
       });
 
       this.canvas.width = window.innerWidth;
@@ -126,9 +133,7 @@ class Universe {
       this.zoom = 2.4;
       this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
 
-      this.setBackgroundColor(
-        Config.getInstance().get('backgroundColor') as string
-      );
+      this.setBackgroundColor(Config.getInstance().get('backgroundColor') as string);
 
       this.initData().then(() => {
         this.render();
@@ -141,21 +146,17 @@ class Universe {
     return this.canvas;
   }
 
-  private getAffiliations = async () => {
+  private getAffiliations = async (): Promise<void> => {
     this.affiliations = [];
     const affiliationJSONData = await window.sql.getAllAffiliations();
     affiliationJSONData.forEach((affiliationJSON) => {
       // Create object and add to affiliations array
-      const affiliation = new Affiliation(
-        affiliationJSON.id,
-        affiliationJSON.name,
-        affiliationJSON.color
-      );
+      const affiliation = new Affiliation(affiliationJSON.id, affiliationJSON.name, affiliationJSON.color);
       this.affiliations.push(affiliation);
     });
   };
 
-  private getUniverseAges = async () => {
+  private getUniverseAges = async (): Promise<void> => {
     this.universeAges = await window.sql.getAllUniverseAges();
     const configAge = Config.getInstance().get('selectedUniverseAge') as number;
     if (this.universeAges.has(configAge)) {
@@ -165,7 +166,7 @@ class Universe {
     }
   };
 
-  private getPlanets = async (age: number = this.selectedUniverseAge) => {
+  private getPlanets = async (age: number = this.selectedUniverseAge): Promise<void> => {
     this.planets = [];
     this.tree.clear();
     this.routeController.clearRoute();
@@ -175,14 +176,10 @@ class Universe {
     const planetJSONData = await window.sql.getPlanetsAtAge(age);
     planetJSONData.forEach((planetJSON) => {
       // Find the affiliation for this planet
-      const planetAffiliation = this.affiliations.find(
-        (affiliation) => affiliation.getID() === planetJSON.affiliationID
-      );
+      const planetAffiliation = this.affiliations.find((affiliation) => affiliation.getID() === planetJSON.affiliationID);
 
       if (planetAffiliation === undefined) {
-        console.log(
-          `Affiliation with id=${planetJSON.affiliationID} not found!`
-        );
+        console.log(`Affiliation with id=${planetJSON.affiliationID} not found!`);
         return; // TODO: Error Handling
       }
 
@@ -205,7 +202,7 @@ class Universe {
   /**
    * Retrieves all planets & affiliations from the backend database and stores them in the corresponding local array
    */
-  private initData = async () => {
+  private initData = async (): Promise<void> => {
     await this.getUniverseAges();
     await this.getAffiliations();
     await this.getPlanets();
@@ -214,17 +211,14 @@ class Universe {
   /**
    * The render function
    */
-  private render() {
+  private render(): void {
     // Prepare canvas
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
     this.context.scale(this.zoom, this.zoom);
-    this.context.translate(
-      -window.innerWidth / 2 + this.cameraOffset.getX(),
-      -window.innerHeight / 2 + this.cameraOffset.getY()
-    );
+    this.context.translate(-window.innerWidth / 2 + this.cameraOffset.getX(), -window.innerHeight / 2 + this.cameraOffset.getY());
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
@@ -259,26 +253,12 @@ class Universe {
       if (this.distancePlanet !== null) {
         this.drawPlanet(this.distancePlanet, 7, '#ab7b0a');
         this.drawPlanet(this.distancePlanet, 4);
-        this.drawConnection(
-          this.selectedPlanet.coord,
-          this.distancePlanet.coord
-        );
+        this.drawConnection(this.selectedPlanet.coord, this.distancePlanet.coord);
         // Draw the distance text
-        const distance = this.selectedPlanet.coord
-          .distance(this.distancePlanet.coord)
-          .toFixed(2)
-          .toString();
+        const distance = this.selectedPlanet.coord.distance(this.distancePlanet.coord).toFixed(2).toString();
         const textWidth = this.context.measureText(distance).width;
-        const textX =
-          (this.selectedPlanet.coord.getX() +
-            this.distancePlanet.coord.getX() -
-            textWidth) /
-          2;
-        const textY =
-          (this.selectedPlanet.coord.getY() +
-            this.distancePlanet.coord.getY()) /
-            2 -
-          10;
+        const textX = (this.selectedPlanet.coord.getX() + this.distancePlanet.coord.getX() - textWidth) / 2;
+        const textY = (this.selectedPlanet.coord.getY() + this.distancePlanet.coord.getY()) / 2 - 10;
         this.drawText(new Vector(textX, textY), distance, 20);
         this.drawPlanetName(this.selectedPlanet);
         this.drawPlanetName(this.distancePlanet);
@@ -321,15 +301,9 @@ class Universe {
    * @param size The size of the planet
    * @param color (Optional) A color to override the planet color
    */
-  private drawPlanet(planet: Planet, size: number, color?: string) {
+  private drawPlanet(planet: Planet, size: number, color?: string): void {
     this.context.beginPath();
-    this.context.arc(
-      planet.coord.getX(),
-      planet.coord.getY(),
-      size / this.zoom,
-      0,
-      Math.PI * 2
-    );
+    this.context.arc(planet.coord.getX(), planet.coord.getY(), size / this.zoom, 0, Math.PI * 2);
     this.context.fillStyle = color || planet.getColor();
     this.context.fill();
     this.context.closePath();
@@ -340,21 +314,11 @@ class Universe {
    *
    * @param planet The planet for which the planet name should be drawn
    */
-  private drawPlanetName(planet: Planet) {
-    this.drawText(
-      new Vector(planet.coord.getX() + 2, planet.coord.getY()),
-      planet.getName(),
-      14,
-      '#D5D5D5'
-    );
+  private drawPlanetName(planet: Planet): void {
+    this.drawText(new Vector(planet.coord.getX() + 2, planet.coord.getY()), planet.getName(), 14, '#D5D5D5');
   }
 
-  private drawText(
-    pos: Vector,
-    text: string,
-    width = 15,
-    textColor = 'rgba(255, 255, 255, 1)'
-  ) {
+  private drawText(pos: Vector, text: string, width = 15, textColor = 'rgba(255, 255, 255, 1)'): void {
     const textWidth = Math.round(width / this.zoom);
     this.context.font = `${textWidth}px serif`;
     this.context.fillStyle = textColor;
@@ -368,11 +332,7 @@ class Universe {
    * @param posB
    * @param color (optional)
    */
-  private drawConnection(
-    posA: Vector,
-    posB: Vector,
-    color = 'rgba(255, 255, 255, 1)'
-  ) {
+  private drawConnection(posA: Vector, posB: Vector, color = 'rgba(255, 255, 255, 1)'): void {
     this.context.strokeStyle = color;
     this.context.lineWidth = 3 / this.zoom;
     this.context.beginPath();
@@ -387,7 +347,7 @@ class Universe {
    *
    * @param zoom The zoom amount
    */
-  public setZoom(zoom: number) {
+  public setZoom(zoom: number): void {
     this.zoom = zoom;
   }
 
@@ -396,7 +356,7 @@ class Universe {
    *
    * @param offset The new offset
    */
-  public setCameraOffset(offset: Vector) {
+  public setCameraOffset(offset: Vector): void {
     this.cameraOffset = offset;
   }
 
@@ -428,7 +388,7 @@ class Universe {
     this.distancePlanet = null;
     this.selectedPlanet = planet;
     this.planetSelectionChangedEvent.invoke({
-      planet: this.selectedPlanet,
+      planet: this.selectedPlanet
     });
   }
 
@@ -446,7 +406,7 @@ class Universe {
    *
    * @param planet
    */
-  public setDistanceToPlanet(planet: Planet) {
+  public setDistanceToPlanet(planet: Planet | null): void {
     this.distancePlanet = planet;
   }
 
@@ -455,7 +415,7 @@ class Universe {
    * @returns
    */
   public getSelectedUniverseAge(): number {
-    return this.selectedUniverseAge || -1;
+    return this.selectedUniverseAge;
   }
 
   /**
@@ -489,10 +449,7 @@ class Universe {
     const point = new DOMPoint(vec.getX(), vec.getY());
     const matrix = this.context.getTransform();
     const inverse = matrix.invertSelf();
-    return new Vector(
-      point.matrixTransform(inverse).x,
-      point.matrixTransform(inverse).y
-    );
+    return new Vector(point.matrixTransform(inverse).x, point.matrixTransform(inverse).y);
   }
 
   /**
@@ -503,9 +460,7 @@ class Universe {
    * @returns A list of planets
    */
   public getAllInRange(coord: Vector, range: number): Planet[] {
-    const planets = this.tree.retrieve(
-      new Circle({ x: coord.getX(), y: coord.getY(), r: range })
-    ) as Planet[];
+    const planets = this.tree.retrieve(new Circle({ x: coord.getX(), y: coord.getY(), r: range })) as Planet[];
     return planets;
   }
 
@@ -516,12 +471,9 @@ class Universe {
    * @param range The range in pixels (1px = 1 Lightyear)
    * @returns The closest planet and its distance in an object
    */
-  public getClosestPlanet(
-    coord: Vector,
-    range: number
-  ): { planet: Planet; dist: number } | null {
+  public getClosestPlanet(coord: Vector, range: number): { planet: Planet | null; dist: number } {
     const planets = this.getAllInRange(coord, range);
-    let closest: Planet;
+    let closest: Planet | null = null;
     let closestDist: number = Infinity;
     for (const planet of planets) {
       const dist = coord.distance(planet.coord);
@@ -549,15 +501,13 @@ class Universe {
    * @returns The planet object or undefined
    */
   public getGetPlanetByName(planetName: string): Planet | undefined {
-    return this.planets.find(
-      (planet) => planet.getName().toLowerCase() === planetName.toLowerCase()
-    );
+    return this.planets.find((planet) => planet.getName().toLowerCase() === planetName.toLowerCase());
   }
 
   /**
    * Focus the universe canvas
    */
-  public focus() {
+  public focus(): void {
     this.canvas.focus();
   }
 
@@ -567,10 +517,7 @@ class Universe {
    * @returns The affiliation object or undefined
    */
   public getAffiliationWithName(name: string): Affiliation | undefined {
-    return this.affiliations.find(
-      (affiliation) =>
-        affiliation.getName().toLowerCase() === name.toLowerCase()
-    );
+    return this.affiliations.find((affiliation) => affiliation.getName().toLowerCase() === name.toLowerCase());
   }
 
   /**
@@ -585,7 +532,7 @@ class Universe {
    * Set the background color of the app
    * @param color
    */
-  public setBackgroundColor(color: string) {
+  public setBackgroundColor(color: string): void {
     this.backgroundColor = color;
     this.canvas.style.backgroundColor = color;
     Config.getInstance().set('backgroundColor', color);
@@ -595,7 +542,7 @@ class Universe {
    * Get the current background color
    * @return
    */
-  public getBackgroundColor() {
+  public getBackgroundColor(): string {
     return this.backgroundColor;
   }
 }

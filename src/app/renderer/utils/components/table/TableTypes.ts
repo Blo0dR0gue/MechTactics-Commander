@@ -1,8 +1,4 @@
-import {
-  ObjectWithKeys,
-  ObjectPropsRec,
-  TypeOfObjectPropRec,
-} from '../../../../types/UtilityTypes';
+import { ObjectWithKeys, ObjectPropsRec, TypeOfObjectPropRec } from '../../../../types/UtilityTypes';
 import { ButtonData } from '../Button';
 import { Formatter } from '../formatter/Formatter';
 
@@ -25,7 +21,7 @@ type ColSizes =
 /**
  * A button which can be added to the header
  */
-type HeaderButton = ButtonData & {
+export type HeaderButton = ButtonData & {
   /**
    * Callback handler, which is invoked on click
    */
@@ -35,7 +31,7 @@ type HeaderButton = ButtonData & {
 /**
  * Defines one button which can be added to a column to be rendered in each row
  */
-type RowButton<T extends ObjectWithKeys> = ButtonData & {
+export type RowButton<T extends ObjectWithKeys> = ButtonData & {
   /**
    * Callback handler, which is invoked on click
    * @param data The data of the row the button got clicked
@@ -53,7 +49,7 @@ type RowButton<T extends ObjectWithKeys> = ButtonData & {
   enabled?: (data: T, rowIdx: number, curRowIdx) => boolean;
 };
 
-type TableHeaderData = {
+export type TableHeaderData = {
   /**
    * The display name of the column
    */
@@ -67,7 +63,7 @@ type TableHeaderData = {
 /**
  * Defines one column
  */
-type TableColumnData<T extends ObjectWithKeys> = {
+export type TableColumnData<T extends ObjectWithKeys> = {
   /**
    * The column header definition
    */
@@ -78,7 +74,7 @@ type TableColumnData<T extends ObjectWithKeys> = {
   data: ColumnDataBinding<T> | ColumnDataButton<T> | ColumnDataClassic;
 };
 
-type ColumnDataClassic = {
+export type ColumnDataClassic = {
   /**
    * The used type
    */
@@ -89,7 +85,7 @@ type ColumnDataClassic = {
   text: string;
 };
 
-type ColumnDataButton<T extends ObjectWithKeys> = {
+export type ColumnDataButton<T extends ObjectWithKeys> = {
   /**
    * The used type
    */
@@ -103,7 +99,7 @@ type ColumnDataButton<T extends ObjectWithKeys> = {
 /**
  * Describes a col data, where each column gets one data point bound to, the value displayed is the dataAttribute of the object
  */
-type ColumnDataBinding<T extends ObjectWithKeys> = {
+export type ColumnDataBinding<T extends ObjectWithKeys> = {
   /**
    * The used type
    */
@@ -123,7 +119,7 @@ type ColumnDataBinding<T extends ObjectWithKeys> = {
 /**
  * Data for a single row
  */
-type TableRowData<T extends ObjectWithKeys> = {
+export type TableRowData<T extends ObjectWithKeys> = {
   /**
    * The global index of this row (not only from the visible rows)
    */
@@ -141,7 +137,7 @@ type TableRowData<T extends ObjectWithKeys> = {
 /**
  * Data for a single cell
  */
-type TableCellData<T extends ObjectWithKeys> = {
+export type TableCellData<T extends ObjectWithKeys> = {
   /**
    * A possible span of columns, which the cell should have
    */
@@ -163,26 +159,26 @@ type TableCellData<T extends ObjectWithKeys> = {
 /**
  * Describes a cell which has a static text as content
  */
-type CellDataClassic = ColumnDataClassic;
+export type CellDataClassic = ColumnDataClassic;
 
 /**
  * Describes a cell, which has buttons as content
  */
-type CellDataButton<T extends ObjectWithKeys> = ColumnDataButton<T> & {
+export type CellDataButton<T extends ObjectWithKeys> = ColumnDataButton<T> & {
   dataElement: T;
 };
 
 /**
  * Describes a cell, which has a bound value from a object as content
  */
-type CellDataBinding<T extends ObjectWithKeys> = ColumnDataBinding<T> & {
+export type CellDataBinding<T extends ObjectWithKeys> = ColumnDataBinding<T> & {
   dataElement: T;
 };
 
 /**
  * Defines the header of the table
  */
-type TableActionBarData = {
+export type TableActionBarData = {
   /**
    * Enable / Disable the search bar
    */
@@ -195,15 +191,4 @@ type TableActionBarData = {
    * A possible list of buttons to display in the header.
    */
   buttons?: HeaderButton[];
-};
-
-export {
-  TableColumnData,
-  TableRowData,
-  TableCellData,
-  TableHeaderData,
-  TableActionBarData,
-  CellDataBinding,
-  CellDataButton,
-  CellDataClassic,
 };

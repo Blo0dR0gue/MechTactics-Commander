@@ -1,32 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashboard</title>
-    <script src="../dashboard.bundle.js" defer></script>
+    <script type="module" src="../dashboard.ts" defer></script>
   </head>
   <body class="vh-100 vw-100">
     <div class="d-flex flex-row h-100">
-      <nav
-        class="d-flex flex-column p-3 bg-light flex-shrink-0 col-sm-4 col-md-2"
-      >
+      <nav class="d-flex flex-column p-3 bg-light flex-shrink-0 col-sm-4 col-md-2">
         <h2 class="text-center">Dashboard</h2>
         <hr />
         <div class="mb-auto" id="dashboard-navbar"></div>
         <hr />
-        <a
-          class="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
-          href="./index.html"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="me-2"
-            viewBox="0 0 16 16"
-          >
+        <a class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" href="./index.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
             <path
               d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146 2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z"
             />
@@ -47,31 +35,16 @@
         <!--ToastContainer end-->
 
         <!--Loading indicator start-->
-        <div
-          id="loader"
-          class="justify-content-center align-items-center"
-        ></div>
+        <div id="loader" class="justify-content-center align-items-center"></div>
         <!--Loading indicator end-->
 
         <!--planet modal start-->
-        <div
-          class="modal fade"
-          id="planet-modal"
-          tabindex="-1"
-          aria-hidden="true"
-        >
+        <div class="modal fade" id="planet-modal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="modal-title fs-5" id="planet-modal-title">
-                  Planet Data
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
+                <h1 class="modal-title fs-5" id="planet-modal-title">Planet Data</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <!--planet edit form-->
@@ -79,78 +52,37 @@
                   <!--Display of id-->
                   <div class="form-group mb-1">
                     <label for="planet-id">ID:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="planet-id"
-                      name="id"
-                      value="1"
-                      disabled
-                    />
+                    <input type="text" class="form-control" id="planet-id" name="id" value="1" disabled />
                   </div>
 
                   <!--Planet name-->
                   <div class="form-group mb-1">
                     <label for="planet-name">Name:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="planet-name"
-                      name="planet-name"
-                      placeholder="Enter name"
-                    />
+                    <input type="text" class="form-control" id="planet-name" name="planet-name" placeholder="Enter name" />
                   </div>
 
                   <!--Coordinates-->
                   <div class="row mb-1">
                     <div class="form-group col-md-6">
                       <label for="planet-x">Coordinate X:</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        class="form-control"
-                        id="planet-x"
-                        name="planet-x"
-                        placeholder="Enter X coordinate"
-                      />
+                      <input type="number" step="0.01" class="form-control" id="planet-x" name="planet-x" placeholder="Enter X coordinate" />
                     </div>
                     <div class="form-group col-md-6 mb-1">
                       <label for="planet-y">Coordinate Y:</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        class="form-control"
-                        id="planet-y"
-                        name="planet-y"
-                        placeholder="Enter Y coordinate"
-                      />
+                      <input type="number" step="0.01" class="form-control" id="planet-y" name="planet-y" placeholder="Enter Y coordinate" />
                     </div>
                   </div>
 
                   <!--Link-->
                   <div class="form-group mb-1">
                     <label for="planet-link">Link:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="planet-link"
-                      name="planet-link"
-                      placeholder="Enter link"
-                    />
+                    <input type="text" class="form-control" id="planet-link" name="planet-link" placeholder="Enter link" />
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button type="button" class="btn btn-primary" id="planet-save">
-                  Save
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="planet-save">Save</button>
               </div>
             </div>
           </div>
@@ -158,24 +90,12 @@
         <!--planet model end-->
 
         <!--affiliation modal start-->
-        <div
-          class="modal fade"
-          id="affiliation-modal"
-          tabindex="-1"
-          aria-hidden="true"
-        >
+        <div class="modal fade" id="affiliation-modal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="modal-title fs-5" id="affiliation-modal-title">
-                  Affiliation Data
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
+                <h1 class="modal-title fs-5" id="affiliation-modal-title">Affiliation Data</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <!--affiliation edit form-->
@@ -183,56 +103,25 @@
                   <!--Display of id-->
                   <div class="form-group mb-1">
                     <label for="affiliation-id">ID:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="affiliation-id"
-                      name="id"
-                      value="1"
-                      disabled
-                    />
+                    <input type="text" class="form-control" id="affiliation-id" name="id" value="1" disabled />
                   </div>
 
                   <!--Affiliation name-->
                   <div class="form-group mb-1">
                     <label for="affiliation-name">Name:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="affiliation-name"
-                      name="affiliation-name"
-                      placeholder="Enter name"
-                    />
+                    <input type="text" class="form-control" id="affiliation-name" name="affiliation-name" placeholder="Enter name" />
                   </div>
 
                   <!--Affiliation color-->
                   <div class="form-group mb-1">
                     <label for="affiliation-color">Color:</label>
-                    <input
-                      type="color"
-                      class="form-control"
-                      id="affiliation-color"
-                      name="affiliation-color"
-                      placeholder="Enter color"
-                    />
+                    <input type="color" class="form-control" id="affiliation-color" name="affiliation-color" placeholder="Enter color" />
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  id="affiliation-save"
-                >
-                  Save
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="affiliation-save">Save</button>
               </div>
             </div>
           </div>
@@ -240,24 +129,12 @@
         <!--affiliation modal end-->
 
         <!--planet affiliation age start-->
-        <div
-          class="modal fade"
-          id="planet-affiliation-connect-modal"
-          tabindex="-1"
-          aria-hidden="true"
-        >
+        <div class="modal fade" id="planet-affiliation-connect-modal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="modal-title fs-5" id="planet-modal-title">
-                  Planet Affiliation Connection
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
+                <h1 class="modal-title fs-5" id="planet-modal-title">Planet Affiliation Connection</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <!--planetaffiliation age edit form-->
@@ -265,30 +142,22 @@
                   <!--planet id select-->
                   <div class="form-group mb-1">
                     <label for="planet-affiliation-connect-planet-id">Planet</label>
-                    <select
-                      class="form-control"
-                      id="planet-affiliation-connect-planet-id"
-                      name="planet-affiliation-connect-planet-id"
-                    ></select>
+                    <select class="form-control" id="planet-affiliation-connect-planet-id" name="planet-affiliation-connect-planet-id"></select>
                   </div>
 
                   <div class="form-group mb-1">
                     <label for="planet-affiliation-connect-age">Universe Age</label>
-                    <select id="planet-affiliation-connect-age" 
-                    name="planet-affiliation-connect-age" 
-                    class="form-control">
+                    <select id="planet-affiliation-connect-age" name="planet-affiliation-connect-age" class="form-control">
                       <option value="-1">New</option>
                     </select>
-                    <input type="number" id="planet-affiliation-connect-new-age" placeholder="3025" class="form-control"/>
+                    <input type="number" id="planet-affiliation-connect-new-age" placeholder="3025" class="form-control" />
                   </div>
-                  
+
                   <hr />
 
                   <!--affiliation id select-->
                   <div class="form-group mb-1">
-                    <label for="planet-affiliation-connect-affiliation-id"
-                      >Affiliation</label
-                    >
+                    <label for="planet-affiliation-connect-affiliation-id">Affiliation</label>
                     <select
                       class="form-control"
                       id="planet-affiliation-connect-affiliation-id"
@@ -299,33 +168,19 @@
                   <div class="form-group mb-1">
                     <label for="planet-affiliation-connect-planet-text">Planet Text:</label>
                     <textarea
-                    id="planet-affiliation-connect-planet-text"
-                    name"planet-affiliation-connect-planet-text"
-                    cols="2"
-                    class="form-control"
+                      id="planet-affiliation-connect-planet-text"
+                      name="planet-affiliation-connect-planet-text"
+                      cols="2"
+                      class="form-control"
                     ></textarea>
 
                     <button class="btn btn-sm btn-danger" id="planet-affiliation-connect-delete">Delete</button>
-
-
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  id="planet-affiliation-connect-save"
-                >
-                  Save
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="planet-affiliation-connect-save">Save</button>
               </div>
             </div>
           </div>
@@ -333,24 +188,12 @@
         <!--planet affiliation age model end-->
 
         <!--planet age copy modal start-->
-        <div
-          class="modal fade"
-          id="planet-age-copy-modal"
-          tabindex="-1"
-          aria-hidden="true"
-        >
+        <div class="modal fade" id="planet-age-copy-modal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="modal-title fs-5" id="planet-age-copy-modal-title">
-                  Copy Planets By Age
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
+                <h1 class="modal-title fs-5" id="planet-age-copy-modal-title">Copy Planets By Age</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <!--planet age copy form-->
@@ -358,50 +201,25 @@
                   <!--target-->
                   <div class="form-group mb-1">
                     <label for="planet-age-copy-target">Target:</label>
-                    <select
-                      class="form-control"
-                      id="planet-age-copy-target"
-                      name="planet-age-copy-target"
-                    ></select>
+                    <select class="form-control" id="planet-age-copy-target" name="planet-age-copy-target"></select>
                   </div>
                   <!--destination-->
                   <div class="form-group mb-1">
-                    <label for="planet-age-copy-destination"
-                      >Destination:</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="planet-age-copy-destination"
-                      name="planet-age-copy-destination"
-                    />
+                    <label for="planet-age-copy-destination">Destination:</label>
+                    <input type="number" class="form-control" id="planet-age-copy-destination" name="planet-age-copy-destination" />
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  id="planet-age-copy-save"
-                >
-                  Save
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="planet-age-copy-save">Save</button>
               </div>
             </div>
           </div>
         </div>
         <!--planet age copy modal end-->
 
-        <div id="table-holder" class="d-flex flex-column overflow-hidden" style="max-height: 100vh;">
-          
-        </div>
+        <div id="table-holder" class="d-flex flex-column overflow-hidden" style="max-height: 100vh"></div>
       </main>
     </div>
   </body>

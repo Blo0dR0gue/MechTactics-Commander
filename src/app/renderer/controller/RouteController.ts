@@ -6,14 +6,12 @@ import { Affiliation } from '../models/Affiliation';
 
 // TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {
-  private universe: Universe;
-  private pathfinding: Pathfinding<Planet>;
+  private universe!: Universe;
+  private pathfinding!: Pathfinding<Planet>;
 
-  private targetPlanets: Planet[];
-  private route: Planet[];
-  private excludeAffiliation: Set<Affiliation>;
-
-  public constructor() {}
+  private targetPlanets!: Planet[];
+  private route!: Planet[];
+  private excludeAffiliation!: Set<Affiliation>;
 
   /**
    * Start the controller
@@ -65,9 +63,10 @@ class RouteController {
    * @param planetName The planet to remove
    */
   public removeTargetPlanetByName(planetName: string): void {
-    const planet = this.targetPlanets.find(
-      (planet) => planet.getName() === planetName
-    );
+    const planet = this.targetPlanets.find((planet) => planet.getName() === planetName);
+    if (!planet) {
+      return;
+    }
     const index = this.targetPlanets.indexOf(planet);
     this.removeIndexOfTargetPlanet(index);
   }
@@ -124,7 +123,7 @@ class RouteController {
    * Adds an affiliation the the excluded list.
    * @param affiliation The affiliation to add
    */
-  public addExcludedAffiliation(affiliation: Affiliation) {
+  public addExcludedAffiliation(affiliation: Affiliation): void {
     this.excludeAffiliation.add(affiliation);
   }
 
@@ -132,7 +131,7 @@ class RouteController {
    * Removes an affiliation from the excluded list.
    * @param affiliation The affiliation to add
    */
-  public removeExcludedAffiliation(affiliation: Affiliation) {
+  public removeExcludedAffiliation(affiliation: Affiliation): void {
     this.excludeAffiliation.delete(affiliation);
   }
 
@@ -178,14 +177,9 @@ class RouteController {
     return jumps;
   }
 
-  public getNumberOfJumpsBetweenIDs(
-    start: number,
-    destination: number
-  ): number {
+  public getNumberOfJumpsBetweenIDs(start: number, destination: number): number {
     const indexStart = this.route.indexOf(this.targetPlanets[start]);
-    const indexDestination = this.route.indexOf(
-      this.targetPlanets[destination]
-    );
+    const indexDestination = this.route.indexOf(this.targetPlanets[destination]);
     if (indexStart === -1 || indexDestination === -1) return Infinity;
     return indexDestination - indexStart;
   }
@@ -198,7 +192,7 @@ class RouteController {
    * @param jumpRange The max range a ship can jump
    * @returns The route from planet a to planet b
    */
-  private findRoute(start: Planet, goal: Planet, jumpRange): Planet[] {
+  private findRoute(start: Planet, goal: Planet, jumpRange): Planet[] | undefined {
     const result = this.pathfinding.search(
       start,
       goal,
@@ -214,8 +208,7 @@ class RouteController {
               planet === start ||
               planet === goal
           ),
-      (elementA: Planet, elementB: Planet) =>
-        elementA.coord.distance(elementB.coord)
+      (elementA: Planet, elementB: Planet) => elementA.coord.distance(elementB.coord)
     );
     return result;
   }

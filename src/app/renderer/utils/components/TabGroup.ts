@@ -25,10 +25,7 @@ class TabGroup {
     for (const tabElement of this.tabElements) {
       const { icon, text, classNames, onClick } = tabElement;
       if (!icon && !text) {
-        throw new Error(
-          `You need to define either text or icon for an tab element ${tabElement}`
-        );
-        return;
+        throw new Error(`You need to define either text or icon for an tab element ${tabElement}`);
       }
       const li = document.createElement('li');
       const link = document.createElement('a');

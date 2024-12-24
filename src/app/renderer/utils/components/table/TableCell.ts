@@ -7,8 +7,8 @@ import { TableRow } from './TableRow';
 import { TableCellData } from './TableTypes';
 
 class TableCell<T extends ObjectWithKeys> extends BaseElement {
-  private cellElement: HTMLTableCellElement;
-  binding: Binding<unknown>;
+  private cellElement: HTMLTableCellElement | undefined;
+  binding: Binding<unknown> | undefined;
 
   public constructor(
     parentElement: HTMLTableRowElement,
@@ -18,7 +18,7 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
     super(parentElement);
   }
 
-  private createElement() {
+  private createElement(): void {
     const { data, span, classNames, cellType } = this.cellData;
     this.cellElement = document.createElement(cellType ? cellType : 'td');
     if (classNames) this.cellElement.classList.add(...classNames);
@@ -29,12 +29,7 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
       const { dataElement, dataAttribute, formatter } = data;
       // render a text cell using data binding
       this.binding = new Binding<unknown>(dataElement, dataAttribute);
-      this.binding.addBinding(
-        this.cellElement,
-        'textContent',
-        false,
-        formatter
-      );
+      this.binding.addBinding(this.cellElement, 'textContent', false, formatter);
     } else if (data.type === 'button') {
       // render the button cell
       const { buttons, dataElement } = data;
@@ -48,22 +43,12 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
         if (onClick) {
           // Add the click event handler
           btn.getButtonElement().addEventListener('click', () => {
-            onClick(
-              dataElement,
-              this.rowElement.getGlobalRowIndex(),
-              this.rowElement.getLocalRowIndex()
-            );
+            onClick(dataElement, this.rowElement.getGlobalRowIndex(), this.rowElement.getLocalRowIndex());
           });
         }
 
         if (enabled) {
-          btn.disable(
-            !enabled(
-              dataElement,
-              this.rowElement.getGlobalRowIndex(),
-              this.rowElement.getLocalRowIndex()
-            )
-          );
+          btn.disable(!enabled(dataElement, this.rowElement.getGlobalRowIndex(), this.rowElement.getLocalRowIndex()));
         }
         btn.render();
       }
@@ -71,20 +56,20 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
       const { text } = data;
       this.cellElement.textContent = text;
     } else {
-      throw new TableError(
-        `classic, binding or button needs to be defined ${this.cellData}`
-      );
+      throw new TableError(`classic, binding or button needs to be defined ${this.cellData}`);
     }
   }
 
   public render(): this {
     this.createElement();
-    this.parentElement.appendChild(this.cellElement);
+    this.parentElement.appendChild(this.cellElement!);
     return this;
   }
   public remove(): void {
-    if (this.binding)
-      this.binding.removeBinding(this.cellElement, 'textContent');
+    if (!this.cellElement) {
+      return;
+    }
+    if (this.binding) this.binding.removeBinding(this.cellElement, 'textContent');
     this.cellElement.innerHTML = '';
     this.parentElement.removeChild(this.cellElement);
   }

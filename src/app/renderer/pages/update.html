@@ -1,21 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
     <title>MechTactics-Commander - Updater</title>
-    <script src="../update.bundle.js" defer></script>
+    <script type="module" src="../update.ts" defer></script>
   </head>
   <body class="bg-background">
     <div class="container">
       <div class="row">
-        <div
-          class="col-12 d-flex align-items-center justify-content-center vh-100"
-        >
+        <div class="col-12 d-flex align-items-center justify-content-center vh-100">
           <div class="card" style="width: 600px">
             <div class="card-body">
-              <h5 class="card-title text-center" id="update-title">
-                Please wait
-              </h5>
+              <h5 class="card-title text-center" id="update-title">Please wait</h5>
               <div class="progress">
                 <div
                   class="progress-bar bg-success progress-bar-striped progress-bar-animated"
@@ -27,12 +23,8 @@
                   id="progress-bar"
                 ></div>
               </div>
-              <p class="card-text text-muted text-wrap" id="update-text">
-                Please wait...
-              </p>
-              <button class="btn btn-sm btn-success hide" id="restart">
-                Restart
-              </button>
+              <p class="card-text text-muted text-wrap" id="update-text">Please wait...</p>
+              <button class="btn btn-sm btn-success hide" id="restart">Restart</button>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { TableCell } from './TableCell';
 import { TableRowData } from './TableTypes';
 
 class TableRow<T extends ObjectWithKeys> extends BaseElement {
-  private rowElement: HTMLTableRowElement;
+  private rowElement: HTMLTableRowElement | undefined;
 
   private cells: TableCell<T>[] = [];
 
@@ -15,7 +15,7 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
     super(baseElement);
   }
 
-  private createElement() {
+  private createElement(): void {
     const { cells, classNames } = this.rowData;
     this.rowElement = document.createElement('tr');
     if (classNames) this.rowElement.classList.add(...classNames);
@@ -38,15 +38,21 @@ class TableRow<T extends ObjectWithKeys> extends BaseElement {
    * @returns
    */
   public getLocalRowIndex(): number {
+    if (!this.rowElement) {
+      return -1;
+    }
     return this.rowElement.rowIndex - 1;
   }
 
   public render(): this {
     this.createElement();
-    this.parentElement.appendChild(this.rowElement);
+    this.parentElement.appendChild(this.rowElement!);
     return this;
   }
   public remove(): void {
+    if (!this.rowElement) {
+      return;
+    }
     for (const cell of this.cells) {
       cell.remove();
     }

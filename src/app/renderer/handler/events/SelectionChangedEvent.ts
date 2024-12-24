@@ -1,7 +1,5 @@
 import { Planet } from '../../models/Planet';
 
-interface SelectionChangeEvent {
-  planet: Planet;
+export interface SelectionChangeEvent {
+  planet: Planet | null;
 }
-
-export { SelectionChangeEvent };

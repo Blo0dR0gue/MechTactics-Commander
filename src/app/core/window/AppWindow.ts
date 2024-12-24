@@ -3,20 +3,11 @@ import * as path from 'path';
 import { AppConstants } from '../AppConstants';
 import { Database } from 'sqlite';
 import { CoreConfig } from '../CoreConfig';
-import {
-  PlanetData,
-  PlanetWithAffiliationAndAge,
-} from '../../types/PlanetData';
+import { PlanetData, PlanetWithAffiliationAndAge } from '../../types/PlanetData';
 import { AffiliationData } from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
-import {
-  exportDatabaseToCSVs,
-  exportTableToCSV,
-  importDatabaseFromCSVs,
-  importTableFromCSV,
-  selectCSVDestination,
-} from '../CSVHelper';
+import { exportDatabaseToCSVs, exportTableToCSV, importDatabaseFromCSVs, importTableFromCSV, selectCSVDestination } from '../CSVHelper';
 import { DatabaseTables } from '../../types/UtilityTypes';
 
 // TODO: Use only one window and switch loaded files
@@ -38,11 +29,10 @@ class AppWindow {
       minHeight: 850,
       minWidth: 1700,
       webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
-        devTools: this.isDevelopment ? true : false,
-      },
+        preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+        devTools: this.isDevelopment ? true : false
+      }
     });
-
     if (this.isDevelopment) this.loadPage('index.html');
     else this.loadPage('update.html');
 
@@ -62,8 +52,13 @@ class AppWindow {
     return this.window;
   }
 
-  public loadPage(pageName: 'update.html' | 'dashboard.html' | 'index.html') {
-    this.window.loadFile(path.join(AppConstants.PAGES_DIR, pageName));
+  public loadPage(pageName: 'update.html' | 'dashboard.html' | 'index.html'): void {
+    if (this.isDevelopment) {
+      this.window.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/pages/' + pageName);
+    } else {
+      this.window.loadFile(path.join(AppConstants.PAGES_DIR, pageName));
+    }
+
     this.window.maximize();
   }
 
@@ -77,13 +72,13 @@ class AppWindow {
     this.window.webContents.send(channel, ...message);
   }
 
-  private setupHandler() {
-    ipcMain.handle('getPlanetsAtAge', (event, age: number) => {
+  private setupHandler(): void {
+    ipcMain.handle('getPlanetsAtAge', (_, age: number) => {
       return new Promise<PlanetWithAffiliationAndAge[]>((resolve) => {
         this.database
-          .all<PlanetWithAffiliationAndAge[]>(
-            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
-          )
+          .all<
+            PlanetWithAffiliationAndAge[]
+          >(`SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`)
           .then((data) => {
             resolve(data);
           });
@@ -92,35 +87,25 @@ class AppWindow {
 
     ipcMain.handle('getAllPlanets', () => {
       return new Promise<PlanetData[]>((resolve) => {
-        this.database
-          .all<PlanetData[]>(
-            `SELECT id, name, x, y, link FROM Planet ORDER BY id ASC;`
-          )
-          .then((data) => {
-            resolve(data);
-          });
+        this.database.all<PlanetData[]>(`SELECT id, name, x, y, link FROM Planet ORDER BY id ASC;`).then((data) => {
+          resolve(data);
+        });
       });
     });
 
     ipcMain.handle('getAllAffiliations', () => {
       return new Promise<AffiliationData[]>((resolve) => {
-        this.database
-          .all(`SELECT id, name, color FROM Affiliation;`)
-          .then((data) => {
-            resolve(data);
-          });
+        this.database.all(`SELECT id, name, color FROM Affiliation;`).then((data) => {
+          resolve(data);
+        });
       });
     });
 
     ipcMain.handle('getAllPlanetAffiliationAges', () => {
       return new Promise<PlanetAffiliationAgeData[]>((resolve) => {
-        this.database
-          .all(
-            `SELECT planetID, affiliationID, universeAge, planetText FROM PlanetAffiliationAge;`
-          )
-          .then((data) => {
-            resolve(data);
-          });
+        this.database.all(`SELECT planetID, affiliationID, universeAge, planetText FROM PlanetAffiliationAge;`).then((data) => {
+          resolve(data);
+        });
       });
     });
 
@@ -138,32 +123,23 @@ class AppWindow {
 
     ipcMain.handle('getAllUniverseAges', () => {
       return new Promise<{ universeAge: number }[]>((resolve) => {
-        this.database
-          .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
-          .then((data) => {
-            resolve(
-              data.reduce((acc, val) => {
-                acc.add(val.universeAge);
-                return acc;
-              }, new Set<number>())
-            );
-          });
+        this.database.all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`).then((data) => {
+          resolve(
+            data.reduce((acc, val) => {
+              acc.add(val.universeAge);
+              return acc;
+            }, new Set<number>())
+          );
+        });
       });
     });
 
     ipcMain.handle(
       'updatePlanet',
-      (event, planet: PlanetData) =>
+      (_, planet: PlanetData) =>
         new Promise<boolean>((resolve, reject) => {
           this.database
-            .run(
-              'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
-              planet.name,
-              planet.link,
-              planet.x,
-              planet.y,
-              planet.id
-            )
+            .run('UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;', planet.name, planet.link, planet.x, planet.y, planet.id)
             .then(() => resolve(true))
             .catch((reason) => reject(reason));
         })
@@ -171,20 +147,14 @@ class AppWindow {
 
     ipcMain.handle(
       'createPlanet',
-      (event, planet: PlanetData) =>
+      (_, planet: PlanetData) =>
         new Promise<PlanetData>((resolve, reject) => {
           this.database
-            .run(
-              'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
-              planet.name,
-              planet.link,
-              planet.x,
-              planet.y
-            )
+            .run('INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)', planet.name, planet.link, planet.x, planet.y)
             .then((runResult) => {
               resolve({
                 ...planet,
-                id: runResult.lastID,
+                id: runResult?.lastID ?? -1
               });
             })
             .catch((reason) => reject(reason));
@@ -193,13 +163,10 @@ class AppWindow {
 
     ipcMain.handle(
       'deletePlanet',
-      (event, planet: PlanetData) =>
+      (_, planet: PlanetData) =>
         new Promise<boolean>((resolve, reject) => {
           this.database
-            .run(
-              'DELETE FROM PlanetAffiliationAge WHERE planetID = ?;',
-              planet.id
-            )
+            .run('DELETE FROM PlanetAffiliationAge WHERE planetID = ?;', planet.id)
             .then(() => {
               this.database
                 .run('DELETE FROM Planet WHERE id = ?;', planet.id)
@@ -212,14 +179,10 @@ class AppWindow {
 
     ipcMain.handle(
       'updateAffiliation',
-      (event, affiliation: AffiliationData) =>
+      (_, affiliation: AffiliationData) =>
         new Promise<boolean>((resolve, reject) => {
           this.database
-            .run(
-              'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
-              affiliation.name,
-              affiliation.color
-            )
+            .run('UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;', affiliation.name, affiliation.color)
             .then(() => resolve(true))
             .catch((reason) => reject(reason));
         })
@@ -227,32 +190,22 @@ class AppWindow {
 
     ipcMain.handle(
       'createAffiliation',
-      (event, affiliation: AffiliationData) =>
+      (_, affiliation: AffiliationData) =>
         new Promise<AffiliationData>((resolve, reject) => {
           this.database
-            .run(
-              'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
-              affiliation.name,
-              affiliation.color
-            )
-            .then((runResult) =>
-              resolve({ ...affiliation, id: runResult.lastID })
-            )
+            .run('INSERT INTO Affiliation (name, color) VALUES (?, ?)', affiliation.name, affiliation.color)
+            .then((runResult) => resolve({ ...affiliation, id: runResult?.lastID ?? -1 }))
             .catch((reason) => reject(reason));
         })
     );
 
     ipcMain.handle(
       'deleteAffiliation',
-      (event, affiliation: AffiliationData) =>
+      (_, affiliation: AffiliationData) =>
         new Promise<boolean>((resolve, reject) => {
-          if (affiliation.id === 0)
-            reject("You can't delete the affiliation with id 0");
+          if (affiliation.id === 0) reject("You can't delete the affiliation with id 0");
           this.database
-            .run(
-              'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',
-              affiliation.id
-            )
+            .run('UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;', affiliation.id)
             .then(() => {
               this.database
                 .run('DELETE FROM Affiliation WHERE id = ?;', affiliation.id)
@@ -265,7 +218,7 @@ class AppWindow {
 
     ipcMain.handle(
       'updatePlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
+      (_, data: PlanetAffiliationAgeData) =>
         new Promise<boolean>((resolve, reject) => {
           this.database
             .run(
@@ -284,7 +237,7 @@ class AppWindow {
 
     ipcMain.handle(
       'createPlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
+      (_, data: PlanetAffiliationAgeData) =>
         new Promise<PlanetAffiliationAgeData>((resolve, reject) => {
           this.database
             .run(
@@ -303,7 +256,7 @@ class AppWindow {
 
     ipcMain.handle(
       'createPlanetAffiliationAges',
-      (event, dataPoints: PlanetAffiliationAgeData[]) =>
+      (_, dataPoints: PlanetAffiliationAgeData[]) =>
         new Promise<PlanetAffiliationAgeData[]>((resolve, reject) => {
           const insertPromises = dataPoints.map((point) => {
             return this.database
@@ -326,7 +279,7 @@ class AppWindow {
 
     ipcMain.handle(
       'deletePlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
+      (_, data: PlanetAffiliationAgeData) =>
         new Promise<boolean>((resolve, reject) => {
           this.database
             .run(
@@ -346,13 +299,13 @@ class AppWindow {
       return this.config.getConfig();
     });
 
-    ipcMain.handle('setConfigData', (event, key: string, value: unknown) => {
+    ipcMain.handle('setConfigData', (_, key: string, value: unknown) => {
       return this.config.set(key, value);
     });
 
     ipcMain.handle('getAppData', () => {
       return {
-        version: this.isDevelopment ? 'dev' : app.getVersion(),
+        version: this.isDevelopment ? 'dev' : app.getVersion()
       };
     });
 
@@ -360,29 +313,23 @@ class AppWindow {
       autoUpdater.quitAndInstall();
     });
 
-    ipcMain.handle(
-      'exportTableToCSV',
-      async (event, tableName: DatabaseTables) => {
-        const filePath = await selectCSVDestination(this, true, false);
-        if (!filePath)
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        return exportTableToCSV(this.database, tableName, filePath);
-      }
-    );
+    ipcMain.handle('exportTableToCSV', async (_, tableName: DatabaseTables) => {
+      const filePath = await selectCSVDestination(this, true, false);
+      if (!filePath)
+        return new Promise<void>((resolve) => {
+          resolve();
+        });
+      return exportTableToCSV(this.database, tableName, filePath);
+    });
 
-    ipcMain.handle(
-      'importTableFromCSV',
-      async (event, tableName: DatabaseTables) => {
-        const filePath = await selectCSVDestination(this, false, false);
-        if (!filePath)
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        return importTableFromCSV(this.database, tableName, filePath);
-      }
-    );
+    ipcMain.handle('importTableFromCSV', async (_, tableName: DatabaseTables) => {
+      const filePath = await selectCSVDestination(this, false, false);
+      if (!filePath)
+        return new Promise<void>((resolve) => {
+          resolve();
+        });
+      return importTableFromCSV(this.database, tableName, filePath);
+    });
 
     ipcMain.handle('exportDatabaseToCSVs', () => {
       return exportDatabaseToCSVs(this, this.database);

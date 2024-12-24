@@ -1,5 +1,4 @@
 import { BrowserWindow, app } from 'electron';
-import electronReload from 'electron-reload';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -12,11 +11,11 @@ import { AppWindow } from './window/AppWindow';
 
 class Main {
   private isDevelopment: boolean;
-  private database: Database;
+  private database: Database | undefined;
 
   private config: CoreConfig;
-  private updater: Updater;
-  private appWindow: AppWindow;
+  private updater: Updater | undefined;
+  private appWindow: AppWindow | undefined;
 
   public constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
@@ -24,28 +23,17 @@ class Main {
     this.config = new CoreConfig(this.isDevelopment);
   }
 
-  public init() {
+  public init(): this {
     // Store db to userData on production.
     if (!this.isDevelopment) {
       // Define the source and destination paths for the database
       const sourcePath = path.join(__dirname, 'commander.db');
-      const destinationPath = path.join(
-        app.getPath('userData'),
-        'commander.db'
-      );
+      const destinationPath = path.join(app.getPath('userData'), 'commander.db');
       // Check if the database file already exists in userData. iff not override!
       if (!fs.existsSync(destinationPath)) {
         // Copy the database file to userData
         fs.copyFileSync(sourcePath, destinationPath);
       }
-    }
-
-    if (require('electron-squirrel-startup')) {
-      process.exit(0);
-    }
-
-    if (this.isDevelopment) {
-      electronReload(path.join(__dirname, '../'), {});
     }
 
     // Set initial config params
@@ -60,18 +48,13 @@ class Main {
     return this;
   }
 
-  private initHandlers() {
+  private initHandlers(): void {
     app.whenReady().then(async () => {
       sqlite3.verbose();
       this.database = await open({
         driver: sqlite3.Database,
-        filename: path
-          .join(
-            this.isDevelopment ? __dirname : app.getPath('userData'),
-            'commander.db'
-          )
-          .replace('app.asar', 'app.asar.unpacked'),
-        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+        filename: path.join(this.isDevelopment ? __dirname : app.getPath('userData'), 'commander.db').replace('app.asar', 'app.asar.unpacked'),
+        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
       });
 
       // Enable FK Checks
@@ -82,11 +65,7 @@ class Main {
         console.log(data);
       });
 
-      this.appWindow = new AppWindow(
-        this.isDevelopment,
-        this.database,
-        this.config
-      );
+      this.appWindow = new AppWindow(this.isDevelopment, this.database, this.config);
 
       this.updater = new Updater(this.database, this.config, this.appWindow);
       this.updater.checkForUpdates();
@@ -95,7 +74,7 @@ class Main {
     app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.appWindow.loadPage('index.html');
+        this.appWindow?.loadPage('index.html');
       }
     });
 

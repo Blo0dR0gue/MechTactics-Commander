@@ -1,9 +1,9 @@
 /**
  * Defines an object which has string as keys
  */
-type ObjectWithKeys = Record<string, unknown>;
+export type ObjectWithKeys = Record<string, unknown>;
 
-type Icon = SVGElement & HTMLElement;
+export type Icon = SVGElement & HTMLElement;
 
 /**
  * Get all props of an object or class(iff public) recursive
@@ -11,18 +11,16 @@ type Icon = SVGElement & HTMLElement;
  * {name: 'test', text: 'hello'} => 'name' | 'text'
  * {name: 'test', coord: {x: 1, y: 1}} => 'name' | 'text' | 'coord' | 'coord.x' | 'coord.y'
  */
-type ObjectPropsRec<T, U extends keyof T = keyof T> = U extends string
-  ? T[U] extends string | number | symbol
-    ? U // If it is a primitive, return the prop name
-    : T[U] extends Map<unknown, unknown>
-    ? never // If it is a map, do not return the prop name
-    : T[U] extends Array<unknown>
-    ? U | ArrayPropPath<T[U], U> // If it is an array, return the prop name of the array and also an array path
+export type ObjectPropsRec<T, U extends keyof T = keyof T> = U extends string
+  ? T[U] extends Map<unknown, unknown>
+    ? never // Exclude maps
     : T[U] extends (...args: unknown[]) => unknown
-    ? never // If it is a function, do not return the prop name
-    : T[U] extends object
-    ? U | `${U & string}.${ObjectPropsRec<T[U]>}` // If it is an object, return the prop name of the obj and also recursively concatenate the props of this obj
-    : never
+      ? never // Exclude functions
+      : T[U] extends Array<unknown>
+        ? U | ArrayPropPath<T[U], U>
+        : T[U] extends object
+          ? U | `${U & string}.${ObjectPropsRec<T[U]>}` // Recurse into objects
+          : U // Include primitive properties
   : never;
 
 /**
@@ -35,18 +33,12 @@ type ObjectPropsRec<T, U extends keyof T = keyof T> = U extends string
  * const arr = [{name: 'test'}, {test: 1}]
  * type ValidPath = ArrayPropPath<typeof arr>; => `${number}` | `${number}.name | `${number}.test`
  */
-type ArrayPropPath<
-  T,
-  Appendix extends string | undefined = undefined
-> = T extends Array<infer E>
-  ? E extends object
-    ?
-        | `${Appendix extends string ? `${Appendix}.` : ''}${number}`
-        | `${Appendix extends string
-            ? `${Appendix}.`
-            : ''}${number}.${ObjectPropsRec<E>}`
-    : `${Appendix extends string ? `${Appendix}.` : ''}${number}`
-  : never;
+export type ArrayPropPath<T, Appendix extends string | undefined = undefined> =
+  T extends Array<infer E>
+    ? E extends object
+      ? `${Appendix extends string ? `${Appendix}.` : ''}${number}` | `${Appendix extends string ? `${Appendix}.` : ''}${number}.${ObjectPropsRec<E>}`
+      : `${Appendix extends string ? `${Appendix}.` : ''}${number}`
+    : never;
 
 /**
  * Type to get the type of the objects inside of an array
@@ -59,11 +51,7 @@ type ArrayPropPath<
  * let arr3 = [{name: 'test'}, {test2: 'test'}]
  * type t3 = ArrayObjType<typeof arr3> => { name: string; test2?: undefined; | { test2: string; name?: undefined;}
  */
-type ArrayObjType<T> = T extends Array<infer E>
-  ? E extends object
-    ? T[number]
-    : never
-  : never;
+export type ArrayObjType<T> = T extends Array<infer E> ? (E extends object ? T[number] : never) : never;
 
 /**
  * Like ObjectPropsRec but the type is the type of the parameters
@@ -71,28 +59,18 @@ type ArrayObjType<T> = T extends Array<infer E>
  * {name: 'test', text: 'hello'} => string
  * {name: 'test', coord: {x: 1, y: 1}} => string | {x: number, y: number}
  */
-type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
+export type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
   ? T[U] extends string | number | symbol
     ? T[U] // If it is a primitive, return the property type
     : T[U] extends Map<unknown, unknown>
-    ? never // If it is a map, do not return the property type
-    : T[U] extends Array<unknown>
-    ? T[U]
-    : T[U] extends (...args: unknown[]) => unknown
-    ? never // If it is a function, do not return the property type
-    : T[U] extends object
-    ? T[U] | TypeOfObjectPropRec<T[U]>
-    : T[U]
+      ? never // If it is a map, do not return the property type
+      : T[U] extends Array<unknown>
+        ? T[U]
+        : T[U] extends (...args: unknown[]) => unknown
+          ? never // If it is a function, do not return the property type
+          : T[U] extends object
+            ? T[U] | TypeOfObjectPropRec<T[U]>
+            : T[U]
   : never;
 
-type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';
-
-export {
-  Icon,
-  ObjectWithKeys,
-  TypeOfObjectPropRec,
-  ObjectPropsRec,
-  ArrayObjType,
-  ArrayPropPath,
-  DatabaseTables,
-};
+export type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';

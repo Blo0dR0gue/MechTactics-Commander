@@ -13,11 +13,11 @@ class Affiliation {
     return this.id;
   }
 
-  public getColor() {
+  public getColor(): string {
     return this.color;
   }
 
-  public getName() {
+  public getName(): string {
     return this.name;
   }
 }

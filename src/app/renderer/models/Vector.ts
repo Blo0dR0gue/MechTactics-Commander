@@ -53,7 +53,7 @@ class Vector {
    * Sets the x coordinate
    * @param x The new x value
    */
-  public setX(x: number) {
+  public setX(x: number): void {
     this.x = x;
   }
 
@@ -62,7 +62,7 @@ class Vector {
    *
    * @param x The new y value
    */
-  public setY(y: number) {
+  public setY(y: number): void {
     this.y = y;
   }
 
@@ -72,7 +72,7 @@ class Vector {
    * @param x The new x value
    * @param y The new y value
    */
-  public set(x: number, y: number) {
+  public set(x: number, y: number): void {
     this.x = x;
     this.y = y;
   }

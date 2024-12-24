@@ -8,33 +8,25 @@ import { Statement } from 'sqlite3';
 import { DatabaseTables } from '../types/UtilityTypes';
 import PlanetAffiliationAgeDynFormatter from '../renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter';
 
-async function selectCSVDestination(
-  window: AppWindow,
-  save: boolean,
-  dir?: boolean
-) {
+async function selectCSVDestination(window: AppWindow, save: boolean, dir?: boolean): Promise<string | undefined> {
   if (save && !dir) {
     const destinationData = await dialog.showSaveDialog(window.getWindow(), {
       title: 'Speichern unter...',
       filters: [{ name: 'CSV', extensions: ['csv'] }],
-      properties: ['createDirectory'],
+      properties: ['createDirectory']
     });
     return destinationData?.filePath;
   } else {
     const destinationData = await dialog.showOpenDialog(window.getWindow(), {
       title: 'Laden',
       filters: [{ name: 'CSV', extensions: ['csv'] }],
-      properties: [dir ? 'openDirectory' : 'openFile', 'createDirectory'],
+      properties: [dir ? 'openDirectory' : 'openFile', 'createDirectory']
     });
     return destinationData?.filePaths[0];
   }
 }
 
-async function importTableFromCSV(
-  database: Database,
-  tableName: DatabaseTables,
-  csvPath: string
-) {
+async function importTableFromCSV(database: Database, tableName: DatabaseTables, csvPath: string): Promise<void> {
   let csvFilePath;
   if (csvPath.endsWith('.csv')) {
     csvFilePath = csvPath;
@@ -56,9 +48,7 @@ async function importTableFromCSV(
         if (tableName === 'PlanetAffiliationAge') {
           // We need to convert the one line per planet to multi lines per planet for each age like in the database
 
-          const affiliationIDKeys = Object.keys(data).filter((key) =>
-            key.includes('affiliationID')
-          );
+          const affiliationIDKeys = Object.keys(data).filter((key) => key.includes('affiliationID'));
 
           if (affiliationIDKeys.length === 0) {
             reject('No affiliation data found');
@@ -70,21 +60,16 @@ async function importTableFromCSV(
               acc.push(key.replace('affiliationID', ''));
             }
             return acc;
-          }, []);
+          }, [] as Array<string>);
 
-          const databaseKeys = [
-            'universeAge',
-            'planetID',
-            'affiliationID',
-            'planetText',
-          ];
+          const databaseKeys = ['universeAge', 'planetID', 'affiliationID', 'planetText'];
 
           ages.forEach((age) => {
             const elem = {
               universeAge: age,
               planetID: data['planetID'],
               affiliationID: data[`affiliationID${age}`],
-              planetText: data[`planetText${age}`] || '',
+              planetText: data[`planetText${age}`] || ''
             };
             const values = Object.values(elem)
               .map((value) => `"${value}"`)
@@ -115,11 +100,7 @@ async function importTableFromCSV(
   });
 }
 
-async function exportTableToCSV(
-  database: Database,
-  tableName: DatabaseTables,
-  csvPath: string
-) {
+async function exportTableToCSV(database: Database, tableName: DatabaseTables, csvPath: string): Promise<void> {
   let csvFilePath;
   if (csvPath.endsWith('.csv')) {
     csvFilePath = csvPath;
@@ -139,9 +120,7 @@ async function exportTableToCSV(
 
     // TODO: Clean way via database instance
     // Get all ages stored in the database
-    let ages = await database.all(
-      'SELECT DISTINCT universeAge FROM PlanetAffiliationAge;'
-    );
+    let ages = await database.all('SELECT DISTINCT universeAge FROM PlanetAffiliationAge;');
     ages = ages.reduce((acc, val) => {
       acc.add(val.universeAge);
       return acc;
@@ -153,18 +132,18 @@ async function exportTableToCSV(
 
     columnKeys.push({
       header: 'planetID',
-      key: 'planetID',
+      key: 'planetID'
     });
 
     ages.forEach((age) => {
       // Add headers fo the affiliation-id and the planet-text for the different universe ages we have
       columnKeys.push({
         header: `affiliationID${age}`,
-        key: `affiliationData.age${age}.affiliationID`,
+        key: `affiliationData.age${age}.affiliationID`
       });
       columnKeys.push({
         header: `planetText${age}`,
-        key: `affiliationData.age${age}.planetText`,
+        key: `affiliationData.age${age}.planetText`
       });
     });
 
@@ -173,7 +152,7 @@ async function exportTableToCSV(
     Object.keys(rows[0]).forEach((key) =>
       columnKeys.push({
         key: key,
-        header: key,
+        header: key
       })
     );
   }
@@ -188,7 +167,7 @@ async function writeDataToCSV(
     header: string;
   }[],
   pathToCSV: string
-) {
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     stringify(
       dataRows,
@@ -196,9 +175,9 @@ async function writeDataToCSV(
         header: true,
         columns: columnKeys,
         delimiter: ';',
-        encoding: 'utf-8',
+        encoding: 'utf-8'
       },
-      (err, output) => {
+      (_, output) => {
         fs.writeFile(pathToCSV, output, (err) => {
           if (err) {
             reject(err);
@@ -211,7 +190,7 @@ async function writeDataToCSV(
   });
 }
 
-async function exportDatabaseToCSVs(window: AppWindow, database: Database) {
+async function exportDatabaseToCSVs(window: AppWindow, database: Database): Promise<void[] | undefined> {
   const csvFolderPath = await selectCSVDestination(window, true, true);
 
   if (!csvFolderPath) {
@@ -222,14 +201,12 @@ async function exportDatabaseToCSVs(window: AppWindow, database: Database) {
 
   exports.push(exportTableToCSV(database, 'Planet', csvFolderPath));
   exports.push(exportTableToCSV(database, 'Affiliation', csvFolderPath));
-  exports.push(
-    exportTableToCSV(database, 'PlanetAffiliationAge', csvFolderPath)
-  );
+  exports.push(exportTableToCSV(database, 'PlanetAffiliationAge', csvFolderPath));
 
   return Promise.all(exports);
 }
 
-async function importDatabaseFromCSVs(window: AppWindow, database: Database) {
+async function importDatabaseFromCSVs(window: AppWindow, database: Database): Promise<void[] | undefined> {
   const csvFolderPath = await selectCSVDestination(window, false, true);
 
   if (!csvFolderPath) {
@@ -240,17 +217,9 @@ async function importDatabaseFromCSVs(window: AppWindow, database: Database) {
 
   exports.push(importTableFromCSV(database, 'Planet', csvFolderPath));
   exports.push(importTableFromCSV(database, 'Affiliation', csvFolderPath));
-  exports.push(
-    importTableFromCSV(database, 'PlanetAffiliationAge', csvFolderPath)
-  );
+  exports.push(importTableFromCSV(database, 'PlanetAffiliationAge', csvFolderPath));
 
   return Promise.all(exports);
 }
 
-export {
-  selectCSVDestination,
-  exportTableToCSV,
-  importTableFromCSV,
-  exportDatabaseToCSVs,
-  importDatabaseFromCSVs,
-};
+export { selectCSVDestination, exportTableToCSV, importTableFromCSV, exportDatabaseToCSVs, importDatabaseFromCSVs };

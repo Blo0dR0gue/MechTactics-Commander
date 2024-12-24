@@ -39,7 +39,7 @@ class Planet extends Circle {
    *
    * @returns The name of the planet
    */
-  public getName(): string | null {
+  public getName(): string {
     return this.name;
   }
 
@@ -67,14 +67,14 @@ class Planet extends Circle {
         x: this.coord.getX(),
         y: this.coord.getY(),
         link: this.link,
-        name: this.name,
+        name: this.name
       })
       .then(() => {
         window.sql.updatePlanetAffiliationAge({
           planetID: this.id,
           affiliationID: this.getAffiliationID(),
           universeAge: this.universeAge,
-          planetText: this.text,
+          planetText: this.text
         });
       });
   }

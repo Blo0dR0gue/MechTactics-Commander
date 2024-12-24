@@ -4,13 +4,13 @@ import { Pathfinding } from './Pathfinding';
 // TODO: Handle ignore of planets or affiliations
 // TODO: COMMENTS, TESTS
 
-class AStarPathfinding<Type> extends Pathfinding<Type> {
+class AStarPathfinding<Type extends NonNullable<unknown>> extends Pathfinding<Type> {
   public search(
     start: Type,
     goal: Type,
     next_elements: (element: Type) => Type[],
     heuristic: (elementA: Type, elementB: Type) => number
-  ): Type[] {
+  ): Type[] | undefined {
     const parent = new Map<Type, Type>();
     parent.set(start, start);
 
@@ -30,7 +30,7 @@ class AStarPathfinding<Type> extends Pathfinding<Type> {
         return this.pathTo(goal, parent);
       }
 
-      const elementDist = distance.get(element);
+      const elementDist = distance.get(element) as number;
       for (const next of next_elements(element)) {
         const oldEstimate = estimate.get(next) || undefined;
         const newEstimate = elementDist + 1 + heuristic(next, goal);
@@ -46,6 +46,7 @@ class AStarPathfinding<Type> extends Pathfinding<Type> {
         }
       }
     }
+    return undefined;
   }
 }
 

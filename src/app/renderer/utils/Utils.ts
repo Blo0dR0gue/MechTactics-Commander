@@ -1,6 +1,6 @@
 import { PlanetCoordData, PlanetData } from '../../types/PlanetData';
 
-function createSVGElementFromString(svg: string) {
+function createSVGElementFromString(svg: string): HTMLElement & SVGElement {
   const svgCode = svg;
 
   const parser = new DOMParser();
@@ -24,13 +24,8 @@ function planetCoordDataToPlanetData(planet: PlanetCoordData): PlanetData {
   return { ...rest, x: coord.x, y: coord.y } as PlanetData;
 }
 
-function escapeHtmlTags(input: string) {
+function escapeHtmlTags(input: string): string {
   return input.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export {
-  createSVGElementFromString,
-  planetDataToPlanetCoordData,
-  planetCoordDataToPlanetData,
-  escapeHtmlTags,
-};
+export { createSVGElementFromString, planetDataToPlanetCoordData, planetCoordDataToPlanetData, escapeHtmlTags };

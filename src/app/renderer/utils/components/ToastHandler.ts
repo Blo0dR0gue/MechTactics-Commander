@@ -20,12 +20,7 @@ class ToastHandler {
     parentElement.appendChild(this.toastContainer);
   }
 
-  public createAndShowToast(
-    title: string,
-    text: string,
-    type = ToastType.Default,
-    displayTime = 3000
-  ) {
+  public createAndShowToast(title: string, text: string, type = ToastType.Default, displayTime = 3000): void {
     if (this.currentToasts.length >= this.maxElements) {
       this.removeToastByIndex(0);
     }
@@ -38,12 +33,12 @@ class ToastHandler {
     this.currentToasts.push(toast);
   }
 
-  private removeToast(toast: ToastItem) {
+  private removeToast(toast: ToastItem): void {
     const index = this.currentToasts.indexOf(toast);
     this.removeToastByIndex(index);
   }
 
-  private removeToastByIndex(index: number) {
+  private removeToastByIndex(index: number): void {
     if (index === -1) return;
     this.currentToasts[index].hideToast();
     this.currentToasts.splice(index, 1);
@@ -54,7 +49,7 @@ enum ToastType {
   Default = 'bg-secondary',
   Danger = 'bg-danger',
   Warning = 'bg-warning',
-  Info = 'bg-info',
+  Info = 'bg-info'
 }
 
 /**
@@ -69,13 +64,7 @@ class ToastItem {
    * @param title The title of the toast
    * @param text The message of the toast
    */
-  public constructor(
-    title: string,
-    text: string,
-    displayTime: number,
-    type = ToastType.Default,
-    onClose?: () => void
-  ) {
+  public constructor(title: string, text: string, displayTime: number, type = ToastType.Default, onClose?: () => void) {
     // Create toast dom element
     const toastElem = document.createElement('div');
     toastElem.classList.add('toast');
@@ -119,27 +108,29 @@ class ToastItem {
     this.toast = new Toast(this.domElement, {
       autohide: true,
       delay: displayTime,
-      animation: true,
+      animation: true
     });
 
     // Auto delete element from dom
     this.domElement.addEventListener('hidden.bs.toast', () => {
       this.domElement.remove();
-      onClose();
+      if (onClose) {
+        onClose();
+      }
     });
   }
 
   /**
    * Display the toast
    */
-  public showToast() {
+  public showToast(): void {
     this.toast.show();
   }
 
   /**
    * Hides the toast
    */
-  public hideToast() {
+  public hideToast(): void {
     this.toast.hide();
   }
 

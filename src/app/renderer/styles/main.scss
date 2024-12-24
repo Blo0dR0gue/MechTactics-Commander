@@ -1,9 +1,9 @@
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
+@import 'node_modules/bootstrap/scss/functions.scss';
+@import 'node_modules/bootstrap/scss/variables.scss';
 
 $custom-colors: (
   'actionBar': rgba(24, 24, 24, 0.7),
-  'background': #08001f,
+  'background': #08001f
 );
 
 $theme-colors: map-merge($theme-colors, $custom-colors);
@@ -30,12 +30,7 @@ TODO: USE BOOTSTRAP
 }
 
 .btn-actionBar:not(.bg-selected):hover {
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.2
-  ) !important; /* Highlight on hover */
+  background-color: rgba(255, 255, 255, 0.2) !important; /* Highlight on hover */
 }
 
 .bg-selected {
@@ -68,12 +63,7 @@ ul.nav a:hover:not(.active) {
 /* Header */
 
 header {
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* Add a background color to the header */
+  background-color: rgba(0, 0, 0, 0.5); /* Add a background color to the header */
   padding: 5px; /* Add some padding for spacing */
   position: fixed;
   top: 0;
@@ -139,4 +129,4 @@ canvas:focus {
 }
 
 // Import all of Bootstrap's CSS
-@import '~bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap/scss/bootstrap';

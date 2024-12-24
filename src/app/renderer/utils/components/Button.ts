@@ -4,7 +4,7 @@ import { escapeHtmlTags } from '../Utils';
 /**
  * A basic button definition for this table
  */
-type ButtonData = {
+export type ButtonData = {
   /**
    * The display text of the button
    */
@@ -19,7 +19,7 @@ type ButtonData = {
   icon?: Icon;
 };
 
-class Button {
+export class Button {
   /**
    * The button element, which is rendered in the dom
    */
@@ -39,9 +39,7 @@ class Button {
     const { text, icon, classNames } = basicButton;
 
     if (!text && !icon) {
-      throw new Error(
-        `You must define either text or an icon for a button. ${basicButton}`
-      );
+      throw new Error(`You must define either text or an icon for a button. ${basicButton}`);
     }
 
     this.buttonElement = document.createElement('button');
@@ -82,5 +80,3 @@ class Button {
     }
   }
 }
-
-export { Button, ButtonData };

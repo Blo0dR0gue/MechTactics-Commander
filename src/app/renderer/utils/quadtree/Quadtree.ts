@@ -105,10 +105,9 @@ export class Quadtree<ObjectsType extends Circle> {
     this.bounds = {
       coord: new Vector(props.x || 0, props.y || 0),
       width: props.width,
-      height: props.height,
+      height: props.height
     };
-    this.maxObjects =
-      typeof props.maxObjects === 'number' ? props.maxObjects : 10;
+    this.maxObjects = typeof props.maxObjects === 'number' ? props.maxObjects : 10;
     this.maxLevels = typeof props.maxLevels === 'number' ? props.maxLevels : 4;
     this.level = level;
 
@@ -117,7 +116,7 @@ export class Quadtree<ObjectsType extends Circle> {
   }
 
   getIndex(obj: Circle): number[] {
-    const indexes = [];
+    const indexes = [] as number[];
 
     if (obj.coord.getX() + obj.r > this.bounds.coord.getX()) {
       // right
@@ -153,20 +152,20 @@ export class Quadtree<ObjectsType extends Circle> {
     const coords = [
       {
         x: this.bounds.coord.getX() + width / 2,
-        y: this.bounds.coord.getY() + height / 2,
+        y: this.bounds.coord.getY() + height / 2
       }, // top right
       {
         x: this.bounds.coord.getX() - width / 2,
-        y: this.bounds.coord.getY() + height / 2,
+        y: this.bounds.coord.getY() + height / 2
       }, // top left
       {
         x: this.bounds.coord.getX() - width / 2,
-        y: this.bounds.coord.getY() - height / 2,
+        y: this.bounds.coord.getY() - height / 2
       }, // bottom left
       {
         x: this.bounds.coord.getX() + width / 2,
-        y: this.bounds.coord.getY() - height / 2,
-      }, // bottom right
+        y: this.bounds.coord.getY() - height / 2
+      } // bottom right
     ];
 
     for (let i = 0; i < 4; i++) {
@@ -177,7 +176,7 @@ export class Quadtree<ObjectsType extends Circle> {
           width,
           height,
           maxObjects: this.maxObjects,
-          maxLevels: this.maxLevels,
+          maxLevels: this.maxLevels
         },
         level
       );

@@ -1,11 +1,7 @@
 import { Pathfinding } from './Pathfinding';
 
-class BiBreadthFirstSearch<Type> extends Pathfinding<Type> {
-  search(
-    start: Type,
-    goal: Type,
-    next_elements: (element: Type) => Type[]
-  ): Type[] {
+class BiBreadthFirstSearch<Type extends NonNullable<unknown>> extends Pathfinding<Type> {
+  search(start: Type, goal: Type, next_elements: (element: Type) => Type[]): Type[] | undefined {
     let frontierA = new Set<Type>();
     frontierA.add(start);
     const parentA = new Map<Type, Type>();
@@ -47,6 +43,7 @@ class BiBreadthFirstSearch<Type> extends Pathfinding<Type> {
       }
       frontierB = newFrontier;
     }
+    return undefined;
   }
 }
 

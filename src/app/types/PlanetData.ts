@@ -1,4 +1,4 @@
-type PlanetData = {
+export type PlanetData = {
   id: number;
   name: string;
   x: number;
@@ -6,7 +6,7 @@ type PlanetData = {
   link: string;
 };
 
-type PlanetCoordData = {
+export type PlanetCoordData = {
   id: number;
   name: string;
   coord: {
@@ -17,10 +17,8 @@ type PlanetCoordData = {
   link: string;
 };
 
-type PlanetWithAffiliationAndAge = PlanetData & {
+export type PlanetWithAffiliationAndAge = PlanetData & {
   affiliationID: number;
   age: number;
   planetText: string;
 };
-
-export { PlanetData, PlanetCoordData, PlanetWithAffiliationAndAge };

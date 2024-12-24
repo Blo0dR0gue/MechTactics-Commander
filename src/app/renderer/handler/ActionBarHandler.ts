@@ -24,7 +24,7 @@ class ActionBarHandler {
   private addToRouteBtn: HTMLButtonElement;
   private planetCustomText: HTMLTextAreaElement;
 
-  private selectedPlanet: Planet | null;
+  private selectedPlanet: Planet | null = null;
 
   // Settings
   private settingsRange30: HTMLInputElement;
@@ -33,45 +33,31 @@ class ActionBarHandler {
   private settingsBackgroundColor: HTMLInputElement;
 
   // TODO: Rework (remove here)
-  private routeController: RouteController;
-  private cameraController: CameraController;
-  private toastHandler: ToastHandler;
-  private universe: Universe;
+  private routeController!: RouteController;
+  private cameraController!: CameraController;
+  private toastHandler!: ToastHandler;
+  private universe!: Universe;
 
   /**
    * Setup of all dom element references
    */
   public constructor() {
-    this.navButtons = document.querySelectorAll('.btn-actionBar');
+    this.navButtons = document.querySelectorAll('.btn-actionBar') as NodeListOf<HTMLDivElement>;
     this.contentArea = document.getElementById('content-box') as HTMLDivElement;
-    this.routeItemsContainer = document.getElementById('route-container');
-    this.planetNameArea = document.getElementById('planet-name');
-    this.affiliationNameArea = document.getElementById('affiliation-name');
+    this.routeItemsContainer = document.getElementById('route-container') as HTMLElement;
+    this.planetNameArea = document.getElementById('planet-name') as HTMLElement;
+    this.affiliationNameArea = document.getElementById('affiliation-name') as HTMLElement;
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
-    this.planetCustomText = document.getElementById(
-      'planet-custom-textarea'
-    ) as HTMLTextAreaElement;
-    this.coordinatesArea = document.getElementById('coordinates');
-    this.centerOnPlanetBtn = document.getElementById(
-      'center-on-planet'
-    ) as HTMLButtonElement;
-    this.addToRouteBtn = document.getElementById(
-      'add-to-route'
-    ) as HTMLButtonElement;
+    this.planetCustomText = document.getElementById('planet-custom-textarea') as HTMLTextAreaElement;
+    this.coordinatesArea = document.getElementById('coordinates') as HTMLElement;
+    this.centerOnPlanetBtn = document.getElementById('center-on-planet') as HTMLButtonElement;
+    this.addToRouteBtn = document.getElementById('add-to-route') as HTMLButtonElement;
 
     // Settings Elements
-    this.settingsRange30 = document.getElementById(
-      'settings-range-30'
-    ) as HTMLInputElement;
-    this.settingsRange60 = document.getElementById(
-      'settings-range-60'
-    ) as HTMLInputElement;
-    this.excludedAffiliationsParent = document.getElementById(
-      'jump-settings-excluded-affiliations'
-    );
-    this.settingsBackgroundColor = document.getElementById(
-      'settings-background-color'
-    ) as HTMLInputElement;
+    this.settingsRange30 = document.getElementById('settings-range-30') as HTMLInputElement;
+    this.settingsRange60 = document.getElementById('settings-range-60') as HTMLInputElement;
+    this.excludedAffiliationsParent = document.getElementById('jump-settings-excluded-affiliations') as HTMLElement;
+    this.settingsBackgroundColor = document.getElementById('settings-background-color') as HTMLInputElement;
   }
 
   /**
@@ -79,12 +65,7 @@ class ActionBarHandler {
    *
    * @param cameraController The camera controller, to use for center
    */
-  public init(
-    cameraController: CameraController,
-    toastHandler: ToastHandler,
-    universe: Universe,
-    routeController: RouteController
-  ) {
+  public init(cameraController: CameraController, toastHandler: ToastHandler, universe: Universe, routeController: RouteController): void {
     this.toastHandler = toastHandler;
     this.cameraController = cameraController;
     this.universe = universe;
@@ -93,27 +74,17 @@ class ActionBarHandler {
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
     this.navButtons.forEach((element) => {
-      if (element.id === undefined || element.dataset.content === undefined)
-        return;
-      element.addEventListener(
-        'click',
-        function () {
-          this.showTab(element.dataset.content, element);
-        }.bind(this)
-      );
+      if (element.id === undefined || element.dataset.content === undefined) return;
+      element.addEventListener('click', (): void => {
+        this.showTab(element.dataset.content, element);
+      });
     });
 
     // Add a click listener to the button to center on the selected planet.
-    this.centerOnPlanetBtn.addEventListener(
-      'click',
-      this.centerOnPlanetClicked.bind(this)
-    );
+    this.centerOnPlanetBtn.addEventListener('click', this.centerOnPlanetClicked.bind(this));
 
     // Add a click listener to the button to add the selected planet to the route.
-    this.addToRouteBtn.addEventListener(
-      'click',
-      this.addToRouteClicked.bind(this)
-    );
+    this.addToRouteBtn.addEventListener('click', this.addToRouteClicked.bind(this));
 
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
@@ -123,17 +94,13 @@ class ActionBarHandler {
     });
 
     // Setup the camera event listeners
-    this.universe.planetSelectionChangedEvent.subscribe(
-      this.planetSelectionChanged.bind(this)
-    );
-    this.cameraController.updateRouteEvent.subscribe(
-      this.routeChanged.bind(this)
-    );
+    this.universe.planetSelectionChangedEvent.subscribe(this.planetSelectionChanged.bind(this));
+    this.cameraController.updateRouteEvent.subscribe(this.routeChanged.bind(this));
 
     this.setupSettingsTab();
   }
 
-  private setupSettingsTab() {
+  private setupSettingsTab(): void {
     const jumpRange = Config.getInstance().get('jumpRange') as number;
     if (jumpRange === 60) this.settingsRange60.checked = true;
     else this.settingsRange30.checked = true;
@@ -152,9 +119,7 @@ class ActionBarHandler {
     this.settingsBackgroundColor.value = this.universe.getBackgroundColor();
 
     this.settingsBackgroundColor.addEventListener('change', (event) => {
-      this.universe.setBackgroundColor(
-        (event.target as HTMLInputElement).value
-      );
+      this.universe.setBackgroundColor((event.target as HTMLInputElement).value);
     });
 
     // Setup exclude affiliations toggles
@@ -168,22 +133,23 @@ class ActionBarHandler {
     // Max 4 elements per col
     const perCol = 4;
 
-    sepExcluded.push(
-      this.universe.getAffiliationWithName('Capellan Confederation')
-    );
-    sepExcluded.push(this.universe.getAffiliationWithName('Draconis Combine'));
-    sepExcluded.push(this.universe.getAffiliationWithName('Federated Suns'));
-    sepExcluded.push(
-      this.universe.getAffiliationWithName('Free Worlds League')
-    );
-    sepExcluded.push(
-      this.universe.getAffiliationWithName('Lyran Commonwealth')
-    );
-    sepExcluded.push(this.universe.getAffiliationWithName('No record'));
-    sepExcluded.push(this.universe.getAffiliationWithName('Inhabited system'));
+    const affiliationNamesForRouteSelect = [
+      'Capellan Confederation',
+      'Draconis Combine',
+      'Federated Suns',
+      'Free Worlds League',
+      'Lyran Commonwealth',
+      'No record',
+      'Inhabited system'
+    ];
+    affiliationNamesForRouteSelect.forEach((affiliationName) => {
+      const affiliation = this.universe.getAffiliationWithName(affiliationName);
+      if (affiliation) {
+        sepExcluded.push(affiliation);
+      }
+    });
 
-    const excludedAffiliationIDs =
-      (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
+    const excludedAffiliationIDs = (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
 
     for (let i = 0; i < sepExcluded.length; i++) {
       // Only allow 2 cols with each perCol elements
@@ -197,16 +163,10 @@ class ActionBarHandler {
             !excludedAffiliationIDs.includes(affiliation.getID()),
             (input: HTMLInputElement) => {
               if (input.checked) {
-                Config.getInstance().remove(
-                  'excludedAffiliationIDs',
-                  affiliation.getID()
-                );
+                Config.getInstance().remove('excludedAffiliationIDs', affiliation.getID());
                 this.routeController.removeExcludedAffiliation(affiliation);
               } else {
-                Config.getInstance().add(
-                  'excludedAffiliationIDs',
-                  affiliation.getID()
-                );
+                Config.getInstance().add('excludedAffiliationIDs', affiliation.getID());
                 this.routeController.addExcludedAffiliation(affiliation);
               }
               this.generateJumpCards();
@@ -220,7 +180,7 @@ class ActionBarHandler {
   /**
    * Handler to center the camera on the selected planet on button click.
    */
-  private centerOnPlanetClicked() {
+  private centerOnPlanetClicked(): void {
     if (this.selectedPlanet != null) {
       this.cameraController.centerOnPlanet(this.selectedPlanet);
     }
@@ -229,18 +189,15 @@ class ActionBarHandler {
   /**
    * Handler to add the selected planet to the route on button click.
    */
-  private addToRouteClicked() {
+  private addToRouteClicked(): void {
     // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
-    if (
-      this.selectedPlanet != null &&
-      !this.routeController.containsPlanet(this.selectedPlanet)
-    ) {
+    if (this.selectedPlanet != null && !this.routeController.containsPlanet(this.selectedPlanet)) {
       this.routeController.addTargetPlanet(this.selectedPlanet);
       // TODO: Rework. Don't invoke event of other class!!!
       this.cameraController.updateRouteEvent.invoke({
         planet: this.selectedPlanet,
         add: true,
-        numberPlanets: this.routeController.lengthOfTargetPlanets(),
+        numberPlanets: this.routeController.lengthOfTargetPlanets()
       });
     }
   }
@@ -249,7 +206,7 @@ class ActionBarHandler {
    *
    * @param planetChanged The event data
    */
-  private planetSelectionChanged(planetChanged: SelectionChangeEvent) {
+  private planetSelectionChanged(planetChanged: SelectionChangeEvent): void {
     this.selectedPlanet = planetChanged.planet;
     // TODO: simplify
     if (this.selectedPlanet === null) {
@@ -261,17 +218,9 @@ class ActionBarHandler {
       this.planetCustomText.value = '';
     } else {
       this.updateText(this.planetNameArea, this.selectedPlanet.getName());
-      this.updateText(
-        this.affiliationNameArea,
-        this.selectedPlanet.getAffiliationName()
-      );
-      this.updateText(
-        this.coordinatesArea,
-        `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
-      );
-      this.wikiLinkArea.href =
-        this.selectedPlanet.getWikiURL() ||
-        'https://www.sarna.net/wiki/Main_Page';
+      this.updateText(this.affiliationNameArea, this.selectedPlanet.getAffiliationName());
+      this.updateText(this.coordinatesArea, `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`);
+      this.wikiLinkArea.href = this.selectedPlanet.getWikiURL() || 'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
       this.planetCustomText.value = this.selectedPlanet.getText();
       // Select first button (Planet Details)
@@ -285,18 +234,15 @@ class ActionBarHandler {
    *
    * @param routeChanged The event data
    */
-  private routeChanged(routeChanged: UpdateRouteEvent) {
+  private routeChanged(routeChanged: UpdateRouteEvent): void {
     if (routeChanged.planet !== undefined && routeChanged.add) {
       // Create the planet card in the routing area and add it to it.
       this.createRoutePlanetCard(routeChanged.planet);
-      if (routeChanged.numberPlanets > 1) {
+      if (typeof routeChanged.numberPlanets === 'number' && routeChanged.numberPlanets > 1) {
         // Iff we have more then 1 planet in the target planets, also generate the jump cards to display how many jumps are needed.
         this.generateJumpCards();
       }
-      this.toastHandler.createAndShowToast(
-        'Route',
-        `Added ${routeChanged.planet.getName()} to route.`
-      );
+      this.toastHandler.createAndShowToast('Route', `Added ${routeChanged.planet.getName()} to route.`);
     }
   }
 
@@ -306,10 +252,9 @@ class ActionBarHandler {
    * @param tabName The tab to show
    * @param button The button, which got clicked
    */
-  private showTab(tabName, button) {
+  private showTab(tabName, button): void {
     // Hide all tab contents
-    const tabContents = this.contentArea
-      .children as HTMLCollectionOf<HTMLDivElement>;
+    const tabContents = this.contentArea.children as HTMLCollectionOf<HTMLDivElement>;
     for (let i = 0; i < tabContents.length; i++) {
       tabContents[i].classList.add('hide');
     }
@@ -334,7 +279,7 @@ class ActionBarHandler {
    * @param element The element to update
    * @param text The new text
    */
-  private updateText(element: HTMLElement, text: string) {
+  private updateText(element: HTMLElement, text: string): void {
     element.textContent = text;
   }
 
@@ -342,9 +287,7 @@ class ActionBarHandler {
    * Function, to generate all jump cards. It removes all first, calculates the route to all planets and added the jump cards between the corresponding planet cards.
    */
   private generateJumpCards(): void {
-    const routeGenerated = this.routeController.calculateRoute(
-      Config.getInstance().get('jumpRange') as number
-    );
+    const routeGenerated = this.routeController.calculateRoute(Config.getInstance().get('jumpRange') as number);
 
     const jumps = this.routeController.getNumberOfJumpsBetween();
     // Remove all existing jump cards
@@ -377,7 +320,7 @@ class ActionBarHandler {
    *
    * @param planet The planet to add.
    */
-  private createRoutePlanetCard(planet: Planet) {
+  private createRoutePlanetCard(planet: Planet): void {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card text-white my-auto flex-shrink-0 bg-dark';
     cardDiv.style.width = '200px';
@@ -393,10 +336,12 @@ class ActionBarHandler {
     const deleteButton = document.createElement('button');
     deleteButton.className = 'btn btn-danger btn-sm ms-1';
     deleteButton.textContent = 'x';
-    deleteButton.onclick = () => {
-      this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
-      cardDiv.remove();
-      this.generateJumpCards();
+    deleteButton.onclick = (): void => {
+      if (cardDiv.dataset.planetCard) {
+        this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
+        cardDiv.remove();
+        this.generateJumpCards();
+      }
     };
 
     const cardText = document.createElement('p');
@@ -406,8 +351,10 @@ class ActionBarHandler {
     const centerButton = document.createElement('button');
     centerButton.className = 'btn btn-info btn-sm ms-1';
     centerButton.textContent = 'o';
-    centerButton.onclick = () => {
-      this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
+    centerButton.onclick = (): void => {
+      if (cardDiv.dataset.planetCard) {
+        this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
+      }
     };
 
     // Append the elements to build the card
@@ -427,10 +374,9 @@ class ActionBarHandler {
    * @param jumps The amount of jumps
    * @returns The dom jump card element
    */
-  private createRouteJumpCard(jumps: number) {
+  private createRouteJumpCard(jumps: number): HTMLDivElement {
     const cardDiv = document.createElement('div');
-    cardDiv.className =
-      'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
+    cardDiv.className = 'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
     cardDiv.dataset.jumpCard = 'route-jump-card';
 
     const arrowDiv = document.createElement('div');
@@ -444,11 +390,7 @@ class ActionBarHandler {
     return cardDiv;
   }
 
-  private createExcludeAffiliationToggle(
-    name: string,
-    checked: boolean,
-    handler: (input: HTMLInputElement) => void
-  ) {
+  private createExcludeAffiliationToggle(name: string, checked: boolean, handler: (input: HTMLInputElement) => void): HTMLDivElement {
     const parent = document.createElement('div');
 
     const input = document.createElement('input');

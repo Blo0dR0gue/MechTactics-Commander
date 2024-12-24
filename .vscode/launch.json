@@ -2,51 +2,38 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "npm run watch:required",
-      "name": "Electron: Watch",
+      "name": "Debug Main Process",
+      "type": "node",
       "request": "launch",
-      "type": "node-terminal"
-    },
-    {
-      "name": "Electron: Main",
-      "type": "node", //use the node debugger that comes with VS Code
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-      "runtimeArgs": [
-        "--remote-debugging-port=9223" //open debugging port for renderer process
-      ],
-      "args": ["./dist/app/core/main.js"],
-      "env": {
-        "NODE_ENV": "development"
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
       },
-      "outputCapture": "std",
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**", //use source maps for files in workspace folder
-        "!**/node_modules/**" //but ignore everything in the node_modules folder
-      ],
-      "preLaunchTask": "Sleepdelay"
+      "runtimeArgs": ["--watch", "--sourcemap"],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222"
+      }
     },
     {
-      "name": "Electron: Renderer",
-      "type": "chrome", //use the Chrome debugger that comes with VS Code
+      "name": "Debug Renderer Process",
+      "port": 9222,
       "request": "attach",
-      "port": 9223, //use debug port opened in Electron: Main configuration
-      "webRoot": "${workspaceFolder}",
-      "timeout": 30000,
-      "preLaunchTask": "Sleepdelay"
+      "type": "chrome",
+      "webRoot": "${workspaceFolder}/src/app/renderer",
+      "timeout": 60000,
+      "presentation": {
+        "hidden": true
+      }
     }
   ],
   "compounds": [
-    //launch multiple configurations concurrently
     {
-      "name": "Electron: All",
-      "configurations": [
-        "Electron: Watch",
-        "Electron: Main",
-        "Electron: Renderer"
-      ]
+      "name": "Debug All",
+      "configurations": ["Debug Main Process", "Debug Renderer Process"],
+      "presentation": {
+        "order": 1
+      }
     }
   ]
 }

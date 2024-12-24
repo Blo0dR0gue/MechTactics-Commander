@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- TODO: Make more response and get rid of this high resolution limitations in main.ts -->
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MechTactics-Commander</title>
-    <script src="../index.bundle.js" defer></script>
+    <script type="module" src="../index.ts" defer></script>
   </head>
   <body class="overflow-hidden bg-background">
     <!--Loading indicator start-->
@@ -22,44 +22,21 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Disclaimer</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            This is a non-profit open source project for the BattleTech
-            universe. <br />
+            This is a non-profit open source project for the BattleTech universe. <br />
             It uses data from the public
-            <a href="https://www.sarna.net" target="_blank">Sarna Wiki</a> and
-            from the fan created map by
-            <a href="https://www.gruese.de/innersphere" target="_blank"
-              >Christoph Wassermann and Wraith_81</a
-            >
-            for the computer game BATTLETECH by Harebrained Schemes (published
-            by Paradox Interactive). <br />
-            The author is not affiliated with Harebrained Schemes and intends no
-            copyright or trademark infringement. All content from these sources
-            are used with the utmost respect for intellectual property rights
-            and is incorporated into this project for informational and
+            <a href="https://www.sarna.net" target="_blank">Sarna Wiki</a> and from the fan created map by
+            <a href="https://www.gruese.de/innersphere" target="_blank">Christoph Wassermann and Wraith_81</a>
+            for the computer game BATTLETECH by Harebrained Schemes (published by Paradox Interactive). <br />
+            The author is not affiliated with Harebrained Schemes and intends no copyright or trademark infringement. All content from these sources
+            are used with the utmost respect for intellectual property rights and is incorporated into this project for informational and
             non-commercial purposes only. <br />
-            <a
-              class="link link-info"
-              href="https://github.com/Blo0dR0gue/MechTactics-Commander"
-              target="_blank"
-              >Source on GitHub</a
-            >
+            <a class="link link-info" href="https://github.com/Blo0dR0gue/MechTactics-Commander" target="_blank">Source on GitHub</a>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -69,19 +46,13 @@
     <!--Content start-->
     <div class="m-0 p-0">
       <!--Header start-->
-      <header
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75"
-      >
+      <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75">
         <!--Left-->
-        <ul
-          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-        >
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <div class="btn link link-info" id="disclaimer">disclaimer</div>
         </ul>
         <!--Center-->
-        <ul
-          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-        >
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <div class="dropdown" id="age-dropdown">
             <button
               class="btn btn-secondary dropdown-toggle"
@@ -93,29 +64,15 @@
             >
               Version: <span id="selected-universe-age">xxx</span>
             </button>
-            <div
-              class="dropdown-menu"
-              aria-labelledby="dropdownMenuButton"
-              id="age-dropdown-menu"
-            >
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="age-dropdown-menu">
               <!--Elements will be added here programmatically using the HeaderHandler-->
             </div>
           </div>
         </ul>
         <!--Right-->
-        <a
-          class="btn btn-primary d-flex align-items-center justify-content-center me-1"
-          href="./dashboard.html"
-          >Dashboard</a
-        >
+        <a class="btn btn-primary d-flex align-items-center justify-content-center me-1" href="./dashboard.html">Dashboard</a>
         <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
-          <input
-            type="search"
-            class="form-control bg-white"
-            placeholder="Search..."
-            aria-label="Search"
-            id="planet-search"
-          />
+          <input type="search" class="form-control bg-white" placeholder="Search..." aria-label="Search" id="planet-search" />
         </div>
       </header>
       <!--Header end-->
@@ -124,9 +81,7 @@
       <canvas id="universe" tabindex="1"></canvas>
 
       <!--Action Bar (Footer)-->
-      <div
-        class="d-flex flex-column position-absolute bottom-0 align-items-end w-100"
-      >
+      <div class="d-flex flex-column position-absolute bottom-0 align-items-end w-100">
         <!-- Navigation-Bar -->
         <div class="container me-0 pe-0 position-relative">
           <div class="row justify-content-end">
@@ -136,9 +91,7 @@
                 id="planet-details-tab"
                 data-content="planet-details-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Planet Details
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Planet Details</div>
               </div>
             </div>
             <div class="col-sm-2 p-0">
@@ -147,9 +100,7 @@
                 id="routing-tab"
                 data-content="routing-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Routing
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Routing</div>
               </div>
             </div>
 
@@ -159,20 +110,14 @@
                 id="settings-tab"
                 data-content="settings-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Settings
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Settings</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Content-Area -->
-        <div
-          class="w-100 p-1 bg-actionBar bg-opacity-75"
-          style="height: 120px"
-          id="content-box"
-        >
+        <div class="w-100 p-1 bg-actionBar bg-opacity-75" style="height: 120px" id="content-box">
           <!--Planet details content-->
           <div id="planet-details-tab-content" class="w-100">
             <div class="row">
@@ -208,28 +153,15 @@
                 </p>
               </div>
               <div class="col-md-4 d-flex align-items-center flex-column">
-                <label
-                  for="planet-custom-textarea"
-                  class="form-label text-white"
-                  >Planet Custom Text</label
-                >
-                <textarea
-                  class="form-control resize-none"
-                  id="planet-custom-textarea"
-                  rows="2"
-                  disabled
-                ></textarea>
+                <label for="planet-custom-textarea" class="form-label text-white">Planet Custom Text</label>
+                <textarea class="form-control resize-none" id="planet-custom-textarea" rows="2" disabled></textarea>
               </div>
               <div class="col-md-4 d-flex align-items-center flex-column"></div>
             </div>
           </div>
           <!--Routing content-->
           <div id="routing-tab-content" class="w-100 h-100 hide">
-            <div
-              class="h-100 d-flex flex-row flex-nowrap text-nowrap"
-              style="overflow-x: auto"
-              id="route-container"
-            ></div>
+            <div class="h-100 d-flex flex-row flex-nowrap text-nowrap" style="overflow-x: auto" id="route-container"></div>
           </div>
           <!--Settings content-->
           <div id="settings-tab-content" class="w-100 h-100 hide">
@@ -240,32 +172,10 @@
                   <!--Jump Range Settings-->
                   <label for="jump-range" class="text-white">Jump Range</label>
                   <div id="jump-range">
-                    <input
-                      type="radio"
-                      class="btn-check"
-                      name="options-jump-range"
-                      id="settings-range-30"
-                      autocomplete="off"
-                      value="30"
-                    />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-30"
-                      >30</label
-                    >
-                    <input
-                      type="radio"
-                      class="btn-check"
-                      name="options-jump-range"
-                      id="settings-range-60"
-                      autocomplete="off"
-                      value="60"
-                    />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-60"
-                      >60</label
-                    >
+                    <input type="radio" class="btn-check" name="options-jump-range" id="settings-range-30" autocomplete="off" value="30" />
+                    <label class="btn btn-sm btn-outline-primary" for="settings-range-30">30</label>
+                    <input type="radio" class="btn-check" name="options-jump-range" id="settings-range-60" autocomplete="off" value="60" />
+                    <label class="btn btn-sm btn-outline-primary" for="settings-range-60">60</label>
                   </div>
                 </div>
               </div>
@@ -273,11 +183,7 @@
               <div class="col-md-3 d-flex align-items-center flex-column">
                 <div class="form-group position-relative mb-1 w-100">
                   <!--Jump Settings-->
-                  <label
-                    for="jump-settings-excluded-affiliations"
-                    class="text-white"
-                    >Allowed Affiliation For Routing</label
-                  >
+                  <label for="jump-settings-excluded-affiliations" class="text-white">Allowed Affiliation For Routing</label>
                   <div id="jump-settings-excluded-affiliations">
                     <div class="row">
                       <!--Col 1 (Jump Settings - Allowed Affiliations)-->
@@ -295,15 +201,9 @@
               <!--Col 3 (General Settings)-->
               <div class="col-md-3 d-flex align-items-center flex-column">
                 <div class="form-group position-relative mb-1 w-100">
-                  <label
-                    for="jump-settings-excluded-affiliations"
-                    class="text-white"
-                    >General Settings</label
-                  >
+                  <label for="jump-settings-excluded-affiliations" class="text-white">General Settings</label>
                   <div class="d-flex align-items-center text-white">
-                    <label for="settings-background-color"
-                      >Background Color:</label
-                    >
+                    <label for="settings-background-color">Background Color:</label>
                     <input type="color" id="settings-background-color" />
                   </div>
                 </div>

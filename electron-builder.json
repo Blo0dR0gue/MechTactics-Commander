@@ -9,26 +9,7 @@
     "output": "release/",
     "buildResources": "build-res"
   },
-  "files": [
-    "!src/**/*",
-    "./dist/app/renderer/index.bundle.js",
-    "./dist/app/renderer/pages/index.html",
-    "./dist/app/renderer/update.bundle.js",
-    "./dist/app/renderer/pages/update.html",
-    "./dist/app/renderer/dashboard.bundle.js",
-    "./dist/app/renderer/pages/dashboard.html",
-    "./dist/app/core/main.js",
-    "./dist/app/core/AppConstants.js",
-    "./dist/app/core/CoreConfig.js",
-    "./dist/app/core/Updater.js",
-    "./dist/app/core/CSVHelper.js",
-    "./dist/app/renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter.js",
-    "./dist/app/core/AppUpgradeInfo.js",
-    "./dist/app/core/upgrades/*",
-    "./dist/app/core/commander.db",
-    "./dist/app/core/window/AppWindow.js",
-    "./dist/app/core/window/preload.js"
-  ],
+  "files": ["!src/**/*", "./dist/app/**/*"],
   "win": {
     "target": "nsis",
     "publish": ["github"]

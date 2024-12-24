@@ -4,13 +4,13 @@ import { Pathfinding } from './Pathfinding';
 // TODO: Handle ignore of planets or affiliations
 // TODO: COMMENTS, TESTS
 
-class BiAStarPathfinding<Type> extends Pathfinding<Type> {
+class BiAStarPathfinding<Type extends NonNullable<unknown>> extends Pathfinding<Type> {
   public search(
     start: Type,
     goal: Type,
     next_elements: (element: Type) => Type[],
     heuristic: (elementA: Type, elementB: Type) => number
-  ): Type[] {
+  ): Type[] | undefined {
     const parentA = new Map<Type, Type>();
     parentA.set(start, start);
 
@@ -40,8 +40,8 @@ class BiAStarPathfinding<Type> extends Pathfinding<Type> {
       const { element: elementA, priority: priorityA } = frontierA.pop();
       const { element: elementB, priority: priorityB } = frontierB.pop();
 
-      const distA = distanceA.get(elementA);
-      const distB = distanceB.get(elementB);
+      const distA = distanceA.get(elementA) as number;
+      const distB = distanceB.get(elementB) as number;
 
       if (priorityA <= priorityB) {
         frontierB.add(elementB, priorityB);
@@ -83,6 +83,7 @@ class BiAStarPathfinding<Type> extends Pathfinding<Type> {
         }
       }
     }
+    return undefined;
   }
 }
 

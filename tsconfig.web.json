@@ -4,7 +4,7 @@
     "./src/app/renderer/**/*",
     "./src/app/renderer/**/*.tsx",
     "./declarations.d.ts",
-    "src/app/types/**/*", 
+    "./src/app/types/**/*", 
   ],
   "compilerOptions": {
     "composite": true,
@@ -12,7 +12,7 @@
     "baseUrl": ".",
     "paths": {
       "@renderer/*": [
-        "src/renderer/src/*"
+        "./src/app/renderer/*"
       ]
     }
   }

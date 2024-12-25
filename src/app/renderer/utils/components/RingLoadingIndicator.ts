@@ -23,11 +23,11 @@ class RingLoadingIndicator {
     return holder;
   }
 
-  show() {
+  show(): void {
     if (!this.loader.parentNode) this.parentElement.appendChild(this.loader);
   }
 
-  hide() {
+  hide(): void {
     if (this.loader.parentNode === this.parentElement) {
       this.parentElement.removeChild(this.loader);
     }

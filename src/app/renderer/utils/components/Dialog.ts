@@ -41,11 +41,7 @@ class Dialog {
     this.dialogElement.classList.add('dialog');
   }
 
-  private createDialog(
-    dialogHeader: DialogHeader,
-    dialogBody: DialogBody,
-    dialogFooter: DialogFooter
-  ) {
+  private createDialog(dialogHeader: DialogHeader, dialogBody: DialogBody, dialogFooter: DialogFooter): void {
     const container = document.createElement('div');
     container.classList.add('dialog-content');
 
@@ -56,7 +52,7 @@ class Dialog {
     this.dialogElement.appendChild(container);
   }
 
-  private createHeader(container: HTMLDivElement, dialogHeader: DialogHeader) {
+  private createHeader(container: HTMLDivElement, dialogHeader: DialogHeader): void {
     const { title, classNames } = dialogHeader;
     const header = document.createElement('div');
     header.classList.add('dialog-header');
@@ -69,7 +65,7 @@ class Dialog {
     container.appendChild(header);
   }
 
-  private createBody(container: HTMLDivElement, dialogBody: DialogBody) {
+  private createBody(container: HTMLDivElement, dialogBody: DialogBody): void {
     const { content } = dialogBody;
 
     const body = document.createElement('div');
@@ -79,7 +75,7 @@ class Dialog {
     container.appendChild(body);
   }
 
-  private createFooter(container: HTMLDivElement, dialogFooter: DialogFooter) {
+  private createFooter(container: HTMLDivElement, dialogFooter: DialogFooter): void {
     const { buttons } = dialogFooter;
     const footer = document.createElement('div');
     footer.classList.add('dialog-footer');
@@ -95,17 +91,13 @@ class Dialog {
     container.appendChild(footer);
   }
 
-  private closeListener = (event: Event) => {
+  private closeListener = (event: Event): void => {
     if (event.target === this.dialogElement) {
       this.hide();
     }
   };
 
-  public show(
-    dialogHeader: DialogHeader,
-    dialogBody: DialogBody,
-    dialogFooter: DialogFooter
-  ): void {
+  public show(dialogHeader: DialogHeader, dialogBody: DialogBody, dialogFooter: DialogFooter): void {
     if (this.dialogElement.parentNode) {
       throw new Error('Dialog already visible');
     }

@@ -14,12 +14,13 @@
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux",
-    "publish": "npm run clear:output && npm run build:required:prod && npm run postinstall && electron-builder --win --publish always",
+    "build:win": "npm run build && electron-builder --win --publish never",
+    "build:mac": "electron-vite build && electron-builder --mac --publish never",
+    "build:linux": "electron-vite build && electron-builder --linux --publish never",
+    "publish": "npm run clear:output && npm run build && npm run postinstall && electron-builder --win --publish always",
     "test:unit": "jest",
-    "test": "npm run test:unit"
+    "test": "npm run test:unit",
+    "clear:output": "rimraf ./dist/ && rimraf ./release/"
   },
   "repository": {
     "type": "git",
@@ -53,6 +54,7 @@
     "prettier": "^3.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
     "sass": "^1.68.0",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",

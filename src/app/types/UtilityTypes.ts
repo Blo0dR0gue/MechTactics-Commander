@@ -57,20 +57,18 @@ export type ArrayObjType<T> = T extends Array<infer E> ? (E extends object ? T[n
  * Like ObjectPropsRec but the type is the type of the parameters
  * @example
  * {name: 'test', text: 'hello'} => string
- * {name: 'test', coord: {x: 1, y: 1}} => string | {x: number, y: number}
+ * {name: 'test', coord: {x: 1, y: 1}} => string | number | {x: number, y: number}
  */
 export type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
-  ? T[U] extends string | number | symbol
-    ? T[U] // If it is a primitive, return the property type
-    : T[U] extends Map<unknown, unknown>
-      ? never // If it is a map, do not return the property type
-      : T[U] extends Array<unknown>
-        ? T[U]
-        : T[U] extends (...args: unknown[]) => unknown
-          ? never // If it is a function, do not return the property type
-          : T[U] extends object
-            ? T[U] | TypeOfObjectPropRec<T[U]>
-            : T[U]
+  ? T[U] extends Map<unknown, unknown>
+    ? never // If it is a map, do not return the property type
+    : T[U] extends Array<unknown>
+      ? T[U]
+      : T[U] extends (...args: unknown[]) => unknown
+        ? never // If it is a function, do not return the property type
+        : T[U] extends object
+          ? T[U] | TypeOfObjectPropRec<T[U]>
+          : T[U]
   : never;
 
 export type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';

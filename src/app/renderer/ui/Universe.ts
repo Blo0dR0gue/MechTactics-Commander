@@ -4,7 +4,7 @@ import { Planet } from '../models/Planet';
 import { Vector } from '../models/Vector';
 import { Config } from '../utils/Config';
 import { Affiliation } from '../models/Affiliation';
-import { RouteController } from '../controller/RouteController';
+import { RouteController } from '@renderer/map/controller/RouteController';
 import { EventHandler } from '../handler/EventHandler';
 import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
 

@@ -1,9 +1,9 @@
-import { Vector } from '../models/Vector';
-import { Universe } from '../ui/Universe';
-import { Planet } from '../models/Planet';
-import { EventHandler } from '../handler/EventHandler';
+import { Vector } from '@renderer/models/Vector';
+import { Universe } from '@renderer/ui/Universe';
+import { Planet } from '@renderer/models/Planet';
+import { EventHandler } from '@renderer/handler/EventHandler';
 import { RouteController } from './RouteController';
-import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
+import { UpdateRouteEvent } from '@renderer/handler/events/UpdateRouteVent';
 
 // TODO: COMMENT, TESTS
 

@@ -1,8 +1,8 @@
-import { CameraController } from '../controller/CameraController';
+import { CameraController } from '@renderer/map/controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
-import { RouteController } from '../controller/RouteController';
+import { RouteController } from '@renderer/map/controller/RouteController';
 import { ToastHandler } from '../utils/components/ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';

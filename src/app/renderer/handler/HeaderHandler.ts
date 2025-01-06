@@ -1,5 +1,5 @@
 import { Modal } from 'bootstrap';
-import { CameraController } from '../controller/CameraController';
+import { CameraController } from '@renderer/map/controller/CameraController';
 import { Universe } from '../ui/Universe';
 import { ToastHandler, ToastType } from '../utils/components/ToastHandler';
 

@@ -3,8 +3,8 @@
 // Import custom CSS to load bootstrap and override variables
 import './styles/main.scss';
 
-import { CameraController } from './controller/CameraController';
-import { RouteController } from './controller/RouteController';
+import { CameraController } from '@renderer/map/controller/CameraController';
+import { RouteController } from '@renderer/map/controller/RouteController';
 import { ActionBarHandler } from './handler/ActionBarHandler';
 import { HeaderHandler } from './handler/HeaderHandler';
 import { ToastHandler } from './utils/components/ToastHandler';

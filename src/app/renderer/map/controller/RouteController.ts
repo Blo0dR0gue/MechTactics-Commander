@@ -1,8 +1,8 @@
-import { BiBreadthFirstSearch } from '../utils/pathfinding/BiBreadthFirstSearch';
-import { Pathfinding } from '../utils/pathfinding/Pathfinding';
-import { Universe } from '../ui/Universe';
-import { Planet } from '../models/Planet';
-import { Affiliation } from '../models/Affiliation';
+import { BiBreadthFirstSearch } from '@renderer/utils/pathfinding/BiBreadthFirstSearch';
+import { Pathfinding } from '@renderer/utils/pathfinding/Pathfinding';
+import { Universe } from '@renderer/ui/Universe';
+import { Planet } from '@renderer/models/Planet';
+import { Affiliation } from '@renderer/models/Affiliation';
 
 // TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {

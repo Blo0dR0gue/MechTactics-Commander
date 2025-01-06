@@ -43,13 +43,10 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          index: './src/app/renderer/pages/index.html',
-          updater: './src/app/renderer/pages/update.html',
-          dashboard: './src/app/renderer/pages/dashboard.html'
+          index: './src/app/renderer/index.html'
         }
       },
       outDir: './dist/app/renderer'
     }
   }
 });
-

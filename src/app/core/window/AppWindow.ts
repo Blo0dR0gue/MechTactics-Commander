@@ -33,8 +33,8 @@ class AppWindow {
         devTools: this.isDevelopment ? true : false
       }
     });
-    if (this.isDevelopment) this.loadPage('index.html');
-    else this.loadPage('update.html');
+    if (this.isDevelopment) this.loadPage('');
+    else this.loadPage('updater');
 
     if (this.isDevelopment) {
       // Open the DevTools.
@@ -52,9 +52,9 @@ class AppWindow {
     return this.window;
   }
 
-  public loadPage(pageName: 'update.html' | 'dashboard.html' | 'index.html'): void {
+  public loadPage(pageName: '' | 'dashboard' | 'updater'): void {
     if (this.isDevelopment) {
-      this.window.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/pages/' + pageName);
+      this.window.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/#/' + pageName);
     } else {
       this.window.loadFile(path.join(AppConstants.PAGES_DIR, pageName));
     }

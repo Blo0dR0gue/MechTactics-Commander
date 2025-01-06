@@ -63,13 +63,13 @@ class Updater {
     this.appWindow.sendIpc('updateText', `Upgrade finished. Starting app please wait.`, false);
     // Wait 4 sec before starting the app.
     setTimeout(() => {
-      this.appWindow.loadPage('index.html');
+      this.appWindow.loadPage('');
     }, 4000);
   }
 
   private setupHandlers(): void {
     autoUpdater.on('checking-for-update', () => {
-      this.appWindow.loadPage('update.html');
+      this.appWindow.loadPage('updater');
       console.log('Checking for updates...');
     });
 
@@ -84,7 +84,7 @@ class Updater {
         }, 1000);
       } else {
         console.log('Everything up-to-date.');
-        this.appWindow.loadPage('index.html');
+        this.appWindow.loadPage('');
       }
     });
 

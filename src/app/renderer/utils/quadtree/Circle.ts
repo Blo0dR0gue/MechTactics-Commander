@@ -47,7 +47,7 @@ export class Circle implements CircleGeometry {
    * @param props - Circle properties
    */
   constructor(props: CircleProp) {
-    this.coord = new Vector(props.x, props.y);
+    this.coord = new Vector({ x: props.x, y: props.y });
     this.r = props.r;
   }
 
@@ -80,15 +80,7 @@ export class Circle implements CircleGeometry {
    * console.log(circle, rect, 'intersect?', intersect);
    * ```
    */
-  static intersectRect(
-    x: number,
-    y: number,
-    r: number,
-    minX: number,
-    minY: number,
-    maxX: number,
-    maxY: number
-  ): boolean {
+  static intersectRect(x: number, y: number, r: number, minX: number, minY: number, maxX: number, maxY: number): boolean {
     const deltaX = x - Math.max(minX, Math.min(x, maxX));
     const deltaY = y - Math.max(minY, Math.min(y, maxY));
     return deltaX * deltaX + deltaY * deltaY < r * r;
@@ -102,10 +94,8 @@ export class Circle implements CircleGeometry {
   public intersect(c2: Circle): boolean {
     return (
       Math.sqrt(
-        (this.coord.getX() - c2.coord.getX()) *
-          (this.coord.getX() - c2.coord.getX()) +
-          (this.coord.getY() - c2.coord.getY()) *
-            (this.coord.getY() - c2.coord.getY())
+        (this.coord.getX() - c2.coord.getX()) * (this.coord.getX() - c2.coord.getX()) +
+          (this.coord.getY() - c2.coord.getY()) * (this.coord.getY() - c2.coord.getY())
       ) <=
       this.r + c2.r
     );

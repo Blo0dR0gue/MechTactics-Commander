@@ -1,25 +1,23 @@
-import { Circle } from '../utils/quadtree/Circle';
-import { Quadtree } from '../utils/quadtree/Quadtree';
-import { Planet } from '../models/Planet';
-import { Vector } from '../models/Vector';
-import { Config } from '../utils/Config';
-import { Affiliation } from '../models/Affiliation';
+import { Circle } from '@renderer/utils/quadtree/Circle';
+import { Quadtree } from '@renderer/utils/quadtree/Quadtree';
+import { Planet } from '@renderer/models/Planet';
+import { Vector, VectorProps } from '@renderer/models/Vector';
+import { Config } from '@renderer/utils/Config';
+import { Affiliation } from '@renderer/models/Affiliation';
 import { RouteController } from '@renderer/map/controller/RouteController';
-import { EventHandler } from '../handler/EventHandler';
-import { SelectionChangeEvent } from '../handler/events/SelectionChangedEvent';
+import { CameraController } from './CameraController';
 
-// TODO: TESTS
+export type UniverseControllerProps = {
+  canvas: HTMLCanvasElement;
+  canvasCtx: CanvasRenderingContext2D;
+  onSelectedPlanetsChange: () => void;
+};
 
 /**
  * This class represents the universe map. <br>
  * It is responsible for rendering.
  */
-class Universe {
-  /**
-   * The canvas html element
-   */
-  private canvas: HTMLCanvasElement;
-
+export default class UniverseController {
   /**
    * The context of the html element
    */
@@ -41,15 +39,9 @@ class Universe {
   private tree!: Quadtree<Planet | Circle>;
 
   /**
-   * The current zoom amount <br>
-   * A bigger number means we are closer to the surface
+   * The controller for the viewport. Handles mouse and keyboard events.
    */
-  private zoom = 2;
-
-  /**
-   * The current offset of the camera to the default
-   */
-  private cameraOffset = new Vector(1, 1);
+  private cameraController: CameraController;
 
   /**
    * The route controller
@@ -59,17 +51,12 @@ class Universe {
   /**
    * The currently selected planet which gets highlighted
    */
-  private selectedPlanet: Planet | null = null;
+  private selectedPlanets: Planet[];
 
   /**
    * Holds the current hovered planet
    */
-  private hoveredPlanet: Planet | null = null;
-
-  /**
-   * Second planet to which the distance should be displayed
-   */
-  private distancePlanet: Planet | null = null;
+  private hoveredPlanet: Planet | null;
 
   /**
    * The active universe age
@@ -87,63 +74,49 @@ class Universe {
   private backgroundColor!: string;
 
   /**
-   * Planet selection changed event
+   * The html canvas element
    */
-  public planetSelectionChangedEvent: EventHandler<SelectionChangeEvent>;
+  private canvas: HTMLCanvasElement;
+
+  /**
+   * Executed if the selected planets change
+   */
+  private onSelectedPlanetsChange: () => void;
+
+  private isActive: boolean;
 
   /**
    * Creates a new universe
    *
-   * @param canvas The canvas html element to render on
+   * @param {UniverseControllerProps} props - Props for the controller
    */
-  public constructor() {
-    this.canvas = document.getElementById('universe') as HTMLCanvasElement;
-    if (!this.canvas) {
-      throw new Error('Canvas not found');
-    }
-    const context = this.canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Context not found');
-    }
-    this.context = context;
-    this.universeAges = new Set();
+  public constructor(props: UniverseControllerProps) {
+    this.context = props.canvasCtx;
+    this.canvas = props.canvas;
 
-    this.planetSelectionChangedEvent = new EventHandler();
-  }
+    this.selectedPlanets = [];
+    this.hoveredPlanet = null;
+    this.onSelectedPlanetsChange = props.onSelectedPlanetsChange;
 
-  /**
-   * Setup the universe and start the rendering
-   */
-  public async init(routeController: RouteController): Promise<void> {
-    return new Promise((resolve) => {
-      this.routeController = routeController;
-      this.selectedPlanet = null;
-      this.distancePlanet = null;
-      this.hoveredPlanet = null;
-
-      // Init quadtree
-      this.tree = new Quadtree({
-        height: 5000,
-        width: 5000,
-        maxObjects: 4
-      });
-
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-      this.zoom = 2.4;
-      this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
-
-      this.setBackgroundColor(Config.getInstance().get('backgroundColor') as string);
-
-      this.initData().then(() => {
-        this.render();
-        resolve();
-      });
+    // Init quadtree
+    this.tree = new Quadtree({
+      height: 5000,
+      width: 5000,
+      maxObjects: 4
     });
-  }
 
-  public getCanvas(): HTMLCanvasElement {
-    return this.canvas;
+    this.cameraController = new CameraController({
+      cameraZoom: 2.4,
+      cameraOffset: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+      universeController: this
+    });
+
+    this.isActive = false;
+
+    this.routeController = new RouteController(this);
+
+    this.universeAges = new Set();
+    this.initData();
   }
 
   private getAffiliations = async (): Promise<void> => {
@@ -170,7 +143,6 @@ class Universe {
     this.planets = [];
     this.tree.clear();
     this.routeController.clearRoute();
-    this.setSelectedPlanet(null);
     this.highlightPlanet(null);
 
     const planetJSONData = await window.sql.getPlanetsAtAge(age);
@@ -208,6 +180,17 @@ class Universe {
     await this.getPlanets();
   };
 
+  public startRendering(): void {
+    this.isActive = true;
+    this.render();
+    this.cameraController.appendEventHandlers(this.canvas);
+  }
+
+  public stopRendering(): void {
+    this.isActive = false;
+    this.cameraController.removeEventHandlers(this.canvas);
+  }
+
   /**
    * The render function
    */
@@ -217,55 +200,55 @@ class Universe {
     this.canvas.height = window.innerHeight;
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, this.zoom);
-    this.context.translate(-window.innerWidth / 2 + this.cameraOffset.getX(), -window.innerHeight / 2 + this.cameraOffset.getY());
+    this.context.scale(this.cameraController.getCameraZoom(), this.cameraController.getCameraZoom());
+    this.context.translate(
+      -window.innerWidth / 2 + this.cameraController.getCameraOffset().x,
+      -window.innerHeight / 2 + this.cameraController.getCameraOffset().y
+    );
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
-      if (
-        (this.selectedPlanet && this.selectedPlanet === planet) ||
-        (this.distancePlanet && this.distancePlanet === planet) ||
-        this.routeController.routeContainsPlanet(planet)
-      )
-        return;
+      if (this.isPlanetSelected(planet) || this.routeController.routeContainsPlanet(planet)) return;
       // Render all planets
       this.drawPlanet(planet, 4);
     });
 
-    // FIXME: Use events instead!
     if (this.routeController.getRoute().length > 0) {
       const route = this.routeController.getRoute();
       for (let i = 0; i < route.length - 1; i++) {
         this.drawConnection(route[i].coord, route[i + 1].coord);
       }
       for (let i = 0; i < route.length; i++) {
-        if (this.selectedPlanet !== route[i]) {
+        if (!this.isPlanetSelected(route[i])) {
           this.drawPlanet(route[i], 7, 'rgb(136, 255, 0)');
           this.drawPlanet(route[i], 4);
         }
       }
     }
 
-    if (this.selectedPlanet !== null) {
+    if (this.selectedPlanets.length > 0) {
       // Draw the selected planets in the foreground
-      this.drawPlanet(this.selectedPlanet, 7, '#07d9c7');
-      this.drawPlanet(this.selectedPlanet, 4);
-      if (this.distancePlanet !== null) {
-        this.drawPlanet(this.distancePlanet, 7, '#ab7b0a');
-        this.drawPlanet(this.distancePlanet, 4);
-        this.drawConnection(this.selectedPlanet.coord, this.distancePlanet.coord);
-        // Draw the distance text
-        const distance = this.selectedPlanet.coord.distance(this.distancePlanet.coord).toFixed(2).toString();
-        const textWidth = this.context.measureText(distance).width;
-        const textX = (this.selectedPlanet.coord.getX() + this.distancePlanet.coord.getX() - textWidth) / 2;
-        const textY = (this.selectedPlanet.coord.getY() + this.distancePlanet.coord.getY()) / 2 - 10;
-        this.drawText(new Vector(textX, textY), distance, 20);
-        this.drawPlanetName(this.selectedPlanet);
-        this.drawPlanetName(this.distancePlanet);
+      for (let selectedPlanetIndex = 0; selectedPlanetIndex < this.selectedPlanets.length - 1; selectedPlanetIndex++) {
+        const planet = this.selectedPlanets[selectedPlanetIndex];
+        this.drawPlanet(planet, 7, '#07d9c7');
+        this.drawPlanet(planet, 4);
+
+        const nextSelectedPlanet = this.selectedPlanets[selectedPlanetIndex + 1];
+        if (nextSelectedPlanet !== undefined) {
+          this.drawConnection(planet.coord, nextSelectedPlanet.coord);
+
+          // Draw the distance text
+          const distance = planet.coord.distance(nextSelectedPlanet.coord).toFixed(2).toString();
+          const textWidth = this.context.measureText(distance).width;
+          const textX = (planet.coord.getX() + nextSelectedPlanet.coord.getX() - textWidth) / 2;
+          const textY = (planet.coord.getY() + nextSelectedPlanet.coord.getY()) / 2 - 10;
+          this.drawText({ x: textX, y: textY }, distance, 20);
+        }
+        this.drawPlanetName(planet);
       }
     }
 
-    if (this.zoom > 2) {
+    if (this.cameraController.getCameraZoom() > 2) {
       // Render only at a Zoom of 2 or bigger
       if (this.hoveredPlanet) {
         // Highlight the jump range of 30
@@ -283,15 +266,16 @@ class Universe {
       }
     }
 
-    if (this.zoom > 3) {
+    if (this.cameraController.getCameraZoom() > 3) {
       this.planets.forEach((planet: Planet) => {
-        // Render all planet texts if no distancePlanet got selected
-        if (this.distancePlanet === null) this.drawPlanetName(planet);
+        // Render all planet texts if only one planet is selected
+        if (this.selectedPlanets.length <= 1) this.drawPlanetName(planet);
       });
     }
 
-    // Request a rerender
-    requestAnimationFrame(this.render.bind(this));
+    if (this.isActive) {
+      requestAnimationFrame(this.render.bind(this));
+    }
   }
 
   /**
@@ -303,7 +287,7 @@ class Universe {
    */
   private drawPlanet(planet: Planet, size: number, color?: string): void {
     this.context.beginPath();
-    this.context.arc(planet.coord.getX(), planet.coord.getY(), size / this.zoom, 0, Math.PI * 2);
+    this.context.arc(planet.coord.getX(), planet.coord.getY(), size / this.cameraController.getCameraZoom(), 0, Math.PI * 2);
     this.context.fillStyle = color || planet.getColor();
     this.context.fill();
     this.context.closePath();
@@ -315,14 +299,14 @@ class Universe {
    * @param planet The planet for which the planet name should be drawn
    */
   private drawPlanetName(planet: Planet): void {
-    this.drawText(new Vector(planet.coord.getX() + 2, planet.coord.getY()), planet.getName(), 14, '#D5D5D5');
+    this.drawText({ x: planet.coord.getX() + 2, y: planet.coord.getY() }, planet.getName(), 14, '#D5D5D5');
   }
 
-  private drawText(pos: Vector, text: string, width = 15, textColor = 'rgba(255, 255, 255, 1)'): void {
-    const textWidth = Math.round(width / this.zoom);
+  private drawText(pos: VectorProps, text: string, width = 15, textColor = 'rgba(255, 255, 255, 1)'): void {
+    const textWidth = Math.round(width / this.cameraController.getCameraZoom());
     this.context.font = `${textWidth}px serif`;
     this.context.fillStyle = textColor;
-    this.context.fillText(text, pos.getX(), pos.getY()); // Adjust the vertical position as needed
+    this.context.fillText(text, pos.x, pos.y); // Adjust the vertical position as needed
   }
 
   /**
@@ -334,7 +318,7 @@ class Universe {
    */
   private drawConnection(posA: Vector, posB: Vector, color = 'rgba(255, 255, 255, 1)'): void {
     this.context.strokeStyle = color;
-    this.context.lineWidth = 3 / this.zoom;
+    this.context.lineWidth = 3 / this.cameraController.getCameraZoom();
     this.context.beginPath();
     this.context.moveTo(posA.getX(), posA.getY());
     this.context.lineTo(posB.getX(), posB.getY());
@@ -343,71 +327,82 @@ class Universe {
   }
 
   /**
-   * Set the zoom factor
+   * Set the new selected planet.
    *
-   * @param zoom The zoom amount
+   * @param planet - The only selected planet.
    */
-  public setZoom(zoom: number): void {
-    this.zoom = zoom;
+  public setSelectedPlanet(planet: Planet): void {
+    this.selectedPlanets = [planet];
+    this.onSelectedPlanetsChange();
   }
 
   /**
-   * Sets the offset for the camera
+   * Add one or more planets to the selected list.
    *
-   * @param offset The new offset
+   * @param planet - The new planet(s) to select.
    */
-  public setCameraOffset(offset: Vector): void {
-    this.cameraOffset = offset;
+  public addSelectedPlanet(planet: Planet | Planet[]): void {
+    const planetsToAdd = Array.isArray(planet) ? planet : [planet];
+    const uniquePlanets = planetsToAdd.filter((p) => !this.isPlanetSelected(p));
+    this.selectedPlanets.push(...uniquePlanets);
+    this.onSelectedPlanetsChange();
   }
 
   /**
-   * To get the current zoom factor
+   * Remove one or more planets from the selected list.
    *
-   * @returns The current zoom
+   * @param planet - The planet(s) to deselect.
    */
-  public getZoom(): number {
-    return this.zoom;
+  public removeSelectedPlanet(planet: Planet | Planet[]): void {
+    const planetsToRemove = Array.isArray(planet) ? planet : [planet];
+    this.selectedPlanets = this.selectedPlanets.filter((sp) => !planetsToRemove.some((p) => p.getID() === sp.getID()));
+    this.onSelectedPlanetsChange();
   }
 
   /**
-   * To get the current offset of the camera
+   * Add a planet to the selected list or remove it if already selected.
    *
-   * @returns The current offset as an vector
+   * @param planet - The planet to toggle selection for.
    */
-  public getCameraOffset(): Vector {
-    return this.cameraOffset;
+  public toggleSelectedPlanet(planet: Planet): void {
+    if (this.isPlanetSelected(planet)) {
+      this.removeSelectedPlanet(planet);
+    } else {
+      this.addSelectedPlanet(planet);
+    }
   }
 
   /**
-   * Updates the sleeted planet which gets highlighted.
-   * Also resets the distance planet
-   *
-   * @param planet The new planet to highlight
+   * Clear all selected planets.
    */
-  public setSelectedPlanet(planet: Planet | null): void {
-    this.distancePlanet = null;
-    this.selectedPlanet = planet;
-    this.planetSelectionChangedEvent.invoke({
-      planet: this.selectedPlanet
-    });
+  public clearSelectedPlanets(): void {
+    if (this.selectedPlanets.length > 0) {
+      this.selectedPlanets = [];
+      this.onSelectedPlanetsChange();
+    }
   }
 
   /**
-   * Gets the currently selected planet object or null
+   * Check if a planet is already selected.
    *
-   * @returns The selected planet or null
+   * @param planet - The planet to check.
+   * @returns True if the planet is selected, false otherwise.
    */
+  private isPlanetSelected(planet: Planet): boolean {
+    return this.selectedPlanets.some((sp) => sp.getID() === planet.getID());
+  }
+
+  /**
+   * Gets the currently selected planets
+   *
+   * @returns The selected planets
+   */
+  public getSelectedPlanets(): Planet[] {
+    return this.selectedPlanets;
+  }
+
   public getSelectedPlanet(): Planet | null {
-    return this.selectedPlanet;
-  }
-
-  /**
-   * Displays the distance from the selected planet to a other selected planet
-   *
-   * @param planet
-   */
-  public setDistanceToPlanet(planet: Planet | null): void {
-    this.distancePlanet = planet;
+    return this.selectedPlanets[0] ?? null;
   }
 
   /**
@@ -449,7 +444,7 @@ class Universe {
     const point = new DOMPoint(vec.getX(), vec.getY());
     const matrix = this.context.getTransform();
     const inverse = matrix.invertSelf();
-    return new Vector(point.matrixTransform(inverse).x, point.matrixTransform(inverse).y);
+    return new Vector({ x: point.matrixTransform(inverse).x, y: point.matrixTransform(inverse).y });
   }
 
   /**
@@ -545,6 +540,20 @@ class Universe {
   public getBackgroundColor(): string {
     return this.backgroundColor;
   }
-}
 
-export { Universe };
+  public centerOnPlanetByName(planetName: string): void {
+    const planet = this.getGetPlanetByName(planetName);
+    if (planet) {
+      this.centerOnPlanet(planet);
+    }
+  }
+
+  public centerOnPlanet(planet: Planet): void {
+    this.cameraController.setCameraOffset({ x: window.innerWidth / 2 - planet.coord.getX(), y: window.innerHeight / 2 - planet.coord.getY() });
+  }
+
+  public centerOnPlanetAndSelect(planet: Planet): void {
+    this.centerOnPlanet(planet);
+    this.setSelectedPlanet(planet);
+  }
+}

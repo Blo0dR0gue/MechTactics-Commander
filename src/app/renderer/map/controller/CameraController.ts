@@ -1,57 +1,85 @@
-import { Vector } from '@renderer/models/Vector';
-import { Universe } from '@renderer/ui/Universe';
-import { Planet } from '@renderer/models/Planet';
+import { Vector, VectorProps } from '@renderer/models/Vector';
+import UniverseController from '@renderer/map/controller/UniverseController';
 import { EventHandler } from '@renderer/handler/EventHandler';
 import { RouteController } from './RouteController';
 import { UpdateRouteEvent } from '@renderer/handler/events/UpdateRouteVent';
 
-// TODO: COMMENT, TESTS
+export type CameraControllerProps = {
+  cameraZoom: number;
+  cameraOffset: VectorProps;
+  universeController: UniverseController;
+};
 
 class CameraController {
   readonly MAX_ZOOM = 5;
   readonly MIN_ZOOM = 0.7;
   readonly SCROLL_SENSITIVITY = 0.0005;
 
-  private element!: HTMLCanvasElement;
-  private universe!: Universe;
+  private universe: UniverseController;
 
   public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
   private isMoved = false;
   private isClicked = false;
-  private dragStart = new Vector(0, 0);
+  private dragStart: VectorProps = { x: 0, y: 0 };
 
   private ctrlPressed: boolean = false;
+
+  /**
+   * The zoom level of the canvas
+   *
+   * A bigger number means we are closer to the surface
+   */
+  private cameraZoom: number;
+  /**
+   * The offset in the canvas
+   */
+  private cameraOffset: VectorProps;
 
   /**
    * The route planing manager
    */
   private routeManager!: RouteController;
 
-  public constructor() {
+  /**
+   *
+   * @param {CameraControllerProps} props - The camera controller properties
+   */
+  public constructor(props: CameraControllerProps) {
+    const { cameraOffset, cameraZoom, universeController } = props;
+    this.cameraZoom = cameraZoom;
+    this.cameraOffset = cameraOffset;
     this.updateRouteEvent = new EventHandler();
+    this.universe = universeController;
   }
 
-  public init(universe: Universe, routeController: RouteController): void {
-    this.universe = universe;
-    this.element = this.universe.getCanvas();
-    this.routeManager = routeController;
+  public appendEventHandlers(canvasElement: HTMLCanvasElement): void {
+    canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
+    canvasElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    canvasElement.addEventListener('wheel', this.handleMouseWheel.bind(this));
+    canvasElement.addEventListener('click', this.handleClick.bind(this));
 
-    this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
-    this.element.addEventListener('click', this.handleClick.bind(this));
-    // TODO: Move to extra controller?
-    this.element.addEventListener('keydown', this.handleKeyPress.bind(this));
-    this.element.addEventListener('keyup', this.handleKeyPress.bind(this));
+    canvasElement.addEventListener('keydown', this.handleKeyPress.bind(this));
+    canvasElement.addEventListener('keyup', this.handleKeyPress.bind(this));
+  }
+
+  public removeEventHandlers(canvasElement: HTMLCanvasElement): void {
+    canvasElement.removeEventListener('mousedown', this.handleMouseDown.bind(this));
+    canvasElement.removeEventListener('mouseup', this.handleMouseUp.bind(this));
+    canvasElement.removeEventListener('mousemove', this.handleMouseMove.bind(this));
+    canvasElement.removeEventListener('wheel', this.handleMouseWheel.bind(this));
+    canvasElement.removeEventListener('click', this.handleClick.bind(this));
+
+    canvasElement.removeEventListener('keydown', this.handleKeyPress.bind(this));
+    canvasElement.removeEventListener('keyup', this.handleKeyPress.bind(this));
   }
 
   private handleMouseDown(e: MouseEvent): void {
     this.isClicked = true;
     this.isMoved = false;
-    this.dragStart.setX(e.clientX / this.universe.getZoom() - this.universe.getCameraOffset().getX());
-    this.dragStart.setY(e.clientY / this.universe.getZoom() - this.universe.getCameraOffset().getY());
+    this.dragStart.x = e.clientX / this.cameraZoom - this.cameraOffset.x;
+    this.dragStart.y = e.clientY / this.cameraZoom - this.cameraOffset.y;
   }
 
   private handleMouseUp(): void {
@@ -61,12 +89,12 @@ class CameraController {
   private handleMouseMove(e: MouseEvent): void {
     this.isMoved = true;
     if (this.isClicked) {
-      const x = e.clientX / this.universe.getZoom() - this.dragStart.getX();
-      const y = e.clientY / this.universe.getZoom() - this.dragStart.getY();
-      this.universe.setCameraOffset(new Vector(x, y));
+      const x = e.clientX / this.cameraZoom - this.dragStart.x;
+      const y = e.clientY / this.cameraZoom - this.dragStart.y;
+      this.cameraOffset = { x, y };
     } else {
       // Mouse move but not dragging -> handle
-      const pos = this.universe.getXY(new Vector(e.clientX, e.clientY));
+      const pos = this.universe.getXY(new Vector({ x: e.clientX, y: e.clientY }));
       const closest = this.universe.getClosestPlanet(pos, 5);
       if (closest !== undefined && closest.dist < 4) {
         this.universe.highlightPlanet(closest.planet);
@@ -78,11 +106,11 @@ class CameraController {
   private handleMouseWheel(e: WheelEvent): void {
     if (this.isClicked) return;
     const zoomAmount = e.deltaY * this.SCROLL_SENSITIVITY;
-    let newZoom = this.universe.getZoom() - zoomAmount;
+    let newZoom = this.cameraZoom - zoomAmount;
 
     newZoom = Math.min(newZoom, this.MAX_ZOOM);
     newZoom = Math.max(newZoom, this.MIN_ZOOM);
-    this.universe.setZoom(newZoom);
+    this.cameraZoom = newZoom;
   }
 
   /**
@@ -93,26 +121,18 @@ class CameraController {
    */
   private handleClick(e: MouseEvent): void {
     if (this.isMoved) return;
-    const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
+    const clicked = this.universe.getXY(new Vector({ x: e.clientX, y: e.clientY }));
     console.log(`Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`);
     const closest = this.universe.getClosestPlanet(clicked, 5);
 
     if (closest !== undefined && closest.planet !== null && closest.dist < 4) {
-      if (this.ctrlPressed && this.universe.getSelectedPlanet() !== null && this.universe.getSelectedPlanet() !== closest.planet) {
-        // Display distance to other planet
-        this.universe.setDistanceToPlanet(closest.planet);
+      if (this.ctrlPressed) {
+        this.universe.addSelectedPlanet(closest.planet);
       } else {
         this.universe.setSelectedPlanet(closest.planet);
-        console.log(closest.planet);
       }
     } else {
-      // Reset the selected planet. If ctrl is pressed reset the distance planet. if not reset the selected planet.
-      // Resetting the selected planet also resets the distance planet
-      if (this.ctrlPressed) {
-        this.universe.setDistanceToPlanet(null);
-      } else {
-        this.universe.setSelectedPlanet(null);
-      }
+      this.universe.clearSelectedPlanets();
     }
   }
 
@@ -138,25 +158,21 @@ class CameraController {
     }
   }
 
-  public centerOnPlanetByName(planetName: string): void {
-    const planet = this.universe.getGetPlanetByName(planetName);
-    if (planet) {
-      this.centerOnPlanet(planet);
-    }
+  public setCameraOffset(props: Partial<VectorProps>): void {
+    this.cameraOffset.x = props.x ?? this.cameraOffset.x;
+    this.cameraOffset.y = props.y ?? this.cameraOffset.y;
   }
 
-  public centerOnPlanet(planet: Planet): void {
-    this.universe.setCameraOffset(new Vector(window.innerWidth / 2 - planet.coord.getX(), window.innerHeight / 2 - planet.coord.getY()));
+  public getCameraOffset(): VectorProps {
+    return this.cameraOffset;
   }
 
-  public centerOnPlanetAndSelect(planet: Planet): void {
-    this.universe.setCameraOffset(new Vector(window.innerWidth / 2 - planet.coord.getX(), window.innerHeight / 2 - planet.coord.getY()));
-    // TODO: Create private func
-    this.universe.setSelectedPlanet(planet);
+  public setCameraZoom(cameraZoom: number): void {
+    this.cameraZoom = cameraZoom;
   }
 
-  public getRouteManager(): RouteController {
-    return this.routeManager;
+  public getCameraZoom(): number {
+    return this.cameraZoom;
   }
 }
 

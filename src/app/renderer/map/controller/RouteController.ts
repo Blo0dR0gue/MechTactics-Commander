@@ -1,23 +1,19 @@
 import { BiBreadthFirstSearch } from '@renderer/utils/pathfinding/BiBreadthFirstSearch';
 import { Pathfinding } from '@renderer/utils/pathfinding/Pathfinding';
-import { Universe } from '@renderer/ui/Universe';
+import UniverseController from '@renderer/map/controller/UniverseController';
 import { Planet } from '@renderer/models/Planet';
 import { Affiliation } from '@renderer/models/Affiliation';
 
 // TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
 class RouteController {
-  private universe!: Universe;
+  private universe!: UniverseController;
   private pathfinding!: Pathfinding<Planet>;
 
   private targetPlanets!: Planet[];
   private route!: Planet[];
   private excludeAffiliation!: Set<Affiliation>;
 
-  /**
-   * Start the controller
-   * @param universe
-   */
-  public init(universe: Universe): void {
+  public constructor(universe: UniverseController) {
     this.universe = universe;
     this.pathfinding = new BiBreadthFirstSearch();
     this.targetPlanets = [];

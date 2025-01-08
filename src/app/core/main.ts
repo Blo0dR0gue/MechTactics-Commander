@@ -74,7 +74,7 @@ class Main {
     app.on('activate', () => {
       console.log('activate');
       if (BrowserWindow.getAllWindows().length === 0) {
-        this.appWindow?.loadPage('index.html');
+        this.appWindow?.loadPage('');
       }
     });
 

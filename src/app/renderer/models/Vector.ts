@@ -1,3 +1,8 @@
+export type VectorProps = {
+  x: number;
+  y: number;
+};
+
 /**
  * Represents a two dimensional point
  */
@@ -14,12 +19,11 @@ class Vector {
   /**
    * Creates a new vector
    *
-   * @param x The x coordinate to use
-   * @param y The y coordinate to use
+   * @param {VectorProps} props - Initial vector data
    */
-  public constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+  public constructor(props: VectorProps) {
+    this.x = props.x;
+    this.y = props.y;
   }
 
   /**
@@ -102,7 +106,7 @@ class Vector {
    * @returns The distance to the other vector
    */
   public distance(vec: Vector): number {
-    const dist = new Vector(this.getX() - vec.getX(), this.getY() - vec.getY());
+    const dist = new Vector({ x: this.getX() - vec.getX(), y: this.getY() - vec.getY() });
     return dist.length();
   }
 }

@@ -2,7 +2,6 @@ import {
   TypeOfObjectPropRec,
   ObjectWithKeys,
 } from '../../../../types/UtilityTypes';
-import { Binding } from '../Binding';
 import { Button } from '../Button';
 import { RingLoadingIndicator } from '../RingLoadingIndicator';
 import { TableRow } from './TableRow';
@@ -33,7 +32,6 @@ class Table<T extends ObjectWithKeys> {
   private footerElement: HTMLElement;
 
   private data: T[];
-  private bindings: Binding<unknown>[];
 
   private loader: RingLoadingIndicator;
 
@@ -71,8 +69,6 @@ class Table<T extends ObjectWithKeys> {
 
     this.currentPage = 1;
     this.filterText = '';
-
-    this.bindings = [];
   }
 
   /**
@@ -193,7 +189,7 @@ class Table<T extends ObjectWithKeys> {
    * Renders the table with the data of the currently selected page and filter. Also updates the pagination items.
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
-  private updateTable(): void {
+  public updateTable(): void {
     if (this.tableHolder.parentNode != this.parentElement) {
       throw new TableError("Table is not rendered. Can't update the table");
     }

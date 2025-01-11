@@ -89,8 +89,6 @@ tmpPlanetAffiliationAgeData.forEach((planetAffiliationAge) => {
 const planetAffiliationConnectData: DynamicPlanetAffiliationConnectData[] =
   Array.from(planetAffiliationConnectMap.values());
 
-// icon setup
-
 // element definitions
 const tableParent = document.getElementById('table-holder');
 
@@ -269,10 +267,12 @@ planetSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        planetTable.updateTable();
+      });
   } else {
     // Update planet
-    // Updating this objects updates the table, because of the data binding used with the table
     currentEditPlanet.id = id;
     currentEditPlanet.name = name;
     currentEditPlanet.coord.x = x;
@@ -293,7 +293,10 @@ planetSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        planetTable.updateTable();
+      });
   }
   planetModal.hide();
 });
@@ -494,7 +497,10 @@ affiliationSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        affiliationTable.updateTable();
+      });
   } else {
     // Update affiliation
     currentEditAffiliation.id = id;
@@ -511,7 +517,10 @@ affiliationSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        affiliationTable.updateTable();
+      });
   }
   affiliationModal.hide();
 });
@@ -652,6 +661,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     );
     return;
   }
+
   if (
     selectedUniverseAge === -1 &&
     currentUsedUniverseAges.has(newUniverseAge)
@@ -705,7 +715,6 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
                 universeAge: undefined, // needs to be undefined, for the copy by age modal and the create or update and for the planet affiliation connect data logic
               };
             }
-            console.log(planetAffiliationAgeElement);
           }
 
           addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
@@ -759,7 +768,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
           })
           .catch((reason) =>
             toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-          );
+          )
+          .finally(() => {
+            planetAffiliationConnectTable.updateTable();
+          });
       } else {
         window.sql
           .updatePlanetAffiliationAge(
@@ -775,7 +787,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
           })
           .catch((reason) =>
             toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-          );
+          )
+          .finally(() => {
+            planetAffiliationConnectTable.updateTable();
+          });
       }
     }
   } else {
@@ -850,7 +865,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        planetAffiliationConnectTable.updateTable();
+      });
   }
   planetAffiliationConnectModal.hide();
 });

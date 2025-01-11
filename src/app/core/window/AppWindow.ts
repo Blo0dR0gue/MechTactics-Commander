@@ -218,7 +218,8 @@ class AppWindow {
             .run(
               'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
               affiliation.name,
-              affiliation.color
+              affiliation.color,
+              affiliation.id
             )
             .then(() => resolve(true))
             .catch((reason) => reject(reason));
@@ -246,8 +247,10 @@ class AppWindow {
       'deleteAffiliation',
       (event, affiliation: AffiliationData) =>
         new Promise<boolean>((resolve, reject) => {
-          if (affiliation.id === 0)
+          if (affiliation.id === 0) {
             reject("You can't delete the affiliation with id 0");
+          }
+
           this.database
             .run(
               'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',

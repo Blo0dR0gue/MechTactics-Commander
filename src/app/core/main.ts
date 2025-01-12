@@ -45,7 +45,7 @@ class Main {
     }
 
     if (this.isDevelopment) {
-      //electronReload(path.join(__dirname, '../'), {});
+      electronReload(path.join(__dirname, '../'), {});
     }
 
     // Set initial config params

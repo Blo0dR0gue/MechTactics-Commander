@@ -4,8 +4,11 @@ type PlanetData = {
   x: number;
   y: number;
   link: string;
+  tags: PlanetTags;
+  fuelingStation: boolean;
+  details: string;
+  type: string;
 };
-
 type PlanetCoordData = {
   id: number;
   name: string;
@@ -15,6 +18,11 @@ type PlanetCoordData = {
   };
 
   link: string;
+  tags: PlanetTags;
+};
+
+export type PlanetTags = {
+  [tag: string]: string[];
 };
 
 type PlanetWithAffiliationAndAge = PlanetData & {

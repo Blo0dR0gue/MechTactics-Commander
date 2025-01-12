@@ -1,63 +1,74 @@
+import { PlanetTags } from '../../types/PlanetData';
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
 
+// TODO: Rework this class so it only knows information about planet not in which age it is used etc.
+
 class Planet extends Circle {
+  private id: number;
+  private name: string;
+  private link: string;
+  private text: string;
+  private affiliation: Affiliation;
+  private universeAge: number;
+  private tags: PlanetTags;
+  private fuelingStation: boolean;
+  private details: string;
+  private type: string;
+
   /**
    * Creates a new planet object
-   * @param id The id
-   * @param name  The name of this planet
+   * @param id The ID of the planet
+   * @param name The name of the planet
    * @param x The x coordinate
    * @param y The y coordinate
-   * @param link The link to the wiki page
+   * @param link Link to the wiki page
    * @param text Custom text for the planet
-   * @param affiliation The affiliation object {@link Affiliation}
-   * @param universeAge The universe age this planet object is used in
+   * @param affiliation Affiliation object {@link Affiliation}
+   * @param universeAge Universe age this planet is used in
+   * @param tags Tags for the planet
+   * @param fuelingStation Indicates if this planet has a fueling station
+   * @param details Additional details about the planet
+   * @param type Star type category
    */
-  public constructor(
-    private id: number,
-    private name: string,
+  constructor(
+    id: number,
+    name: string,
     x: number,
     y: number,
-    private link: string,
-    private text: string,
-    private affiliation: Affiliation,
-    private universeAge: number
+    link: string,
+    text: string,
+    affiliation: Affiliation,
+    universeAge: number,
+    tags: PlanetTags,
+    fuelingStation: boolean,
+    details: string,
+    type: string
   ) {
-    super({ x: x, y: y, r: 0.01 });
-  }
-
-  /**
-   * Gets thee id of this planet
-   * @returns The id of the planet
-   */
-  public getID(): number {
-    return this.id;
-  }
-
-  /**
-   * Gets the name of this planet
-   *
-   * @returns The name of the planet
-   */
-  public getName(): string | null {
-    return this.name;
-  }
-
-  /**
-   * Gets the custom text of this planet
-   * @returns The custom text or null
-   */
-  public getText(): string {
-    return this.text;
-  }
-
-  /**
-   * Sets the custom text of this planet
-   * @param text The new text
-   */
-  public setText(text: string): void {
+    super({ x, y, r: 0.01 });
+    this.id = id;
+    this.name = name;
+    this.link = link;
     this.text = text;
-    this.updateInDB();
+    this.affiliation = affiliation;
+    this.universeAge = universeAge;
+    this.tags = tags;
+    this.fuelingStation = fuelingStation;
+    this.details = details;
+    this.type = type;
+  }
+
+  // Private Methods
+  private hasFuelingStation(): boolean {
+    return this.fuelingStation;
+  }
+
+  private getDetails(): string {
+    return this.details;
+  }
+
+  private getType(): string {
+    return this.type;
   }
 
   private updateInDB(): void {
@@ -68,6 +79,10 @@ class Planet extends Circle {
         y: this.coord.getY(),
         link: this.link,
         name: this.name,
+        tags: this.tags,
+        details: this.details,
+        fuelingStation: this.fuelingStation,
+        type: this.type,
       })
       .then(() => {
         window.sql.updatePlanetAffiliationAge({
@@ -79,12 +94,34 @@ class Planet extends Circle {
       });
   }
 
-  /**
-   * Gets the color of the affiliation
-   * @returns The color for this planet (affiliation)
-   */
-  public getColor(): string {
-    return this.affiliation.getColor();
+  // Public Methods
+  public getID(): number {
+    return this.id;
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public getWikiURL(): string {
+    return this.link;
+  }
+
+  public getText(): string {
+    return this.text;
+  }
+
+  public setText(text: string): void {
+    this.text = text;
+    this.updateInDB();
+  }
+
+  public getTags(): PlanetTags {
+    return this.tags;
+  }
+
+  public getTagByKey(tagKey: string): string[] | null {
+    return this.tags[tagKey] ?? null;
   }
 
   public getAffiliationID(): number {
@@ -95,8 +132,8 @@ class Planet extends Circle {
     return this.affiliation.getName();
   }
 
-  public getWikiURL(): string {
-    return this.link;
+  public getColor(): string {
+    return this.affiliation.getColor();
   }
 }
 

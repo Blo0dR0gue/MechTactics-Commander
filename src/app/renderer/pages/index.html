@@ -170,57 +170,111 @@
         <!-- Content-Area -->
         <div
           class="w-100 p-1 bg-actionBar bg-opacity-75"
-          style="height: 120px"
+          style="height: 140px"
           id="content-box"
         >
           <!--Planet details content-->
-          <div id="planet-details-tab-content" class="w-100">
-            <div class="row">
-              <div class="col-md-4 d-flex align-items-center flex-column">
-                <div class="m-0 text-white d-flex align-items-center">
-                  <h2 class="m-0 text-white" id="planet-name">None</h2>
-                  <button
-                    class="btn btn-sm btn-info"
-                    id="center-on-planet"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    data-bs-title="<b class='text-white'>Center on planet</b>"
-                  >
-                    o
-                  </button>
+          <div id="planet-details-tab-content">
+            <div
+              class="w-100 d-flex flex-nowrap overflow-x-auto flex-lg-row"
+              style="scrollbar-width: thin"
+            >
+              <!--Planet name and affiliation-->
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex align-items-center flex-column min-w-300">
+                  <div class="m-0 text-white d-flex align-items-center">
+                    <h2 class="text-white me-1 mb-0" id="planet-name">None</h2>
+                    <button
+                      class="btn btn-sm btn-info"
+                      id="center-on-planet"
+                      data-bs-toggle="tooltip"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Center on planet</b>"
+                    >
+                      o
+                    </button>
+                  </div>
+                  <div class="m-0 text-white d-flex align-items-center">
+                    <p class="m-0 me-2 p-0">Affiliation:</p>
+                    <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
+                  </div>
+                  <p class="m-0 text-white" id="coordinates">
+                    x: None, y: None
+                  </p>
+                  <p class="m-0 text-white">
+                    <a href="#" id="wiki-link" target="_blank">Wiki</a>
+                    <button
+                      class="btn btn-sm btn-success"
+                      id="add-to-route"
+                      data-bs-toggle="tooltip"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Add to route</b>"
+                    >
+                      +
+                    </button>
+                  </p>
                 </div>
-                <div class="m-0 text-white d-flex align-items-center">
-                  <p class="m-0 me-2 p-0">Affiliation:</p>
-                  <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
-                </div>
-                <p class="m-0 text-white" id="coordinates">x: None, y: None</p>
-                <p class="m-0 text-white">
-                  <a href="#" id="wiki-link" target="_blank">Wiki</a>
-                  <button
-                    class="btn btn-sm btn-success"
-                    id="add-to-route"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    data-bs-title="<b class='text-white'>Add to route</b>"
+              </div>
+
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex align-items-center flex-column">
+                  <label
+                    for="planet-custom-textarea"
+                    class="form-label text-white"
+                    >Planet Custom Text</label
                   >
-                    +
-                  </button>
-                </p>
+                  <textarea
+                    class="form-control resize-none min-w-500"
+                    id="planet-custom-textarea"
+                    rows="2"
+                    disabled
+                  ></textarea>
+                </div>
               </div>
-              <div class="col-md-4 d-flex align-items-center flex-column">
-                <label
-                  for="planet-custom-textarea"
-                  class="form-label text-white"
-                  >Planet Custom Text</label
-                >
-                <textarea
-                  class="form-control resize-none"
-                  id="planet-custom-textarea"
-                  rows="2"
-                  disabled
-                ></textarea>
+
+              <!--Planet tags-->
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex">
+                  <div class="tag-group">
+                    <div class="tag-title">Industry</div>
+                    <div class="tag-container">
+                      <div class="tag-item">1</div>
+                      <div class="tag-item">2</div>
+                      <div class="tag-item">3</div>
+                      <div class="tag-item">4</div>
+                      <div class="tag-item">5</div>
+                    </div>
+                  </div>
+                  <div class="tag-group">
+                    <div class="tag-title">Data</div>
+                    <div class="tag-container">
+                      <div class="tag-item">1</div>
+                      <div class="tag-item">2</div>
+                      <div class="tag-item">3</div>
+                    </div>
+                  </div>
+                  <div class="tag-group">
+                    <div class="tag-title">Industry</div>
+                    <div class="tag-container">
+                      <div class="tag-item">1</div>
+                      <div class="tag-item">2</div>
+                      <div class="tag-item">3</div>
+                      <div class="tag-item">4</div>
+                      <div class="tag-item">5</div>
+                    </div>
+                  </div>
+                  <div class="tag-group">
+                    <div class="tag-title">Industry</div>
+                    <div class="tag-container">
+                      <div class="tag-item">1</div>
+                      <div class="tag-item">2</div>
+                      <div class="tag-item">3</div>
+                      <div class="tag-item">4</div>
+                      <div class="tag-item">5</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="col-md-4 d-flex align-items-center flex-column"></div>
             </div>
           </div>
           <!--Routing content-->

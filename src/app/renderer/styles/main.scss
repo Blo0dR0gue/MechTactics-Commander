@@ -21,6 +21,22 @@ TODO: USE BOOTSTRAP
   right: -10px;
 }
 
+.min-w-150 {
+  min-width: 150px;
+}
+
+.min-w-300 {
+  min-width: 300px;
+}
+
+.min-w-400 {
+  min-width: 400px;
+}
+
+.min-w-500 {
+  min-width: 500px;
+}
+
 .transform-skew--15 {
   transform: skewX(-15deg);
 }
@@ -136,6 +152,56 @@ canvas:focus {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.tag-group {
+  margin-right: 2rem;
+  min-width: 150px;
+}
+
+*::-webkit-scrollbar {
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: white;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 20px;
+  border: 3px solid white;
+}
+
+.tag-container {
+  display: grid;
+  grid-template-rows: repeat(2, auto);
+  gap: 5px;
+}
+
+.tag-item:nth-child(odd) {
+  grid-row: 1;
+}
+
+.tag-item:nth-child(even) {
+  grid-row: 2;
+}
+
+.tag-title {
+  margin-bottom: 0.5rem;
+  color: white;
+  border-bottom: 1px solid white;
+}
+
+.tag-item {
+  flex-shrink: 0;
+  min-width: 100px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 20px;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 14px;
 }
 
 // Import all of Bootstrap's CSS

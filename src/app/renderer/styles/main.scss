@@ -37,6 +37,14 @@ TODO: USE BOOTSTRAP
   min-width: 500px;
 }
 
+.min-h-200 {
+  min-height: 200px;
+}
+
+.max-h-200 {
+  max-height: 200px;
+}
+
 .transform-skew--15 {
   transform: skewX(-15deg);
 }

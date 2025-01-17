@@ -8,10 +8,7 @@
 import { Modal } from 'bootstrap';
 import './styles/main.scss';
 import { Table } from './utils/components/table/Table';
-import {
-  planetCoordDataToPlanetData,
-  planetDataToPlanetCoordData,
-} from './utils/Utils';
+import { planetDataToPlanetCoordData } from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/components/ToastHandler';
 import { RingLoadingIndicator } from './utils/components/RingLoadingIndicator';
 import { Dialog } from './utils/components/Dialog';
@@ -35,6 +32,7 @@ import {
   uploadIcon,
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
+import PlanetTagEditor from './utils/PlanetTagEditor';
 
 // get planet and affiliation data
 const affiliationsData: AffiliationData[] =
@@ -189,6 +187,18 @@ const loadingIndicator = new RingLoadingIndicator(loader, 'lds-ring-dark');
 // planet form and modal setups
 let currentEditPlanet: PlanetCoordData = undefined;
 const planetModal = new Modal(planetModalElement, {});
+const planetTagEditor = new PlanetTagEditor({
+  newTagInput: document.getElementById(
+    'new-planet-tag-input'
+  ) as HTMLInputElement,
+  newTagKeyAddBtn: document.getElementById(
+    'new-planet-tag-btn'
+  ) as HTMLButtonElement,
+  tagEditorContainer: document.getElementById(
+    'planet-tag-editor-container'
+  ) as HTMLDivElement,
+  toastHandler: toastHandler,
+});
 
 planetForm.addEventListener('submit', (e) => e.preventDefault());
 
@@ -198,6 +208,8 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
+
+  const tags = planetTagEditor.getCurrentTagUpdates();
 
   if (name.length <= 0) {
     toastHandler.createAndShowToast(
@@ -256,6 +268,10 @@ planetSaveBtn.addEventListener('click', () => {
         y: y,
         link: link,
         name: name,
+        details: '',
+        fuelingStation: false,
+        type: 'A',
+        tags: tags,
       })
       .then((planet) => {
         toastHandler.createAndShowToast(
@@ -272,19 +288,31 @@ planetSaveBtn.addEventListener('click', () => {
         planetTable.updateTable();
       });
   } else {
-    // Update planet
-    currentEditPlanet.id = id;
-    currentEditPlanet.name = name;
-    currentEditPlanet.coord.x = x;
-    currentEditPlanet.coord.y = y;
-    currentEditPlanet.link = link;
     window.sql
-      .updatePlanet(
-        JSON.parse(
-          JSON.stringify(planetCoordDataToPlanetData(currentEditPlanet))
-        )
-      )
+      .updatePlanet({
+        id,
+        name,
+        x,
+        y,
+        details: '',
+        fuelingStation: false,
+        link,
+        tags,
+        type: 'T',
+      })
       .then(() => {
+        // Update planet
+        currentEditPlanet.id = id;
+        currentEditPlanet.name = name;
+        currentEditPlanet.coord.x = x;
+        currentEditPlanet.coord.y = y;
+        currentEditPlanet.link = link;
+
+        // new planet data
+        currentEditPlanet.tags = tags;
+        currentEditPlanet.fuelingStation = false;
+        currentEditPlanet.details = '';
+        currentEditPlanet.type = '';
         toastHandler.createAndShowToast(
           'Planet',
           'Planet updated',
@@ -312,6 +340,7 @@ function setPlanetFormData(planet: PlanetCoordData) {
 function openPlanetModalWith(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
   setPlanetFormData(planet);
+  planetTagEditor.loadEditor(planet.tags);
   planetModal.show();
 }
 

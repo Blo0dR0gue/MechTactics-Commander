@@ -9,16 +9,11 @@ type PlanetData = {
   details: string;
   type: string;
 };
-type PlanetCoordData = {
-  id: number;
-  name: string;
+type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {
   coord: {
     x: number;
     y: number;
   };
-
-  link: string;
-  tags: PlanetTags;
 };
 
 export type PlanetTags = {

@@ -5,47 +5,57 @@ import { CoreConfig } from '../CoreConfig';
 class Upgrade015 extends AppUpgradeInfo {
   public constructor(config: CoreConfig, database: Database) {
     super(config, database, '0.1.5', 'New Planet Data');
+
+    // Add new planet columns
     this.actions.push(async () => {
-      this.database.run(`
-          CREATE VIEW PlanetWithTagsView AS
+      await this.database.exec('ALTER TABLE Planet ADD detail TEXT;');
+      await this.database.exec(
+        'ALTER TABLE Planet ADD fuelingStation BOOLEAN;'
+      );
+      await this.database.exec('ALTER TABLE Planet ADD type CHARACTER(1);');
+    });
+
+    // New planet tag table
+    this.actions.push(async () => {
+      await this.database.exec(`
+            CREATE TABLE IF NOT EXISTS PlanetTags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                planetID INTEGER NOT NULL,
+                tagKey TEXT NOT NULL,
+                tagValue TEXT NOT NULL,
+                FOREIGN KEY (planetID) REFERENCES Planet(id) ON DELETE CASCADE
+            );
+        `);
+    });
+
+    // Create View
+    this.actions.push(async () => {
+      await this.database.exec(`
+        CREATE VIEW PlanetWithTagsView AS
           WITH TagGroups AS (
               SELECT
-                  planet_id,
-                  tag_key,
-                  json_group_array(tag_value) AS tag_values
+                  planetID,
+                  tagKey,
+                  json_group_array(tagValue) AS tagList
               FROM
                   PlanetTags
               GROUP BY
-                  planet_id, tag_key
+                  planetID, tagKey
           ),
           PlanetWithTags AS (
               SELECT
-                  p.id,
-                  p.name,
-                  p.x,
-                  p.y,
-                  p.fueling_station,
-                  p.type,
+                  p.*,
                   CASE
-                      WHEN COUNT(tg.planet_id) = 0 THEN '{}'
-                      ELSE json_group_object(tag_key, tag_values)
-                  END AS tags
+                      WHEN COUNT(tg.planetID) = 0 THEN '{}'
+                      ELSE json_group_object(tagKey, tagList)
+                  END AS tagObject
               FROM
                   Planet p
-                  LEFT JOIN TagGroups tg ON p.id = tg.planet_id
+                  LEFT JOIN TagGroups tg ON p.id = tg.planetID
               GROUP BY
                   p.id
           )
-          SELECT
-              id,
-              name,
-              x,
-              y,
-              type,
-              fueling_station,
-              tags
-          FROM
-              PlanetWithTags;
+          SELECT * FROM PlanetWithTags;
         `);
     });
   }

@@ -153,20 +153,61 @@ class AppWindow {
 
     ipcMain.handle(
       'updatePlanet',
-      (event, planet: PlanetData) =>
-        new Promise<boolean>((resolve, reject) => {
-          this.database
-            .run(
-              'UPDATE Planet SET name = ?, link = ?, x = ?, y = ? WHERE id = ?;',
-              planet.name,
-              planet.link,
-              planet.x,
-              planet.y,
-              planet.id
-            )
-            .then(() => resolve(true))
-            .catch((reason) => reject(reason));
-        })
+      async (
+        _,
+        {
+          id,
+          name,
+          x,
+          y,
+          link,
+          fuelingStation,
+          tags,
+          details,
+          type,
+        }: PlanetData
+      ) => {
+        try {
+          await this.database.run('BEGIN TRANSACTION;');
+
+          // Update planet details
+          await this.database.run(
+            `UPDATE Planet SET name = ?, x = ?, y = ?, link = ?, fuelingStation = ?, detail = ?, type = ? WHERE id = ?;`,
+            [name, x, y, link, fuelingStation, details, type, id]
+          );
+
+          // Delete old tags
+          await this.database.run('DELETE FROM PlanetTags WHERE planetID = ?', [
+            id,
+          ]);
+
+          // Insert new tags
+          const insertTag = await this.database.prepare(
+            `INSERT INTO PlanetTags (planetID, tagKey, tagValue) VALUES (?, ?, ?);`
+          );
+          for (const [tagKey, tagValues] of Object.entries(tags)) {
+            for (const value of tagValues) {
+              await insertTag.run(id, tagKey, value);
+            }
+          }
+          await insertTag.finalize();
+
+          await this.database.run('COMMIT;');
+
+          return true;
+        } catch (reason: unknown) {
+          await this.database.run('ROLLBACK;');
+
+          if (reason instanceof Error) {
+            throw new Error(`Update failed - ${reason.message}`, {
+              cause: reason,
+            });
+          }
+          throw new Error(`Update failed - Unknown error`, {
+            cause: reason,
+          });
+        }
+      }
     );
 
     ipcMain.handle(

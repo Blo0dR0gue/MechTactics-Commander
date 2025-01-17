@@ -268,7 +268,7 @@ planetSaveBtn.addEventListener('click', () => {
         y: y,
         link: link,
         name: name,
-        details: '',
+        detail: '',
         fuelingStation: false,
         type: 'A',
         tags: tags,
@@ -294,7 +294,7 @@ planetSaveBtn.addEventListener('click', () => {
         name,
         x,
         y,
-        details: '',
+        detail: '',
         fuelingStation: false,
         link,
         tags,
@@ -311,7 +311,7 @@ planetSaveBtn.addEventListener('click', () => {
         // new planet data
         currentEditPlanet.tags = tags;
         currentEditPlanet.fuelingStation = false;
-        currentEditPlanet.details = '';
+        currentEditPlanet.detail = '';
         currentEditPlanet.type = '';
         toastHandler.createAndShowToast(
           'Planet',

@@ -118,7 +118,7 @@ class ActionBarHandler {
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
       if (this.selectedPlanet) {
-        this.selectedPlanet.setText(this.planetCustomText.value);
+        this.selectedPlanet.setCustomText(this.planetCustomText.value);
       }
     });
 
@@ -273,7 +273,7 @@ class ActionBarHandler {
         this.selectedPlanet.getWikiURL() ||
         'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
-      this.planetCustomText.value = this.selectedPlanet.getText();
+      this.planetCustomText.value = this.selectedPlanet.getCustomText();
       // Select first button (Planet Details)
       // FIXME: Make dynamic
       this.showTab(this.navButtons[0].dataset.content, this.navButtons[0]);

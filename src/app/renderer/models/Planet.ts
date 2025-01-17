@@ -8,12 +8,12 @@ class Planet extends Circle {
   private id: number;
   private name: string;
   private link: string;
-  private text: string;
+  private customText: string;
   private affiliation: Affiliation;
   private universeAge: number;
   private tags: PlanetTags;
   private fuelingStation: boolean;
-  private details: string;
+  private detail: string;
   private type: string;
 
   /**
@@ -23,12 +23,12 @@ class Planet extends Circle {
    * @param x The x coordinate
    * @param y The y coordinate
    * @param link Link to the wiki page
-   * @param text Custom text for the planet
+   * @param customText Custom text for the planet
    * @param affiliation Affiliation object {@link Affiliation}
    * @param universeAge Universe age this planet is used in
    * @param tags Tags for the planet
    * @param fuelingStation Indicates if this planet has a fueling station
-   * @param details Additional details about the planet
+   * @param detail Additional details about the planet
    * @param type Star type category
    */
   constructor(
@@ -37,24 +37,24 @@ class Planet extends Circle {
     x: number,
     y: number,
     link: string,
-    text: string,
+    customText: string,
     affiliation: Affiliation,
     universeAge: number,
     tags: PlanetTags,
     fuelingStation: boolean,
-    details: string,
+    detail: string,
     type: string
   ) {
     super({ x, y, r: 0.01 });
     this.id = id;
     this.name = name;
     this.link = link;
-    this.text = text;
+    this.customText = customText;
     this.affiliation = affiliation;
     this.universeAge = universeAge;
     this.tags = tags;
     this.fuelingStation = fuelingStation;
-    this.details = details;
+    this.detail = detail;
     this.type = type;
   }
 
@@ -63,8 +63,8 @@ class Planet extends Circle {
     return this.fuelingStation;
   }
 
-  private getDetails(): string {
-    return this.details;
+  private getDetail(): string {
+    return this.detail;
   }
 
   private getType(): string {
@@ -80,7 +80,7 @@ class Planet extends Circle {
         link: this.link,
         name: this.name,
         tags: this.tags,
-        details: this.details,
+        detail: this.detail,
         fuelingStation: this.fuelingStation,
         type: this.type,
       })
@@ -89,7 +89,7 @@ class Planet extends Circle {
           planetID: this.id,
           affiliationID: this.getAffiliationID(),
           universeAge: this.universeAge,
-          planetText: this.text,
+          planetText: this.customText,
         });
       });
   }
@@ -107,12 +107,12 @@ class Planet extends Circle {
     return this.link;
   }
 
-  public getText(): string {
-    return this.text;
+  public getCustomText(): string {
+    return this.customText;
   }
 
-  public setText(text: string): void {
-    this.text = text;
+  public setCustomText(customText: string): void {
+    this.customText = customText;
     this.updateInDB();
   }
 

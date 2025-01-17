@@ -6,7 +6,7 @@ type PlanetData = {
   link: string;
   tags: PlanetTags;
   fuelingStation: boolean;
-  details: string;
+  detail: string;
   type: string;
 };
 type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {

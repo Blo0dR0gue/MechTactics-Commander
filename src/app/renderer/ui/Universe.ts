@@ -198,7 +198,7 @@ class Universe {
         this.selectedUniverseAge,
         planetJSON.tags,
         planetJSON.fuelingStation ?? false,
-        planetJSON.details,
+        planetJSON.detail,
         planetJSON.type
       );
       this.planets.push(planet);

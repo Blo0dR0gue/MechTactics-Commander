@@ -155,17 +155,7 @@ class AppWindow {
       'updatePlanet',
       async (
         _,
-        {
-          id,
-          name,
-          x,
-          y,
-          link,
-          fuelingStation,
-          tags,
-          details,
-          type,
-        }: PlanetData
+        { id, name, x, y, link, fuelingStation, tags, detail, type }: PlanetData
       ) => {
         try {
           await this.database.run('BEGIN TRANSACTION;');
@@ -173,7 +163,7 @@ class AppWindow {
           // Update planet details
           await this.database.run(
             `UPDATE Planet SET name = ?, x = ?, y = ?, link = ?, fuelingStation = ?, detail = ?, type = ? WHERE id = ?;`,
-            [name, x, y, link, fuelingStation, details, type, id]
+            [name, x, y, link, fuelingStation, detail, type, id]
           );
 
           // Delete old tags

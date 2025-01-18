@@ -4,7 +4,7 @@ type PlanetData = {
   x: number;
   y: number;
   link: string;
-  tags: PlanetTags;
+  tagList: PlanetTags;
   fuelingStation: boolean;
   detail: string;
   type: string;

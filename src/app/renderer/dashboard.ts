@@ -209,7 +209,7 @@ planetSaveBtn.addEventListener('click', () => {
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
 
-  const tags = planetTagEditor.getCurrentTagUpdates();
+  const tagList = planetTagEditor.getCurrentTagUpdates();
 
   if (name.length <= 0) {
     toastHandler.createAndShowToast(
@@ -271,7 +271,7 @@ planetSaveBtn.addEventListener('click', () => {
         detail: '',
         fuelingStation: false,
         type: 'A',
-        tags: tags,
+        tagList: tagList,
       })
       .then((planet) => {
         toastHandler.createAndShowToast(
@@ -297,7 +297,7 @@ planetSaveBtn.addEventListener('click', () => {
         detail: '',
         fuelingStation: false,
         link,
-        tags,
+        tagList: tagList,
         type: 'T',
       })
       .then(() => {
@@ -309,7 +309,7 @@ planetSaveBtn.addEventListener('click', () => {
         currentEditPlanet.link = link;
 
         // new planet data
-        currentEditPlanet.tags = tags;
+        currentEditPlanet.tagList = tagList;
         currentEditPlanet.fuelingStation = false;
         currentEditPlanet.detail = '';
         currentEditPlanet.type = '';
@@ -340,7 +340,7 @@ function setPlanetFormData(planet: PlanetCoordData) {
 function openPlanetModalWith(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
   setPlanetFormData(planet);
-  planetTagEditor.loadEditor(planet.tags);
+  planetTagEditor.loadEditor(planet.tagList);
   planetModal.show();
 }
 

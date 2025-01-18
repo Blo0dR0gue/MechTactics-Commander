@@ -196,7 +196,7 @@ class Universe {
         planetJSON.planetText,
         planetAffiliation,
         this.selectedUniverseAge,
-        planetJSON.tags,
+        planetJSON.tagList,
         planetJSON.fuelingStation ?? false,
         planetJSON.detail,
         planetJSON.type

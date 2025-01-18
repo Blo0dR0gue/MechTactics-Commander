@@ -155,7 +155,17 @@ class AppWindow {
       'updatePlanet',
       async (
         _,
-        { id, name, x, y, link, fuelingStation, tags, detail, type }: PlanetData
+        {
+          id,
+          name,
+          x,
+          y,
+          link,
+          fuelingStation,
+          tagList,
+          detail,
+          type,
+        }: PlanetData
       ) => {
         try {
           await this.database.run('BEGIN TRANSACTION;');
@@ -175,7 +185,7 @@ class AppWindow {
           const insertTag = await this.database.prepare(
             `INSERT INTO PlanetTags (planetID, tagKey, tagValue) VALUES (?, ?, ?);`
           );
-          for (const [tagKey, tagValues] of Object.entries(tags)) {
+          for (const [tagKey, tagValues] of Object.entries(tagList)) {
             for (const value of tagValues) {
               await insertTag.run(id, tagKey, value);
             }

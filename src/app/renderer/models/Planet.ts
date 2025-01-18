@@ -11,7 +11,7 @@ class Planet extends Circle {
   private customText: string;
   private affiliation: Affiliation;
   private universeAge: number;
-  private tags: PlanetTags;
+  private tagList: PlanetTags;
   private fuelingStation: boolean;
   private detail: string;
   private type: string;
@@ -26,7 +26,7 @@ class Planet extends Circle {
    * @param customText Custom text for the planet
    * @param affiliation Affiliation object {@link Affiliation}
    * @param universeAge Universe age this planet is used in
-   * @param tags Tags for the planet
+   * @param tagList Tags for the planet
    * @param fuelingStation Indicates if this planet has a fueling station
    * @param detail Additional details about the planet
    * @param type Star type category
@@ -40,7 +40,7 @@ class Planet extends Circle {
     customText: string,
     affiliation: Affiliation,
     universeAge: number,
-    tags: PlanetTags,
+    tagList: PlanetTags,
     fuelingStation: boolean,
     detail: string,
     type: string
@@ -52,7 +52,7 @@ class Planet extends Circle {
     this.customText = customText;
     this.affiliation = affiliation;
     this.universeAge = universeAge;
-    this.tags = tags;
+    this.tagList = tagList;
     this.fuelingStation = fuelingStation;
     this.detail = detail;
     this.type = type;
@@ -79,7 +79,7 @@ class Planet extends Circle {
         y: this.coord.getY(),
         link: this.link,
         name: this.name,
-        tags: this.tags,
+        tagList: this.tagList,
         detail: this.detail,
         fuelingStation: this.fuelingStation,
         type: this.type,
@@ -117,11 +117,11 @@ class Planet extends Circle {
   }
 
   public getTags(): PlanetTags {
-    return this.tags;
+    return this.tagList;
   }
 
   public getTagByKey(tagKey: string): string[] | null {
-    return this.tags[tagKey] ?? null;
+    return this.tagList[tagKey] ?? null;
   }
 
   public getAffiliationID(): number {

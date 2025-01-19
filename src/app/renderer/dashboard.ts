@@ -263,13 +263,12 @@ planetSaveBtn.addEventListener('click', () => {
     // Create new planet
     window.sql
       .createPlanet({
-        id: id,
         x: x,
         y: y,
         link: link,
         name: name,
         detail: '',
-        fuelingStation: false,
+        fuelingStation: true,
         type: 'A',
         tagList: tagList,
       })
@@ -295,7 +294,7 @@ planetSaveBtn.addEventListener('click', () => {
         x,
         y,
         detail: '',
-        fuelingStation: false,
+        fuelingStation: true,
         link,
         tagList: tagList,
         type: 'T',
@@ -330,11 +329,11 @@ planetSaveBtn.addEventListener('click', () => {
 });
 
 function setPlanetFormData(planet: PlanetCoordData) {
-  planetFormID.value = String(planet?.id || -1);
-  planetFormName.value = planet?.name || '';
-  planetFormCoordX.value = String(planet?.coord?.x || 0);
-  planetFormCoordY.value = String(planet?.coord?.y || 0);
-  planetFormLink.value = planet?.link || '';
+  planetFormID.value = String(planet?.id ?? -1);
+  planetFormName.value = planet?.name ?? '';
+  planetFormCoordX.value = String(planet?.coord?.x ?? 0);
+  planetFormCoordY.value = String(planet?.coord?.y ?? 0);
+  planetFormLink.value = planet?.link ?? '';
 }
 
 function openPlanetModalWith(planet: PlanetCoordData = undefined) {
@@ -497,8 +496,9 @@ affiliationSaveBtn.addEventListener('click', () => {
   }
 
   if (
-    affiliationsData.filter((affiliation) => affiliation.name === name).length >
-    0
+    affiliationsData.filter(
+      (affiliation) => affiliation.name === name && id !== affiliation.id
+    ).length > 0
   ) {
     toastHandler.createAndShowToast(
       'Error',
@@ -512,7 +512,6 @@ affiliationSaveBtn.addEventListener('click', () => {
     // Create new affiliation
     window.sql
       .createAffiliation({
-        id: id,
         name: name,
         color: color,
       })
@@ -561,9 +560,9 @@ function openAffiliationModalWith(affiliation: AffiliationData = undefined) {
 }
 
 function setAffiliationFormData(affiliation: AffiliationData) {
-  affiliationFormID.value = String(affiliation?.id || -1);
-  affiliationFormName.value = affiliation?.name || '';
-  affiliationFormColor.value = affiliation?.color || '';
+  affiliationFormID.value = String(affiliation?.id ?? -1);
+  affiliationFormName.value = affiliation?.name ?? '';
+  affiliationFormColor.value = affiliation?.color ?? '';
 }
 
 // planet affiliation connect modal and form setups
@@ -1145,7 +1144,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
                       classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
                       onClick() {
                         window.sql
-                          .deletePlanet(JSON.parse(JSON.stringify(data)))
+                          .deletePlanet(data.id)
                           .then(() => {
                             dynamicDialog.hide();
                             planetTable.removeDataByIdx(rowIdx);
@@ -1308,7 +1307,7 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
                       classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
                       onClick() {
                         window.sql
-                          .deleteAffiliation(data)
+                          .deleteAffiliation(data.id)
                           .then(() => {
                             dynamicDialog.hide();
                             affiliationTable.removeDataByIdx(rowIdx);

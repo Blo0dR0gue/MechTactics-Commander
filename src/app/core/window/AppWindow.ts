@@ -3,10 +3,7 @@ import * as path from 'path';
 import { AppConstants } from '../AppConstants';
 import { Database } from 'sqlite';
 import { CoreConfig } from '../CoreConfig';
-import {
-  PlanetData,
-  PlanetWithAffiliationAndAge,
-} from '../../types/PlanetData';
+import { PlanetData } from '../../types/PlanetData';
 import { AffiliationData } from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
@@ -17,12 +14,21 @@ import {
   importTableFromCSV,
   selectCSVDestination,
 } from '../CSVHelper';
-import { DatabaseTables } from '../../types/UtilityTypes';
+import {
+  AffiliationRepository,
+  PlanetAffiliationAgeRepository,
+  PlanetRepository,
+} from '../repositories';
+import { DatabaseTables, ForcefullyOmit } from '../../types/UtilityTypes';
 
 // TODO: Use only one window and switch loaded files
 
 class AppWindow {
   private window: BrowserWindow;
+
+  private planetRepository: PlanetRepository;
+  private affiliationRepository: AffiliationRepository;
+  private planetAffiliationAgeRepository: PlanetAffiliationAgeRepository;
 
   public constructor(
     private isDevelopment: boolean,
@@ -55,6 +61,12 @@ class AppWindow {
       this.window.removeMenu();
     }
 
+    this.planetRepository = new PlanetRepository(this.database);
+    this.affiliationRepository = new AffiliationRepository(this.database);
+    this.planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
+      this.database
+    );
+
     this.setupHandler();
   }
 
@@ -78,285 +90,79 @@ class AppWindow {
   }
 
   private setupHandler() {
-    ipcMain.handle('getPlanetsAtAge', (event, age: number) => {
-      return new Promise<PlanetWithAffiliationAndAge[]>((resolve) => {
-        this.database
-          .all<PlanetWithAffiliationAndAge[]>(
-            `SELECT id, name, x, y, link, planetText, u.affiliationID as affiliationID, u.universeAge as age FROM Planet as p JOIN PlanetAffiliationAge as u ON p.id = u.planetID WHERE u.universeAge = "${age}";`
-          )
-          .then((data) => {
-            resolve(data);
-          });
-      });
-    });
+    ipcMain.handle('getPlanetsAtAge', (_, age: number) =>
+      this.planetRepository.getAllInUniverseAge(age)
+    );
 
-    ipcMain.handle('getAllPlanets', () => {
-      return new Promise<PlanetData[]>((resolve) => {
-        this.database
-          .all<PlanetData[]>(
-            `SELECT id, name, x, y, link FROM Planet ORDER BY id ASC;`
-          )
-          .then((data) => {
-            resolve(data);
-          });
-      });
-    });
+    ipcMain.handle('getAllPlanets', () => this.planetRepository.getAll());
 
-    ipcMain.handle('getAllAffiliations', () => {
-      return new Promise<AffiliationData[]>((resolve) => {
-        this.database
-          .all(`SELECT id, name, color FROM Affiliation;`)
-          .then((data) => {
-            resolve(data);
-          });
-      });
-    });
+    ipcMain.handle('getAllAffiliations', () =>
+      this.affiliationRepository.getAll()
+    );
 
-    ipcMain.handle('getAllPlanetAffiliationAges', () => {
-      return new Promise<PlanetAffiliationAgeData[]>((resolve) => {
-        this.database
-          .all(
-            `SELECT planetID, affiliationID, universeAge, planetText FROM PlanetAffiliationAge;`
-          )
-          .then((data) => {
-            resolve(data);
-          });
-      });
-    });
+    ipcMain.handle('getAllPlanetAffiliationAges', () =>
+      this.planetAffiliationAgeRepository.getAll()
+    );
 
-    ipcMain.handle('getAllPlanetAffiliationAgesWithNames', () => {
-      return new Promise<PlanetAffiliationAgeData[]>((resolve) => {
-        this.database
-          .all(
-            `SELECT planetID, affiliationID, universeAge, planetText, p.name as planetName, a.name as affiliationName FROM PlanetAffiliationAge as u JOIN Planet as p ON p.id = u.planetID JOIN Affiliation as a ON a.id = u.affiliationID;`
-          )
-          .then((data) => {
-            resolve(data);
-          });
-      });
-    });
+    ipcMain.handle('getAllPlanetAffiliationAgesWithNames', () =>
+      this.planetAffiliationAgeRepository.getAllWithNames()
+    );
 
-    ipcMain.handle('getAllUniverseAges', () => {
-      return new Promise<{ universeAge: number }[]>((resolve) => {
-        this.database
-          .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
-          .then((data) => {
-            resolve(
-              data.reduce((acc, val) => {
-                acc.add(val.universeAge);
-                return acc;
-              }, new Set<number>())
-            );
-          });
-      });
-    });
+    ipcMain.handle('getAllUniverseAges', () =>
+      this.planetAffiliationAgeRepository.getAllUniverseAges()
+    );
 
     ipcMain.handle(
       'updatePlanet',
-      async (
-        _,
-        {
-          id,
-          name,
-          x,
-          y,
-          link,
-          fuelingStation,
-          tagList,
-          detail,
-          type,
-        }: PlanetData
-      ) => {
-        try {
-          await this.database.run('BEGIN TRANSACTION;');
-
-          // Update planet details
-          await this.database.run(
-            `UPDATE Planet SET name = ?, x = ?, y = ?, link = ?, fuelingStation = ?, detail = ?, type = ? WHERE id = ?;`,
-            [name, x, y, link, fuelingStation, detail, type, id]
-          );
-
-          // Delete old tags
-          await this.database.run('DELETE FROM PlanetTags WHERE planetID = ?', [
-            id,
-          ]);
-
-          // Insert new tags
-          const insertTag = await this.database.prepare(
-            `INSERT INTO PlanetTags (planetID, tagKey, tagValue) VALUES (?, ?, ?);`
-          );
-          for (const [tagKey, tagValues] of Object.entries(tagList)) {
-            for (const value of tagValues) {
-              await insertTag.run(id, tagKey, value);
-            }
-          }
-          await insertTag.finalize();
-
-          await this.database.run('COMMIT;');
-
-          return true;
-        } catch (reason: unknown) {
-          await this.database.run('ROLLBACK;');
-
-          if (reason instanceof Error) {
-            throw new Error(`Update failed - ${reason.message}`, {
-              cause: reason,
-            });
-          }
-          throw new Error(`Update failed - Unknown error`, {
-            cause: reason,
-          });
-        }
-      }
+      async (_, { id, ...planetRest }: PlanetData) =>
+        this.planetRepository.update(id, planetRest)
     );
 
     ipcMain.handle(
       'createPlanet',
-      (event, planet: PlanetData) =>
-        new Promise<PlanetData>((resolve, reject) => {
-          this.database
-            .run(
-              'INSERT INTO Planet (name, link, x, y) VALUES (?, ?, ?, ?)',
-              planet.name,
-              planet.link,
-              planet.x,
-              planet.y
-            )
-            .then((runResult) => {
-              resolve({
-                ...planet,
-                id: runResult.lastID,
-              });
-            })
-            .catch((reason) => reject(reason));
-        })
+      (_, planetData: ForcefullyOmit<PlanetData, 'id'>) =>
+        this.planetRepository.create(planetData)
     );
 
-    ipcMain.handle(
-      'deletePlanet',
-      (event, planet: PlanetData) =>
-        new Promise<boolean>((resolve, reject) => {
-          this.database
-            .run(
-              'DELETE FROM PlanetAffiliationAge WHERE planetID = ?;',
-              planet.id
-            )
-            .then(() => {
-              this.database
-                .run('DELETE FROM Planet WHERE id = ?;', planet.id)
-                .then(() => resolve(true))
-                .catch((reason) => reject(reason));
-            })
-            .catch((reason) => reject(reason));
-        })
+    ipcMain.handle('deletePlanet', (event, planetID: number) =>
+      this.planetRepository.delete(planetID)
     );
 
     ipcMain.handle(
       'updateAffiliation',
-      (event, affiliation: AffiliationData) =>
-        new Promise<boolean>((resolve, reject) => {
-          this.database
-            .run(
-              'UPDATE Affiliation SET name = ?, color = ? WHERE id = ?;',
-              affiliation.name,
-              affiliation.color,
-              affiliation.id
-            )
-            .then(() => resolve(true))
-            .catch((reason) => reject(reason));
-        })
+      (_, { id, ...affiliationData }: AffiliationData) =>
+        this.affiliationRepository.update(id, affiliationData)
     );
 
     ipcMain.handle(
       'createAffiliation',
-      (event, affiliation: AffiliationData) =>
-        new Promise<AffiliationData>((resolve, reject) => {
-          this.database
-            .run(
-              'INSERT INTO Affiliation (name, color) VALUES (?, ?)',
-              affiliation.name,
-              affiliation.color
-            )
-            .then((runResult) =>
-              resolve({ ...affiliation, id: runResult.lastID })
-            )
-            .catch((reason) => reject(reason));
-        })
+      (_, affiliationData: ForcefullyOmit<AffiliationData, 'id'>) =>
+        this.affiliationRepository.create(affiliationData)
     );
 
-    ipcMain.handle(
-      'deleteAffiliation',
-      (event, affiliation: AffiliationData) =>
-        new Promise<boolean>((resolve, reject) => {
-          if (affiliation.id === 0) {
-            reject("You can't delete the affiliation with id 0");
-          }
-
-          this.database
-            .run(
-              'UPDATE PlanetAffiliationAge SET affiliationID = 0 WHERE affiliationID = ?;',
-              affiliation.id
-            )
-            .then(() => {
-              this.database
-                .run('DELETE FROM Affiliation WHERE id = ?;', affiliation.id)
-                .then(() => resolve(true))
-                .catch((reason) => reject(reason));
-            })
-            .catch((reason) => reject(reason));
-        })
+    ipcMain.handle('deleteAffiliation', (_, affiliationID: number) =>
+      this.affiliationRepository.delete(affiliationID)
     );
 
     ipcMain.handle(
       'updatePlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
-        new Promise<boolean>((resolve, reject) => {
-          this.database
-            .run(
-              'UPDATE PlanetAffiliationAge SET affiliationID = ?, planetText = ? WHERE planetID = ? AND universeAge = ?;',
-              data.affiliationID,
-              data.planetText,
-              data.planetID,
-              data.universeAge
-            )
-            .then(() => {
-              resolve(true);
-            })
-            .catch((reason) => reject(reason));
-        })
+      (_, data: PlanetAffiliationAgeData) =>
+        this.planetAffiliationAgeRepository.update(data)
     );
 
     ipcMain.handle(
       'createPlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
-        new Promise<PlanetAffiliationAgeData>((resolve, reject) => {
-          this.database
-            .run(
-              'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID, planetText) VALUES (?, ?, ?, ?);',
-              data.universeAge,
-              data.planetID,
-              data.affiliationID,
-              data.planetText
-            )
-            .then(() => {
-              resolve(data);
-            })
-            .catch((reason) => reject(reason));
-        })
+      (_, data: PlanetAffiliationAgeData) =>
+        this.planetAffiliationAgeRepository.create(data)
     );
 
     ipcMain.handle(
       'createPlanetAffiliationAges',
-      (event, dataPoints: PlanetAffiliationAgeData[]) =>
+      (_, dataPoints: PlanetAffiliationAgeData[]) =>
         new Promise<PlanetAffiliationAgeData[]>((resolve, reject) => {
           const insertPromises = dataPoints.map((point) => {
-            return this.database
-              .run(
-                'INSERT INTO PlanetAffiliationAge (universeAge, planetID, affiliationID) VALUES (?, ?, ?);',
-                point.universeAge,
-                point.planetID,
-                point.affiliationID
-              )
+            return this.planetAffiliationAgeRepository
+              .create(point)
               .then(() => {
                 return point;
               });
@@ -370,20 +176,8 @@ class AppWindow {
 
     ipcMain.handle(
       'deletePlanetAffiliationAge',
-      (event, data: PlanetAffiliationAgeData) =>
-        new Promise<boolean>((resolve, reject) => {
-          this.database
-            .run(
-              'DELETE FROM PlanetAffiliationAge WHERE planetID = ? AND universeAge = ? AND affiliationID = ?;',
-              data.planetID,
-              data.universeAge,
-              data.affiliationID
-            )
-            .then(() => {
-              resolve(true);
-            })
-            .catch((reason) => reject(reason));
-        })
+      (_, data: PlanetAffiliationAgeData) =>
+        this.planetAffiliationAgeRepository.delete(data)
     );
 
     ipcMain.handle('getConfigCache', () => {

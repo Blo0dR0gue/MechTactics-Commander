@@ -20,6 +20,13 @@ export type PlanetTags = {
   [tag: string]: string[];
 };
 
+export type PlanetTag = {
+  id: number;
+  planetID: number;
+  tagKey: string;
+  tagValue: string;
+};
+
 type PlanetWithAffiliationAndAge = PlanetData & {
   affiliationID: number;
   age: number;

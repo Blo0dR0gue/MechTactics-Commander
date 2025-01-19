@@ -24,21 +24,23 @@ interface Window {
       planet: import('./src/app/types/PlanetData').PlanetData
     ) => Promise<boolean>;
     createPlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetData
+      planet: import('./src/app/types/UtilityTypes').ForcefullyOmit<
+        import('./src/app/types/PlanetData').PlanetData,
+        'id'
+      >
     ) => Promise<import('./src/app/types/PlanetData').PlanetData>;
-    deletePlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetData
-    ) => Promise<boolean>;
+    deletePlanet: (planetID: number) => Promise<boolean>;
 
     updateAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationData
     ) => Promise<boolean>;
     createAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationData
+      affiliation: import('./src/app/types/UtilityTypes').ForcefullyOmit<
+        import('./src/app/types/AffiliationData').AffiliationData,
+        'id'
+      >
     ) => Promise<import('./src/app/types/AffiliationData').AffiliationData>;
-    deleteAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationData
-    ) => Promise<boolean>;
+    deleteAffiliation: (affiliationID: number) => Promise<boolean>;
 
     updatePlanetAffiliationAge: (
       data: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData

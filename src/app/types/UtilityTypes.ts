@@ -87,6 +87,9 @@ type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
 
 type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';
 
+export type ForcefullyOmit<T, K extends keyof T> = Omit<T, K> &
+  Partial<Record<K, never>>;
+
 export {
   Icon,
   ObjectWithKeys,

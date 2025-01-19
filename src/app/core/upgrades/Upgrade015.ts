@@ -18,7 +18,7 @@ class Upgrade015 extends AppUpgradeInfo {
     // New planet tag table
     this.actions.push(async () => {
       await this.database.exec(`
-            CREATE TABLE IF NOT EXISTS PlanetTags (
+            CREATE TABLE IF NOT EXISTS PlanetTag (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 planetID INTEGER NOT NULL,
                 tagKey TEXT NOT NULL,
@@ -38,7 +38,7 @@ class Upgrade015 extends AppUpgradeInfo {
                   tagKey,
                   json_group_array(tagValue) AS tagList
               FROM
-                  PlanetTags
+                  PlanetTag
               GROUP BY
                   planetID, tagKey
           ),

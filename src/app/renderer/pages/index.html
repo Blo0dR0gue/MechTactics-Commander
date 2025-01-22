@@ -22,44 +22,23 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Disclaimer</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            This is a non-profit open source project for the BattleTech
-            universe. <br />
+            This is a non-profit open source project for the BattleTech universe. <br />
             It uses data from the public
-            <a href="https://www.sarna.net" target="_blank">Sarna Wiki</a> and
-            from the fan created map by
-            <a href="https://www.gruese.de/innersphere" target="_blank"
-              >Christoph Wassermann and Wraith_81</a
-            >
-            for the computer game BATTLETECH by Harebrained Schemes (published
-            by Paradox Interactive). <br />
-            The author is not affiliated with Harebrained Schemes and intends no
-            copyright or trademark infringement. All content from these sources
-            are used with the utmost respect for intellectual property rights
-            and is incorporated into this project for informational and
-            non-commercial purposes only. <br />
-            <a
-              class="link link-info"
-              href="https://github.com/Blo0dR0gue/MechTactics-Commander"
-              target="_blank"
+            <a href="https://www.sarna.net" target="_blank">Sarna Wiki</a> and from the fan created map by
+            <a href="https://www.gruese.de/innersphere" target="_blank">Christoph Wassermann and Wraith_81</a>
+            for the computer game BATTLETECH by Harebrained Schemes (published by Paradox Interactive). <br />
+            The author is not affiliated with Harebrained Schemes and intends no copyright or trademark infringement.
+            All content from these sources are used with the utmost respect for intellectual property rights and is
+            incorporated into this project for informational and non-commercial purposes only. <br />
+            <a class="link link-info" href="https://github.com/Blo0dR0gue/MechTactics-Commander" target="_blank"
               >Source on GitHub</a
             >
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -73,15 +52,11 @@
         class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start bg-actionBar bg-opacity-75"
       >
         <!--Left-->
-        <ul
-          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-        >
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <div class="btn link link-info" id="disclaimer">disclaimer</div>
         </ul>
         <!--Center-->
-        <ul
-          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-        >
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <div class="dropdown" id="age-dropdown">
             <button
               class="btn btn-secondary dropdown-toggle"
@@ -93,19 +68,13 @@
             >
               Version: <span id="selected-universe-age">xxx</span>
             </button>
-            <div
-              class="dropdown-menu"
-              aria-labelledby="dropdownMenuButton"
-              id="age-dropdown-menu"
-            >
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="age-dropdown-menu">
               <!--Elements will be added here programmatically using the HeaderHandler-->
             </div>
           </div>
         </ul>
         <!--Right-->
-        <a
-          class="btn btn-primary d-flex align-items-center justify-content-center me-1"
-          href="./dashboard.html"
+        <a class="btn btn-primary d-flex align-items-center justify-content-center me-1" href="./dashboard.html"
           >Dashboard</a
         >
         <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
@@ -124,9 +93,7 @@
       <canvas id="universe" tabindex="1"></canvas>
 
       <!--Action Bar (Footer)-->
-      <div
-        class="d-flex flex-column position-absolute bottom-0 align-items-end w-100"
-      >
+      <div class="d-flex flex-column position-absolute bottom-0 align-items-end w-100">
         <!-- Navigation-Bar -->
         <div class="container me-0 pe-0 position-relative">
           <div class="row justify-content-end">
@@ -136,9 +103,7 @@
                 id="planet-details-tab"
                 data-content="planet-details-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Planet Details
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Planet Details</div>
               </div>
             </div>
             <div class="col-sm-2 p-0">
@@ -147,9 +112,7 @@
                 id="routing-tab"
                 data-content="routing-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Routing
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Routing</div>
               </div>
             </div>
 
@@ -159,26 +122,17 @@
                 id="settings-tab"
                 data-content="settings-tab-content"
               >
-                <div class="text-white text-center transform-skew-15 flex-fill">
-                  Settings
-                </div>
+                <div class="text-white text-center transform-skew-15 flex-fill">Settings</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Content-Area -->
-        <div
-          class="w-100 p-1 bg-actionBar bg-opacity-75"
-          style="height: 140px"
-          id="content-box"
-        >
+        <div class="w-100 p-1 bg-actionBar bg-opacity-75" style="height: 140px" id="content-box">
           <!--Planet details content-->
           <div id="planet-details-tab-content">
-            <div
-              class="w-100 d-flex flex-nowrap overflow-x-auto flex-lg-row"
-              style="scrollbar-width: thin"
-            >
+            <div class="w-100 d-flex flex-nowrap overflow-x-auto flex-lg-row">
               <!--Planet name and affiliation-->
               <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
                 <div class="d-flex align-items-center flex-column min-w-300">
@@ -198,9 +152,7 @@
                     <p class="m-0 me-2 p-0">Affiliation:</p>
                     <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
                   </div>
-                  <p class="m-0 text-white" id="coordinates">
-                    x: None, y: None
-                  </p>
+                  <p class="m-0 text-white" id="coordinates">x: None, y: None</p>
                   <p class="m-0 text-white">
                     <a href="#" id="wiki-link" target="_blank">Wiki</a>
                     <button
@@ -218,11 +170,7 @@
 
               <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
                 <div class="d-flex align-items-center flex-column">
-                  <label
-                    for="planet-custom-textarea"
-                    class="form-label text-white"
-                    >Planet Custom Text</label
-                  >
+                  <label for="planet-custom-textarea" class="form-label text-white">Planet Custom Text</label>
                   <textarea
                     class="form-control resize-none min-w-500"
                     id="planet-custom-textarea"
@@ -302,11 +250,7 @@
                       autocomplete="off"
                       value="30"
                     />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-30"
-                      >30</label
-                    >
+                    <label class="btn btn-sm btn-outline-primary" for="settings-range-30">30</label>
                     <input
                       type="radio"
                       class="btn-check"
@@ -315,11 +259,7 @@
                       autocomplete="off"
                       value="60"
                     />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-60"
-                      >60</label
-                    >
+                    <label class="btn btn-sm btn-outline-primary" for="settings-range-60">60</label>
                   </div>
                 </div>
               </div>
@@ -327,9 +267,7 @@
               <div class="col-md-3 d-flex align-items-center flex-column">
                 <div class="form-group position-relative mb-1 w-100">
                   <!--Jump Settings-->
-                  <label
-                    for="jump-settings-excluded-affiliations"
-                    class="text-white"
+                  <label for="jump-settings-excluded-affiliations" class="text-white"
                     >Allowed Affiliation For Routing</label
                   >
                   <div id="jump-settings-excluded-affiliations">
@@ -349,15 +287,9 @@
               <!--Col 3 (General Settings)-->
               <div class="col-md-3 d-flex align-items-center flex-column">
                 <div class="form-group position-relative mb-1 w-100">
-                  <label
-                    for="jump-settings-excluded-affiliations"
-                    class="text-white"
-                    >General Settings</label
-                  >
+                  <label for="jump-settings-excluded-affiliations" class="text-white">General Settings</label>
                   <div class="d-flex align-items-center text-white">
-                    <label for="settings-background-color"
-                      >Background Color:</label
-                    >
+                    <label for="settings-background-color">Background Color:</label>
                     <input type="color" id="settings-background-color" />
                   </div>
                 </div>

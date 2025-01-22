@@ -1,9 +1,11 @@
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 
+@import './planet-tag.scss';
+
 $custom-colors: (
   'actionBar': rgba(24, 24, 24, 0.7),
-  'background': #08001f,
+  'background': #08001f
 );
 
 $theme-colors: map-merge($theme-colors, $custom-colors);
@@ -54,12 +56,7 @@ TODO: USE BOOTSTRAP
 }
 
 .btn-actionBar:not(.bg-selected):hover {
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.2
-  ) !important; /* Highlight on hover */
+  background-color: rgba(255, 255, 255, 0.2) !important; /* Highlight on hover */
 }
 
 .bg-selected {
@@ -92,12 +89,7 @@ ul.nav a:hover:not(.active) {
 /* Header */
 
 header {
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* Add a background color to the header */
+  background-color: rgba(0, 0, 0, 0.5); /* Add a background color to the header */
   padding: 5px; /* Add some padding for spacing */
   position: fixed;
   top: 0;
@@ -179,37 +171,6 @@ canvas:focus {
   background-color: gray;
   border-radius: 20px;
   border: 3px solid white;
-}
-
-.tag-container {
-  display: grid;
-  grid-template-rows: repeat(2, auto);
-  gap: 5px;
-}
-
-.tag-item:nth-child(odd) {
-  grid-row: 1;
-}
-
-.tag-item:nth-child(even) {
-  grid-row: 2;
-}
-
-.tag-title {
-  margin-bottom: 0.5rem;
-  color: white;
-  border-bottom: 1px solid white;
-}
-
-.tag-item {
-  flex-shrink: 0;
-  min-width: 100px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 20px;
-  padding: 0.5rem;
-  text-align: center;
-  font-size: 14px;
 }
 
 // Import all of Bootstrap's CSS

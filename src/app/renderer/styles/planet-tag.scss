@@ -4,6 +4,11 @@
   gap: 5px;
 }
 
+.tag-group {
+  margin-right: 2rem;
+  min-width: 150px;
+}
+
 .tag-item:nth-child(odd) {
   grid-row: 1;
 }

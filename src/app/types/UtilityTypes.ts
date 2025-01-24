@@ -1,7 +1,7 @@
 /**
  * Defines an object which has string as keys
  */
-type ObjectWithKeys = Record<string, unknown>;
+type ObjectWithKeys = Record<string | number | symbol, unknown>;
 
 type Icon = SVGElement & HTMLElement;
 
@@ -97,5 +97,5 @@ export {
   ObjectPropsRec,
   ArrayObjType,
   ArrayPropPath,
-  DatabaseTables,
+  DatabaseTables
 };

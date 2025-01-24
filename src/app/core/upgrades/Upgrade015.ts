@@ -8,9 +8,9 @@ class Upgrade015 extends AppUpgradeInfo {
 
     // Add new planet columns
     this.actions.push(async () => {
-      await this.database.exec('ALTER TABLE Planet ADD detail TEXT;');
-      await this.database.exec('ALTER TABLE Planet ADD fuelingStation BOOLEAN;');
-      await this.database.exec('ALTER TABLE Planet ADD type CHARACTER(1);');
+      await this.database.exec("ALTER TABLE Planet ADD detail TEXT NOT NULL DEFAULT '';");
+      await this.database.exec('ALTER TABLE Planet ADD fuelingStation BOOLEAN NOT NULL DEFAULT 0;');
+      await this.database.exec("ALTER TABLE Planet ADD type CHARACTER(1) NOT NULL DEFAULT 'X';");
     });
 
     // New planet tag table
@@ -33,9 +33,7 @@ class Upgrade015 extends AppUpgradeInfo {
 
           BEGIN TRANSACTION;
 
-          ALTER TABLE PlanetAffiliationAge RENAME TO _PlanetAffiliationAge_old;
-
-          CREATE TABLE PlanetAffiliationAge
+          CREATE TABLE PlanetAffiliationAge_NEW
           (
             universeAge INTEGER NOT NULL,
             planetID INTEGER NOT NULL,
@@ -46,9 +44,10 @@ class Upgrade015 extends AppUpgradeInfo {
             FOREIGN KEY (affiliationID) REFERENCES Affiliation(id) ON DELETE SET DEFAULT
           );
 
-          INSERT INTO PlanetAffiliationAge(universeAge, planetID, affiliationID, planetText) SELECT universeAge, planetID, affiliationID, COALESCE( planetText , '' ) as planetText FROM _PlanetAffiliationAge_old;
+          INSERT INTO PlanetAffiliationAge_NEW(universeAge, planetID, affiliationID, planetText) SELECT universeAge, planetID, affiliationID, COALESCE( planetText , '' ) as planetText FROM PlanetAffiliationAge;
 
-          DROP TABLE _PlanetAffiliationAge_old;
+          DROP TABLE PlanetAffiliationAge;
+          ALTER TABLE PlanetAffiliationAge_NEW RENAME TO PlanetAffiliationAge;
 
           COMMIT;
 

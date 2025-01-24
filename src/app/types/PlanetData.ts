@@ -16,16 +16,14 @@ type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {
   };
 };
 
+export type PlanetTagKey = string;
+export type PlanetTagValue = string;
+
 export type PlanetTags = {
-  [tag: string]: string[];
+  [tag: PlanetTagKey]: PlanetTagValue[];
 };
 
-export type PlanetTag = {
-  id: number;
-  planetID: number;
-  tagKey: string;
-  tagValue: string;
-};
+export type PlanetTagMap = Map<PlanetTagKey, PlanetTagValue[]>;
 
 type PlanetWithAffiliationAndAge = PlanetData & {
   affiliationID: number;

@@ -1,4 +1,4 @@
-import { PlanetTags } from '../../types/PlanetData';
+import { PlanetTags, PlanetTagMap, PlanetTagValue } from '../../types/PlanetData';
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
 
@@ -11,7 +11,7 @@ class Planet extends Circle {
   private customText: string;
   private affiliation: Affiliation;
   private universeAge: number;
-  private tagList: PlanetTags;
+  private tagMap: PlanetTagMap;
   private fuelingStation: boolean;
   private detail: string;
   private type: string;
@@ -52,24 +52,13 @@ class Planet extends Circle {
     this.customText = customText;
     this.affiliation = affiliation;
     this.universeAge = universeAge;
-    this.tagList = tagList;
+    this.tagMap = new Map(Object.entries(tagList ?? {}));
     this.fuelingStation = fuelingStation;
     this.detail = detail;
     this.type = type;
   }
 
   // Private Methods
-  private hasFuelingStation(): boolean {
-    return this.fuelingStation;
-  }
-
-  private getDetail(): string {
-    return this.detail;
-  }
-
-  private getType(): string {
-    return this.type;
-  }
 
   private updateInDB(): void {
     window.sql
@@ -79,22 +68,34 @@ class Planet extends Circle {
         y: this.coord.getY(),
         link: this.link,
         name: this.name,
-        tagList: this.tagList,
+        tagList: Object.fromEntries(this.tagMap),
         detail: this.detail,
         fuelingStation: this.fuelingStation,
-        type: this.type,
+        type: this.type
       })
       .then(() => {
         window.sql.updatePlanetAffiliationAge({
           planetID: this.id,
           affiliationID: this.getAffiliationID(),
           universeAge: this.universeAge,
-          planetText: this.customText,
+          planetText: this.customText
         });
       });
   }
 
   // Public Methods
+  public hasFuelingStation(): boolean {
+    return this.fuelingStation;
+  }
+
+  public getDetail(): string {
+    return this.detail;
+  }
+
+  public getType(): string {
+    return this.type;
+  }
+
   public getID(): number {
     return this.id;
   }
@@ -116,12 +117,12 @@ class Planet extends Circle {
     this.updateInDB();
   }
 
-  public getTags(): PlanetTags {
-    return this.tagList;
+  public getTags(): PlanetTagMap {
+    return this.tagMap;
   }
 
-  public getTagByKey(tagKey: string): string[] | null {
-    return this.tagList[tagKey] ?? null;
+  public getTagByKey(tagKey: string): PlanetTagValue[] | null {
+    return this.tagMap.get(tagKey) ?? null;
   }
 
   public getAffiliationID(): number {

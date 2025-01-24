@@ -74,11 +74,28 @@ function getLastPathPart(propPath: string): string {
   return last;
 }
 
+/**
+ * Converts snake case to title case.
+ *
+ * @example
+ * const title = snakeCaseToTitleCase('industry_data');
+ * title === "Industry Data"
+ *
+ * @param input The string in snake case.
+ * @returns The input as title case.
+ */
+export function snakeCaseToTitleCase(input: string): string {
+  return input
+    .split('_') // Split by underscore
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
+    .join(' '); // Join words with space
+}
+
 export {
   createSVGElementFromString,
   planetDataToPlanetCoordData,
   planetCoordDataToPlanetData,
   escapeHtmlTags,
   getDeepestObjectForPath,
-  getLastPathPart,
+  getLastPathPart
 };

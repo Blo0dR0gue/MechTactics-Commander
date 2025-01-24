@@ -9,9 +9,7 @@ class Upgrade015 extends AppUpgradeInfo {
     // Add new planet columns
     this.actions.push(async () => {
       await this.database.exec('ALTER TABLE Planet ADD detail TEXT;');
-      await this.database.exec(
-        'ALTER TABLE Planet ADD fuelingStation BOOLEAN;'
-      );
+      await this.database.exec('ALTER TABLE Planet ADD fuelingStation BOOLEAN;');
       await this.database.exec('ALTER TABLE Planet ADD type CHARACTER(1);');
     });
 
@@ -25,6 +23,36 @@ class Upgrade015 extends AppUpgradeInfo {
                 tagValue TEXT NOT NULL,
                 FOREIGN KEY (planetID) REFERENCES Planet(id) ON DELETE CASCADE
             );
+        `);
+    });
+
+    // Add Delete Cascade to PlanetAffiliationAge
+    this.actions.push(async () => {
+      await this.database.exec(`
+          PRAGMA foreign_keys=OFF;
+
+          BEGIN TRANSACTION;
+
+          ALTER TABLE PlanetAffiliationAge RENAME TO _PlanetAffiliationAge_old;
+
+          CREATE TABLE PlanetAffiliationAge
+          (
+            universeAge INTEGER NOT NULL,
+            planetID INTEGER NOT NULL,
+            affiliationID INTEGER NOT NULL DEFAULT 0,
+            planetText TEXT DEFAULT '',
+            PRIMARY KEY (planetID, universeAge),
+            FOREIGN KEY (planetID) REFERENCES Planet(id) ON DELETE CASCADE,
+            FOREIGN KEY (affiliationID) REFERENCES Affiliation(id) ON DELETE SET DEFAULT
+          );
+
+          INSERT INTO PlanetAffiliationAge(universeAge, planetID, affiliationID, planetText) SELECT universeAge, planetID, affiliationID, COALESCE( planetText , '' ) as planetText FROM _PlanetAffiliationAge_old;
+
+          DROP TABLE _PlanetAffiliationAge_old;
+
+          COMMIT;
+
+          PRAGMA foreign_keys=ON;
         `);
     });
 

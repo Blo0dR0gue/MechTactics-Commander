@@ -131,6 +131,9 @@ const planetFormCoordY = document.getElementById(
 const planetFormLink = document.getElementById(
   'planet-link'
 ) as HTMLInputElement;
+const planetFormType = document.getElementById(
+  'planet-type'
+) as HTMLInputElement;
 
 // affiliation form elements
 const affiliationFormID = document.getElementById(
@@ -208,6 +211,7 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
+  const type = planetFormType.value.trim().slice(0, 1);
 
   const tagObject = planetTagEditor.getCurrentTagUpdates();
 
@@ -269,7 +273,7 @@ planetSaveBtn.addEventListener('click', () => {
         name: name,
         detail: '',
         fuelingStation: true,
-        type: 'A',
+        type: type,
         tagObject: tagObject
       })
       .then((planet) => {
@@ -297,7 +301,7 @@ planetSaveBtn.addEventListener('click', () => {
         fuelingStation: true,
         link,
         tagObject: tagObject,
-        type: 'T'
+        type: type
       })
       .then(() => {
         // Update planet
@@ -334,12 +338,13 @@ function setPlanetFormData(planet: PlanetCoordData) {
   planetFormCoordX.value = String(planet?.coord?.x ?? 0);
   planetFormCoordY.value = String(planet?.coord?.y ?? 0);
   planetFormLink.value = planet?.link ?? '';
+  planetFormType.value = planet?.type ?? 'X';
 }
 
 function openPlanetModalWith(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
   setPlanetFormData(planet);
-  planetTagEditor.loadEditor(planet.tagObject);
+  planetTagEditor.loadEditor(planet?.tagObject);
   planetModal.show();
 }
 

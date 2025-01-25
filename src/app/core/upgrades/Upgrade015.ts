@@ -8,20 +8,26 @@ class Upgrade015 extends AppUpgradeInfo {
 
     // Add new planet columns
     this.actions.push(async () => {
-      await this.database.exec("ALTER TABLE Planet ADD detail TEXT NOT NULL DEFAULT '';");
-      await this.database.exec('ALTER TABLE Planet ADD fuelingStation BOOLEAN NOT NULL DEFAULT 0;');
-      await this.database.exec("ALTER TABLE Planet ADD type CHARACTER(1) NOT NULL DEFAULT 'X';");
+      await this.database.exec(
+        "ALTER TABLE Planet ADD detail TEXT NOT NULL DEFAULT '';"
+      );
+      await this.database.exec(
+        'ALTER TABLE Planet ADD fuelingStation BOOLEAN NOT NULL DEFAULT 0;'
+      );
+      await this.database.exec(
+        "ALTER TABLE Planet ADD type CHARACTER(1) NOT NULL DEFAULT 'X';"
+      );
     });
 
     // New planet tag table
     this.actions.push(async () => {
       await this.database.exec(`
             CREATE TABLE IF NOT EXISTS PlanetTag (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 planetID INTEGER NOT NULL,
                 tagKey TEXT NOT NULL,
                 tagValue TEXT NOT NULL,
-                FOREIGN KEY (planetID) REFERENCES Planet(id) ON DELETE CASCADE
+                FOREIGN KEY (planetID) REFERENCES Planet(id) ON DELETE CASCADE,
+                PRIMARY KEY(planetID, tagKey, tagValue)
             );
         `);
     });

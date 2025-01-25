@@ -1,6 +1,6 @@
 import { PlanetTags } from '../../types/PlanetData';
 import { ToastHandler, ToastType } from './components/ToastHandler';
-import { snakeCaseToTitleCase } from './Utils';
+import { snakeCaseToTitleCase, stringToSnakeCase } from './Utils';
 
 export type PlanetTagEditorProps = {
   tagEditorContainer: HTMLElement;
@@ -58,7 +58,7 @@ export default class PlanetTagEditor {
 
   private addNewTag(): void {
     // Get value and convert to snake case. Industry Data => industry_data.
-    const key = this.newTagInput.value.trim().toLowerCase().replace(' ', '_');
+    const key = stringToSnakeCase(this.newTagInput.value);
 
     if (!key) {
       this.showError('Tag key cannot be empty.');

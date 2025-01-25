@@ -86,9 +86,20 @@ function getLastPathPart(propPath: string): string {
  */
 export function snakeCaseToTitleCase(input: string): string {
   return input
-    .split('_') // Split by underscore
+    .trim()
+    .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-    .join(' '); // Join words with space
+    .join(' ');
+}
+
+/**
+ * Converts a string to snake case
+ *
+ * @param input - A string to convert.
+ * @returns The input in snake case.
+ */
+export function stringToSnakeCase(input: string): string {
+  return input.trim().toLowerCase().replace('-', '_').replace(' ', '_');
 }
 
 export {

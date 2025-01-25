@@ -19,7 +19,12 @@ export default class PlanetTagEditor {
   private newTagKeyAddBtn: HTMLButtonElement;
   private toastHandler: ToastHandler;
 
-  public constructor({ newTagInput, newTagKeyAddBtn, tagEditorContainer, toastHandler }: PlanetTagEditorProps) {
+  public constructor({
+    newTagInput,
+    newTagKeyAddBtn,
+    tagEditorContainer,
+    toastHandler
+  }: PlanetTagEditorProps) {
     this.tagEditorContainer = tagEditorContainer;
     this.newTagInput = newTagInput;
     this.newTagKeyAddBtn = newTagKeyAddBtn;
@@ -35,7 +40,9 @@ export default class PlanetTagEditor {
 
     this.newTagInput.value = '';
 
-    this.tags = new Map(
+    this.tags = new Map();
+
+    const startTags = new Map(
       Object.entries(initialTags).map(([key, values]) => {
         const valueObj = values.map((value) => {
           return { id: this.generateUniqueId(), value: value };
@@ -44,7 +51,7 @@ export default class PlanetTagEditor {
       })
     );
 
-    this.tags.forEach((values, key) => {
+    startTags.forEach((values, key) => {
       this.addTagEditorRow(key, values);
     });
   }
@@ -68,7 +75,7 @@ export default class PlanetTagEditor {
   }
 
   private addTagEditorRow(key: string, values: TagMapEntry[]): void {
-    this.tags.set(key, values);
+    this.tags.set(key, []);
 
     // Create main wrapper for the tag entry
     const row = document.createElement('div');
@@ -132,7 +139,9 @@ export default class PlanetTagEditor {
     valueInput.value = value.value;
     valueInput.setAttribute('data-key', key);
     valueInput.onchange = () => {
-      const currentValue = this.tags.get(key)?.find((tagEntry) => tagEntry.id === value.id);
+      const currentValue = this.tags
+        .get(key)
+        ?.find((tagEntry) => tagEntry.id === value.id);
 
       if (!currentValue) {
         this.showError(`Error while processing tag change. Value not found!`);
@@ -142,7 +151,9 @@ export default class PlanetTagEditor {
       let newValue = valueInput.value.trim();
 
       if (this.tags.get(key).find((tagEntry) => tagEntry.value === newValue)) {
-        this.showError(`Tag for '${key}' with value '${newValue}' already exists!`);
+        this.showError(
+          `Tag for '${key}' with value '${newValue}' already exists!`
+        );
         newValue = currentValue.value;
       }
 
@@ -154,7 +165,8 @@ export default class PlanetTagEditor {
     const removeButton = document.createElement('button');
     removeButton.className = 'btn btn-warning';
     removeButton.textContent = '-';
-    removeButton.onclick = () => this.removeTagValue(key, value.id, valueWrapper);
+    removeButton.onclick = () =>
+      this.removeTagValue(key, value.id, valueWrapper);
 
     valueWrapper.appendChild(valueInput);
     valueWrapper.appendChild(removeButton);
@@ -163,7 +175,10 @@ export default class PlanetTagEditor {
   }
 
   private addTagValue(key: string, valuesContainer: HTMLDivElement): void {
-    const emptyEntryExists = this.tags.get(key)?.find((emptyEntry) => emptyEntry.value.trim() === '') !== undefined;
+    const emptyEntryExists =
+      this.tags
+        .get(key)
+        ?.find((emptyEntry) => emptyEntry.value.trim() === '') !== undefined;
 
     if (emptyEntryExists) {
       this.showError(`There is already an entry with an empty value.`);
@@ -173,17 +188,23 @@ export default class PlanetTagEditor {
     const valueRow = document.createElement('div');
     valueRow.className = 'input-group mb-2';
 
-    valueRow.appendChild(this.createValueInput(key, { id: this.generateUniqueId(), value: '' }));
+    valueRow.appendChild(
+      this.createValueInput(key, { id: this.generateUniqueId(), value: '' })
+    );
 
     valuesContainer.appendChild(valueRow);
   }
 
   private removeTag(key: string, row: HTMLElement): void {
-    delete this.tags[key];
+    this.tags.delete(key);
     row.remove();
   }
 
-  private removeTagValue(key: string, id: TagMapEntry['id'], valueWrapper: HTMLDivElement): void {
+  private removeTagValue(
+    key: string,
+    id: TagMapEntry['id'],
+    valueWrapper: HTMLDivElement
+  ): void {
     const values = this.tags.get(key);
     const idx = values?.findIndex((tagEntry) => tagEntry.id === id);
     if (idx >= 0) {
@@ -196,18 +217,25 @@ export default class PlanetTagEditor {
     const updatedTags: PlanetTags = {};
 
     this.tags.forEach((values, key) => {
-      updatedTags[key] = values.reduce((arr: string[], tagEntry: TagMapEntry) => {
-        if (tagEntry.value.trim() !== '') {
-          arr.push(tagEntry.value);
-        }
-        return arr;
-      }, [] as string[]);
+      updatedTags[key] = values.reduce(
+        (arr: string[], tagEntry: TagMapEntry) => {
+          if (tagEntry.value.trim() !== '') {
+            arr.push(tagEntry.value);
+          }
+          return arr;
+        },
+        [] as string[]
+      );
     });
     return updatedTags;
   }
 
   private showError(message: string): void {
-    this.toastHandler.createAndShowToast('Planet Tag', message, ToastType.Warning);
+    this.toastHandler.createAndShowToast(
+      'Planet Tag',
+      message,
+      ToastType.Warning
+    );
   }
 
   private generateUniqueId(prefix: string = 'tag'): string {

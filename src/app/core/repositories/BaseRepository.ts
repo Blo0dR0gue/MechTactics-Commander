@@ -126,7 +126,7 @@ export class BaseRepository<
     return result.lastID;
   }
 
-  public async createOrReplace(data: DataObject): Promise<number> {
+  public async createOrReplace(data: DataObject): Promise<number | null> {
     this.validateColumns(Object.keys(data));
 
     const columns = Object.keys(data).join(', ');
@@ -144,11 +144,7 @@ export class BaseRepository<
 
     const result = await stmt.run(createValues);
 
-    if (result.lastID === undefined || result.lastID === null) {
-      throw new Error(`${this.tableName} could not be created.`);
-    }
-
-    return result.lastID;
+    return result.lastID ?? null;
   }
 
   public async updateByKey(

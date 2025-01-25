@@ -13,7 +13,7 @@ import {
   importDatabaseFromCSVs,
   importTableFromCSV,
   selectCSVDestination
-} from '../CSVHelper';
+} from '../csv/CSVHelper';
 import {
   AffiliationRepository,
   PlanetAffiliationAgeRepository,
@@ -94,7 +94,9 @@ class AppWindow {
       this.planetRepository.getAllInUniverseAge(age)
     );
 
-    ipcMain.handle('getAllPlanets', () => this.planetRepository.getAll());
+    ipcMain.handle('getAllPlanets', () =>
+      this.planetRepository.getAllWithTags()
+    );
 
     ipcMain.handle('getAllAffiliations', () =>
       this.affiliationRepository.getAll()
@@ -146,8 +148,19 @@ class AppWindow {
 
     ipcMain.handle(
       'updatePlanetAffiliationAge',
-      (_, data: PlanetAffiliationAgeData) =>
-        this.planetAffiliationAgeRepository.update(data)
+      (
+        _,
+        {
+          affiliationID,
+          planetID,
+          universeAge,
+          planetText
+        }: PlanetAffiliationAgeData
+      ) =>
+        this.planetAffiliationAgeRepository.updateByKey(
+          { affiliationID, planetID, universeAge },
+          { planetText }
+        )
     );
 
     ipcMain.handle(
@@ -176,8 +189,12 @@ class AppWindow {
 
     ipcMain.handle(
       'deletePlanetAffiliationAge',
-      (_, data: PlanetAffiliationAgeData) =>
-        this.planetAffiliationAgeRepository.delete(data)
+      (_, { affiliationID, planetID, universeAge }: PlanetAffiliationAgeData) =>
+        this.planetAffiliationAgeRepository.deleteByKey({
+          affiliationID,
+          planetID,
+          universeAge
+        })
     );
 
     ipcMain.handle('getConfigCache', () => {

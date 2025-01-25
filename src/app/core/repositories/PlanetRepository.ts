@@ -22,9 +22,9 @@ export class PlanetRepository extends BaseRepository<
     this.planetTagRepository = new PlanetTagRepository(this.database);
   }
 
-  public async getAll(): Promise<PlanetData[]> {
+  public async getAllWithTags(): Promise<PlanetData[]> {
     const stmt = await this.database.prepare(
-      'SELECT * FROM PlanetWithTagsView;'
+      'SELECT * FROM PlanetWithTagsView ORDER BY id ASC;'
     );
 
     try {
@@ -46,7 +46,7 @@ export class PlanetRepository extends BaseRepository<
     }
   }
 
-  public async getByKey({ id }: { id: number }): Promise<PlanetData> {
+  public async getWithTagsByKey({ id }: { id: number }): Promise<PlanetData> {
     const stmt = await this.database.prepare(
       'SELECT * FROM PlanetWithTagsView WHERE id = ?;'
     );

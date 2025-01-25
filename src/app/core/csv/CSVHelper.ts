@@ -2,11 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { parse, stringify } from 'csv';
 import { dialog } from 'electron/main';
-import { AppWindow } from './window/AppWindow';
+import { AppWindow } from '../window/AppWindow';
 import { Database, ISqlite } from 'sqlite';
 import { Statement } from 'sqlite3';
-import { DatabaseTables } from '../types/UtilityTypes';
-import PlanetAffiliationAgeDynFormatter from '../renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter';
+import { DatabaseTables } from '../../types/UtilityTypes';
+import PlanetAffiliationAgeDynFormatter from '../../renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter';
 
 async function selectCSVDestination(
   window: AppWindow,
@@ -17,14 +17,14 @@ async function selectCSVDestination(
     const destinationData = await dialog.showSaveDialog(window.getWindow(), {
       title: 'Speichern unter...',
       filters: [{ name: 'CSV', extensions: ['csv'] }],
-      properties: ['createDirectory'],
+      properties: ['createDirectory']
     });
     return destinationData?.filePath;
   } else {
     const destinationData = await dialog.showOpenDialog(window.getWindow(), {
       title: 'Laden',
       filters: [{ name: 'CSV', extensions: ['csv'] }],
-      properties: [dir ? 'openDirectory' : 'openFile', 'createDirectory'],
+      properties: [dir ? 'openDirectory' : 'openFile', 'createDirectory']
     });
     return destinationData?.filePaths[0];
   }
@@ -43,7 +43,9 @@ async function importTableFromCSV(
   }
 
   const insertPromises: Promise<ISqlite.RunResult<Statement>>[] = [];
+
   let transactionStarted = false;
+
   return new Promise<void>((resolve, reject) => {
     fs.createReadStream(csvFilePath)
       .pipe(parse({ delimiter: ';', columns: true, encoding: 'utf-8' }))
@@ -76,7 +78,7 @@ async function importTableFromCSV(
             'universeAge',
             'planetID',
             'affiliationID',
-            'planetText',
+            'planetText'
           ];
 
           ages.forEach((age) => {
@@ -84,7 +86,7 @@ async function importTableFromCSV(
               universeAge: age,
               planetID: data['planetID'],
               affiliationID: data[`affiliationID${age}`],
-              planetText: data[`planetText${age}`] || '',
+              planetText: data[`planetText${age}`] || ''
             };
             const values = Object.values(elem)
               .map((value) => `"${value}"`)
@@ -111,6 +113,10 @@ async function importTableFromCSV(
             database.run('ROLLBACK;');
             reject(err);
           });
+      })
+      .on('error', (err) => {
+        database.run('ROLLBACK;');
+        reject(err);
       });
   });
 }
@@ -153,18 +159,18 @@ async function exportTableToCSV(
 
     columnKeys.push({
       header: 'planetID',
-      key: 'planetID',
+      key: 'planetID'
     });
 
     ages.forEach((age) => {
       // Add headers fo the affiliation-id and the planet-text for the different universe ages we have
       columnKeys.push({
         header: `affiliationID${age}`,
-        key: `affiliationData.age${age}.affiliationID`,
+        key: `affiliationData.age${age}.affiliationID`
       });
       columnKeys.push({
         header: `planetText${age}`,
-        key: `affiliationData.age${age}.planetText`,
+        key: `affiliationData.age${age}.planetText`
       });
     });
 
@@ -173,7 +179,7 @@ async function exportTableToCSV(
     Object.keys(rows[0]).forEach((key) =>
       columnKeys.push({
         key: key,
-        header: key,
+        header: key
       })
     );
   }
@@ -196,7 +202,7 @@ async function writeDataToCSV(
         header: true,
         columns: columnKeys,
         delimiter: ';',
-        encoding: 'utf-8',
+        encoding: 'utf-8'
       },
       (err, output) => {
         fs.writeFile(pathToCSV, output, (err) => {
@@ -252,5 +258,5 @@ export {
   exportTableToCSV,
   importTableFromCSV,
   exportDatabaseToCSVs,
-  importDatabaseFromCSVs,
+  importDatabaseFromCSVs
 };

@@ -18,7 +18,6 @@ type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {
 };
 
 export type PlanetTag = {
-  id: number;
   planetID: number;
   tagKey: string;
   tagValue: string;

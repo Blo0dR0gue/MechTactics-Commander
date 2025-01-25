@@ -211,7 +211,7 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
-  const type = planetFormType.value.trim().slice(0, 1);
+  const type = planetFormType.value.trim().slice(0, 1).toUpperCase();
 
   const tagObject = planetTagEditor.getCurrentTagUpdates();
 
@@ -219,6 +219,15 @@ planetSaveBtn.addEventListener('click', () => {
     toastHandler.createAndShowToast(
       'Error',
       "Name can't be empty",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (type.length <= 0) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Type can't be empty",
       ToastType.Danger
     );
     return;

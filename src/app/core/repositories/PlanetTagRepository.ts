@@ -1,17 +1,20 @@
 import { Database } from 'sqlite';
-
-import { PlanetTag } from '../../types/PlanetData';
 import { BaseRepository } from './BaseRepository';
 import { ForcefullyOmit } from '../../types/UtilityTypes';
+import { PlanetTag } from '../../types/PlanetData';
 
-export class PlanetTagRepository extends BaseRepository<PlanetTag> {
+export class PlanetTagRepository extends BaseRepository<
+  PlanetTag,
+  { id: number },
+  { id: number }
+> {
   public constructor(database: Database) {
     super(database, 'PlanetTag');
   }
 
   public async deleteAllByPlanet(planetID: number) {
     return this.database.run(`DELETE FROM PlanetTag WHERE planetID = ?;`, [
-      planetID,
+      planetID
     ]);
   }
 

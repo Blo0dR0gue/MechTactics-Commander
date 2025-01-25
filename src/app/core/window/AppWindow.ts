@@ -12,12 +12,12 @@ import {
   exportTableToCSV,
   importDatabaseFromCSVs,
   importTableFromCSV,
-  selectCSVDestination,
+  selectCSVDestination
 } from '../CSVHelper';
 import {
   AffiliationRepository,
   PlanetAffiliationAgeRepository,
-  PlanetRepository,
+  PlanetRepository
 } from '../repositories';
 import { DatabaseTables, ForcefullyOmit } from '../../types/UtilityTypes';
 
@@ -45,8 +45,8 @@ class AppWindow {
       minWidth: 1700,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
-        devTools: this.isDevelopment ? true : false,
-      },
+        devTools: this.isDevelopment ? true : false
+      }
     });
 
     if (this.isDevelopment) this.loadPage('index.html');
@@ -125,13 +125,13 @@ class AppWindow {
     );
 
     ipcMain.handle('deletePlanet', (event, planetID: number) =>
-      this.planetRepository.delete(planetID)
+      this.planetRepository.deleteByKey({ id: planetID })
     );
 
     ipcMain.handle(
       'updateAffiliation',
       (_, { id, ...affiliationData }: AffiliationData) =>
-        this.affiliationRepository.update(id, affiliationData)
+        this.affiliationRepository.updateByKey({ id: id }, affiliationData)
     );
 
     ipcMain.handle(
@@ -141,7 +141,7 @@ class AppWindow {
     );
 
     ipcMain.handle('deleteAffiliation', (_, affiliationID: number) =>
-      this.affiliationRepository.delete(affiliationID)
+      this.affiliationRepository.deleteByKey({ id: affiliationID })
     );
 
     ipcMain.handle(
@@ -190,7 +190,7 @@ class AppWindow {
 
     ipcMain.handle('getAppData', () => {
       return {
-        version: this.isDevelopment ? 'dev' : app.getVersion(),
+        version: this.isDevelopment ? 'dev' : app.getVersion()
       };
     });
 

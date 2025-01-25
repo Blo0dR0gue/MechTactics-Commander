@@ -1,4 +1,8 @@
-import { PlanetTags, PlanetTagMap, PlanetTagValue } from '../../types/PlanetData';
+import {
+  PlanetTags,
+  PlanetTagMap,
+  PlanetTagValue
+} from '../../types/PlanetData';
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
 
@@ -26,7 +30,7 @@ class Planet extends Circle {
    * @param customText Custom text for the planet
    * @param affiliation Affiliation object {@link Affiliation}
    * @param universeAge Universe age this planet is used in
-   * @param tagList Tags for the planet
+   * @param tagObject Tags for the planet
    * @param fuelingStation Indicates if this planet has a fueling station
    * @param detail Additional details about the planet
    * @param type Star type category
@@ -40,7 +44,7 @@ class Planet extends Circle {
     customText: string,
     affiliation: Affiliation,
     universeAge: number,
-    tagList: PlanetTags,
+    tagObject: PlanetTags,
     fuelingStation: boolean,
     detail: string,
     type: string
@@ -52,7 +56,7 @@ class Planet extends Circle {
     this.customText = customText;
     this.affiliation = affiliation;
     this.universeAge = universeAge;
-    this.tagMap = new Map(Object.entries(tagList ?? {}));
+    this.tagMap = new Map(Object.entries(tagObject ?? {}));
     this.fuelingStation = fuelingStation;
     this.detail = detail;
     this.type = type;
@@ -68,7 +72,7 @@ class Planet extends Circle {
         y: this.coord.getY(),
         link: this.link,
         name: this.name,
-        tagList: Object.fromEntries(this.tagMap),
+        tagObject: Object.fromEntries(this.tagMap),
         detail: this.detail,
         fuelingStation: this.fuelingStation,
         type: this.type

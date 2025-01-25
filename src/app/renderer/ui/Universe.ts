@@ -118,7 +118,7 @@ class Universe {
       this.tree = new Quadtree({
         height: 5000,
         width: 5000,
-        maxObjects: 4,
+        maxObjects: 4
       });
 
       this.canvas.width = window.innerWidth;
@@ -196,7 +196,7 @@ class Universe {
         planetJSON.planetText,
         planetAffiliation,
         this.selectedUniverseAge,
-        planetJSON.tagList,
+        planetJSON.tagObject,
         planetJSON.fuelingStation ?? false,
         planetJSON.detail,
         planetJSON.type
@@ -432,7 +432,7 @@ class Universe {
     this.distancePlanet = null;
     this.selectedPlanet = planet;
     this.planetSelectionChangedEvent.invoke({
-      planet: this.selectedPlanet,
+      planet: this.selectedPlanet
     });
   }
 

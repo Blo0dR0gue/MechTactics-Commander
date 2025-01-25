@@ -1,5 +1,9 @@
 import { Database } from 'sqlite';
-import { ForcefullyOmit, ObjectWithKeys } from '../../types/UtilityTypes';
+import {
+  ForcefullyOmit,
+  ObjectWithKeys,
+  OnlyFirst
+} from '../../types/UtilityTypes';
 
 export type Statement = {
   sql: string;
@@ -26,7 +30,9 @@ export class BaseRepository<
     this.loadTableColumns();
   }
 
-  public async getByKey(key: Key): Promise<DataObject | null> {
+  public async getByKey(
+    key: OnlyFirst<Key, DataObject>
+  ): Promise<DataObject | null> {
     const { keyWhere, keyValues } = this.getKeyWhere(key);
 
     const stmt = await this.database.prepare(
@@ -81,7 +87,7 @@ export class BaseRepository<
     return results;
   }
 
-  public async deleteByKey(key: Key): Promise<boolean> {
+  public async deleteByKey(key: OnlyFirst<Key, DataObject>): Promise<boolean> {
     const { keyWhere, keyValues } = this.getKeyWhere(key);
 
     const stmt = await this.database.prepare(
@@ -120,9 +126,34 @@ export class BaseRepository<
     return result.lastID;
   }
 
+  public async createOrReplace(data: DataObject): Promise<number> {
+    this.validateColumns(Object.keys(data));
+
+    const columns = Object.keys(data).join(', ');
+    const placeholders = Object.keys(data)
+      .map(() => '?')
+      .join(', ');
+
+    const createValues = Object.keys(data).map((key) =>
+      this.jsToDatabaseValue(data[key])
+    );
+
+    const stmt = await this.database.prepare(
+      `INSERT OR REPLACE INTO ${this.tableName} (${columns}) VALUES (${placeholders})`
+    );
+
+    const result = await stmt.run(createValues);
+
+    if (result.lastID === undefined || result.lastID === null) {
+      throw new Error(`${this.tableName} could not be created.`);
+    }
+
+    return result.lastID;
+  }
+
   public async updateByKey(
-    key: Key,
-    data: ForcefullyOmit<DataObject, 'id'>
+    key: OnlyFirst<Key, DataObject>,
+    data: ForcefullyOmit<DataObject, keyof Key>
   ): Promise<boolean> {
     const { keyWhere, keyValues } = this.getKeyWhere(key);
     this.validateColumns(Object.keys(data));

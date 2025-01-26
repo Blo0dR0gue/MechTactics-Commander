@@ -1083,7 +1083,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         onClick() {
           loadingIndicator.show();
           window.app
-            .importTableFromCSV('Planet')
+            .importTableFromCSV('PlanetWithTagsView')
             .then(() => {
               loadingIndicator.hide();
               location.reload();
@@ -1104,7 +1104,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         onClick() {
           loadingIndicator.show();
           window.app
-            .exportTableToCSV('Planet')
+            .exportTableToCSV('PlanetWithTagsView')
             .then(() => {
               loadingIndicator.hide();
             })

@@ -7,13 +7,7 @@ import { PlanetData } from '../../types/PlanetData';
 import { AffiliationData } from '../../types/AffiliationData';
 import { autoUpdater } from 'electron-updater';
 import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
-import {
-  exportDatabaseToCSVs,
-  exportTableToCSV,
-  importDatabaseFromCSVs,
-  importTableFromCSV,
-  selectCSVDestination
-} from '../csv/CSVHelper';
+import { CSVHelper } from '../csv/CSVHelper';
 import {
   AffiliationRepository,
   PlanetAffiliationAgeRepository,
@@ -29,6 +23,8 @@ class AppWindow {
   private planetRepository: PlanetRepository;
   private affiliationRepository: AffiliationRepository;
   private planetAffiliationAgeRepository: PlanetAffiliationAgeRepository;
+
+  private csvHelper: CSVHelper;
 
   public constructor(
     private isDevelopment: boolean,
@@ -66,6 +62,8 @@ class AppWindow {
     this.planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
       this.database
     );
+
+    this.csvHelper = new CSVHelper(this, this.database);
 
     this.setupHandler();
   }
@@ -215,36 +213,20 @@ class AppWindow {
       autoUpdater.quitAndInstall();
     });
 
-    ipcMain.handle(
-      'exportTableToCSV',
-      async (event, tableName: DatabaseTables) => {
-        const filePath = await selectCSVDestination(this, true, false);
-        if (!filePath)
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        return exportTableToCSV(this.database, tableName, filePath);
-      }
+    ipcMain.handle('exportTableToCSV', async (_, tableName: DatabaseTables) =>
+      this.csvHelper.exportTableToCSV(tableName)
     );
 
-    ipcMain.handle(
-      'importTableFromCSV',
-      async (event, tableName: DatabaseTables) => {
-        const filePath = await selectCSVDestination(this, false, false);
-        if (!filePath)
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        return importTableFromCSV(this.database, tableName, filePath);
-      }
+    ipcMain.handle('importTableFromCSV', async (_, tableName: DatabaseTables) =>
+      this.csvHelper.importTableFromCSV(tableName)
     );
 
     ipcMain.handle('exportDatabaseToCSVs', () => {
-      return exportDatabaseToCSVs(this, this.database);
+      throw new Error('Not implemented yet');
     });
 
     ipcMain.handle('importDatabaseFromCSVs', () => {
-      return importDatabaseFromCSVs(this, this.database);
+      throw new Error('Not implemented yet');
     });
   }
 }

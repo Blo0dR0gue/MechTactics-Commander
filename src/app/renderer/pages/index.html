@@ -178,11 +178,11 @@
             <div
               class="w-100 d-flex flex-nowrap overflow-x-auto flex-lg-row h-100 overflow-y-hidden"
             >
-              <!--Planet name and affiliation-->
+              <!-- Planet name and affiliation -->
               <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
                 <div class="d-flex align-items-center flex-column min-w-300">
                   <div
-                    class="m-0 text-white d-flex align-items-center align-content-center text-center align-content-center"
+                    class="m-0 text-white d-flex align-items-center text-center"
                   >
                     <h2
                       class="text-white me-1 mb-0"
@@ -205,7 +205,7 @@
                       X
                     </h2>
                     <button
-                      class="btn btn-sm btn-info"
+                      class="btn btn-sm btn-info me-1"
                       id="center-on-planet"
                       data-bs-toggle="tooltip"
                       data-bs-html="true"
@@ -213,16 +213,6 @@
                     >
                       o
                     </button>
-                  </div>
-                  <div class="m-0 text-white d-flex align-items-center">
-                    <p class="m-0 me-2 p-0">Affiliation:</p>
-                    <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
-                  </div>
-                  <p class="m-0 text-white" id="coordinates">
-                    x: None, y: None
-                  </p>
-                  <p class="m-0 text-white">
-                    <a href="#" id="wiki-link" target="_blank">Wiki</a>
                     <button
                       class="btn btn-sm btn-success"
                       id="add-to-route"
@@ -232,7 +222,50 @@
                     >
                       +
                     </button>
+                  </div>
+                  <div
+                    class="m-0 text-white d-flex flex-wrap align-items-center"
+                  >
+                    <p class="m-0 me-2 p-0">Affiliation:</p>
+                    <div class="d-flex flex-wrap" id="affiliation-container">
+                      <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
+                    </div>
+                  </div>
+                  <p class="m-0 text-white" id="coordinates">
+                    x: None, y: None
                   </p>
+                  <p class="m-0 text-white">
+                    <a href="#" id="wiki-link" target="_blank">Wiki</a>
+                  </p>
+                </div>
+              </div>
+              <!-- Additional Information Columns -->
+              <div
+                class="h-100 min-w-200 ps-3 text-white border-end pe-2 me-2"
+                id="additional-info-container"
+              >
+                <h2 class="text-white me-1 mb-0">Details</h2>
+                <div class="d-flex flex-wrap" style="max-height: 100px">
+                  <div class="info-column d-flex flex-column pe-3">
+                    <p class="m-0 me-1">Population:</p>
+                    <p class="m-0 me-1">Civilization:</p>
+                    <p class="m-0 me-1">Size:</p>
+                    <p class="m-0 me-1">Fueling Station:</p>
+                  </div>
+                  <div class="info-column d-flex flex-column">
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-population">None</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-civilization">None</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-size">Unknown</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-fueling-station">false</span>
+                    </p>
+                  </div>
                 </div>
               </div>
 

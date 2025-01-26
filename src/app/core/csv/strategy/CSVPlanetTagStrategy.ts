@@ -27,8 +27,20 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
   }
 
   public async importEntry(data: PlanetWithSpreadTags): Promise<void> {
-    const { id, name, x, y, link, detail, fuelingStation, type, ...tags } =
-      data;
+    const {
+      id,
+      name,
+      x,
+      y,
+      link,
+      detail,
+      fuelingStation,
+      type,
+      civilization,
+      population,
+      size,
+      ...tags
+    } = data;
 
     await this.planetRepository.createOrReplace({
       id,
@@ -38,7 +50,10 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
       link,
       detail,
       fuelingStation,
-      type
+      type,
+      civilization,
+      population,
+      size
     });
 
     await this.planetTagRepository.deleteAllByPlanet(id);

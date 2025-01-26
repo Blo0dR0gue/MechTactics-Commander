@@ -1,7 +1,7 @@
 import {
-  PlanetTags,
   PlanetTagMap,
-  PlanetTagValue
+  PlanetTagValue,
+  PlanetData
 } from '../../types/PlanetData';
 import { Circle } from '../utils/quadtree/Circle';
 import { Affiliation } from './Affiliation';
@@ -19,6 +19,9 @@ class Planet extends Circle {
   private fuelingStation: boolean;
   private detail: string;
   private type: string;
+  private civilization: string;
+  private population: string;
+  private size: string;
 
   /**
    * Creates a new planet object
@@ -36,30 +39,26 @@ class Planet extends Circle {
    * @param type Star type category
    */
   constructor(
-    id: number,
-    name: string,
-    x: number,
-    y: number,
-    link: string,
-    customText: string,
-    affiliation: Affiliation,
-    universeAge: number,
-    tagObject: PlanetTags,
-    fuelingStation: boolean,
-    detail: string,
-    type: string
+    props: PlanetData & {
+      affiliation: Affiliation;
+      universeAge: number;
+      customText: string;
+    }
   ) {
-    super({ x, y, r: 0.01 });
-    this.id = id;
-    this.name = name;
-    this.link = link;
-    this.customText = customText;
-    this.affiliation = affiliation;
-    this.universeAge = universeAge;
-    this.tagMap = new Map(Object.entries(tagObject ?? {}));
-    this.fuelingStation = fuelingStation;
-    this.detail = detail;
-    this.type = type;
+    super({ x: props.x, y: props.y, r: 0.01 });
+    this.id = props.id;
+    this.name = props.name;
+    this.link = props.link;
+    this.customText = props.customText;
+    this.affiliation = props.affiliation;
+    this.universeAge = props.universeAge;
+    this.tagMap = new Map(Object.entries(props.tagObject ?? {}));
+    this.fuelingStation = props.fuelingStation;
+    this.detail = props.detail;
+    this.type = props.type;
+    this.civilization = props.civilization;
+    this.population = props.population;
+    this.size = props.size;
   }
 
   // Private Methods
@@ -75,7 +74,10 @@ class Planet extends Circle {
         tagObject: Object.fromEntries(this.tagMap),
         detail: this.detail,
         fuelingStation: this.fuelingStation,
-        type: this.type
+        type: this.type,
+        civilization: this.civilization,
+        population: this.population,
+        size: this.size
       })
       .then(() => {
         window.sql.updatePlanetAffiliationAge({
@@ -88,6 +90,18 @@ class Planet extends Circle {
   }
 
   // Public Methods
+  public getCivilization(): string {
+    return this.civilization;
+  }
+
+  public getPopulation(): string {
+    return this.population;
+  }
+
+  public getSize(): string {
+    return this.size;
+  }
+
   public hasFuelingStation(): boolean {
     return this.fuelingStation;
   }

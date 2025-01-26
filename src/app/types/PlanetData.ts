@@ -8,6 +8,9 @@ type PlanetData = {
   fuelingStation: boolean;
   detail: string;
   type: string;
+  civilization: string;
+  population: string;
+  size: string;
 };
 
 type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {

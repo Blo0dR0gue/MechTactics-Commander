@@ -17,6 +17,15 @@ class Upgrade015 extends AppUpgradeInfo {
       await this.database.exec(
         "ALTER TABLE Planet ADD type CHARACTER(1) NOT NULL DEFAULT 'X';"
       );
+      await this.database.exec(
+        "ALTER TABLE Planet ADD civilization text NOT NULL DEFAULT 'None';"
+      );
+      await this.database.exec(
+        "ALTER TABLE Planet ADD population text NOT NULL DEFAULT 'None';"
+      );
+      await this.database.exec(
+        "ALTER TABLE Planet ADD size text NOT NULL DEFAULT 'Unknown';"
+      );
     });
 
     // New planet tag table

@@ -142,6 +142,17 @@
                     </div>
                   </div>
 
+                  <div class="form-group mb-1">
+                    <label for="planet-detail">Detail:</label>
+                    <textarea
+                      class="form-control"
+                      cols="2"
+                      id="planet-detail"
+                      name="planet-detail"
+                      placeholder="Enter Details"
+                    ></textarea>
+                  </div>
+
                   <!--Link-->
                   <div class="form-group mb-1">
                     <label for="planet-link">Link:</label>
@@ -151,6 +162,41 @@
                       id="planet-link"
                       name="planet-link"
                       placeholder="Enter link"
+                    />
+                  </div>
+
+                  <!--Population & Civilization & Size-->
+                  <div class="row mb-1">
+                    <div class="form-group col-md-4">
+                      <label for="planet-population">Population:</label>
+                      <select class="form-select" id="planet-population">
+                      </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="planet-civilization">Civilization</label>
+                      <select
+                        class="form-select"
+                        id="planet-civilization"
+                      ></select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="planet-size">Size</label>
+                      <select
+                      class="form-select"
+                      id="planet-size"
+                    ></select>
+                    </div>
+                  </div>
+
+                  <div class="form-group mb-1">
+                    <label for="form-fueling-station">Fueling Station</label>
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      class="form-check-input"
+                      id="planet-fueling-station"
+                      name="planet-fueling-station"
+                      placeholder="Size"
                     />
                   </div>
 

@@ -27,7 +27,11 @@ class ActionBarHandler {
   private planetCustomText: HTMLTextAreaElement;
   private planetTagContainer: HTMLDivElement;
   private planetInfoText: HTMLTextAreaElement;
-  private planetTypeArea: HTMLElement;
+  private planetTypeArea: HTMLDivElement;
+  private planetPopulationArea: HTMLDivElement;
+  private planetCivilizationArea: HTMLDivElement;
+  private planetSizeArea: HTMLDivElement;
+  private planetFuelingStationArea: HTMLDivElement;
 
   private selectedPlanet: Planet | null;
 
@@ -53,19 +57,51 @@ class ActionBarHandler {
     this.planetNameArea = document.getElementById('planet-name');
     this.affiliationNameArea = document.getElementById('affiliation-name');
     this.wikiLinkArea = document.getElementById('wiki-link') as HTMLLinkElement;
-    this.planetCustomText = document.getElementById('planet-custom-textarea') as HTMLTextAreaElement;
+    this.planetCustomText = document.getElementById(
+      'planet-custom-textarea'
+    ) as HTMLTextAreaElement;
     this.coordinatesArea = document.getElementById('coordinates');
-    this.centerOnPlanetBtn = document.getElementById('center-on-planet') as HTMLButtonElement;
-    this.addToRouteBtn = document.getElementById('add-to-route') as HTMLButtonElement;
-    this.planetTagContainer = document.getElementById('planet-tag-container') as HTMLDivElement;
-    this.planetInfoText = document.getElementById('planet-info-text') as HTMLTextAreaElement;
-    this.planetTypeArea = document.getElementById('planet-type') as HTMLElement;
+    this.centerOnPlanetBtn = document.getElementById(
+      'center-on-planet'
+    ) as HTMLButtonElement;
+    this.addToRouteBtn = document.getElementById(
+      'add-to-route'
+    ) as HTMLButtonElement;
+    this.planetTagContainer = document.getElementById(
+      'planet-tag-container'
+    ) as HTMLDivElement;
+    this.planetInfoText = document.getElementById(
+      'planet-info-text'
+    ) as HTMLTextAreaElement;
+    this.planetTypeArea = document.getElementById(
+      'planet-type'
+    ) as HTMLDivElement;
+    this.planetPopulationArea = document.getElementById(
+      'planet-population'
+    ) as HTMLDivElement;
+    this.planetCivilizationArea = document.getElementById(
+      'planet-civilization'
+    ) as HTMLDivElement;
+    this.planetSizeArea = document.getElementById(
+      'planet-size'
+    ) as HTMLDivElement;
+    this.planetFuelingStationArea = document.getElementById(
+      'planet-fueling-station'
+    ) as HTMLDivElement;
 
     // Settings Elements
-    this.settingsRange30 = document.getElementById('settings-range-30') as HTMLInputElement;
-    this.settingsRange60 = document.getElementById('settings-range-60') as HTMLInputElement;
-    this.excludedAffiliationsParent = document.getElementById('jump-settings-excluded-affiliations');
-    this.settingsBackgroundColor = document.getElementById('settings-background-color') as HTMLInputElement;
+    this.settingsRange30 = document.getElementById(
+      'settings-range-30'
+    ) as HTMLInputElement;
+    this.settingsRange60 = document.getElementById(
+      'settings-range-60'
+    ) as HTMLInputElement;
+    this.excludedAffiliationsParent = document.getElementById(
+      'jump-settings-excluded-affiliations'
+    );
+    this.settingsBackgroundColor = document.getElementById(
+      'settings-background-color'
+    ) as HTMLInputElement;
   }
 
   /**
@@ -87,7 +123,8 @@ class ActionBarHandler {
     // Add a click listener to all navigation buttons, to show the tagged tab in the navigation content area.
     // The element need a content data, tab with the id of the content to show inside the (Content-Area)!
     this.navButtons.forEach((element) => {
-      if (element.id === undefined || element.dataset.content === undefined) return;
+      if (element.id === undefined || element.dataset.content === undefined)
+        return;
       element.addEventListener(
         'click',
         function () {
@@ -97,10 +134,16 @@ class ActionBarHandler {
     });
 
     // Add a click listener to the button to center on the selected planet.
-    this.centerOnPlanetBtn.addEventListener('click', this.centerOnPlanetClicked.bind(this));
+    this.centerOnPlanetBtn.addEventListener(
+      'click',
+      this.centerOnPlanetClicked.bind(this)
+    );
 
     // Add a click listener to the button to add the selected planet to the route.
-    this.addToRouteBtn.addEventListener('click', this.addToRouteClicked.bind(this));
+    this.addToRouteBtn.addEventListener(
+      'click',
+      this.addToRouteClicked.bind(this)
+    );
 
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
@@ -110,8 +153,12 @@ class ActionBarHandler {
     });
 
     // Setup the camera event listeners
-    this.universe.planetSelectionChangedEvent.subscribe(this.planetSelectionChanged.bind(this));
-    this.cameraController.updateRouteEvent.subscribe(this.routeChanged.bind(this));
+    this.universe.planetSelectionChangedEvent.subscribe(
+      this.planetSelectionChanged.bind(this)
+    );
+    this.cameraController.updateRouteEvent.subscribe(
+      this.routeChanged.bind(this)
+    );
 
     this.setupSettingsTab();
   }
@@ -135,7 +182,9 @@ class ActionBarHandler {
     this.settingsBackgroundColor.value = this.universe.getBackgroundColor();
 
     this.settingsBackgroundColor.addEventListener('change', (event) => {
-      this.universe.setBackgroundColor((event.target as HTMLInputElement).value);
+      this.universe.setBackgroundColor(
+        (event.target as HTMLInputElement).value
+      );
     });
 
     // Setup exclude affiliations toggles
@@ -149,15 +198,22 @@ class ActionBarHandler {
     // Max 4 elements per col
     const perCol = 4;
 
-    sepExcluded.push(this.universe.getAffiliationWithName('Capellan Confederation'));
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Capellan Confederation')
+    );
     sepExcluded.push(this.universe.getAffiliationWithName('Draconis Combine'));
     sepExcluded.push(this.universe.getAffiliationWithName('Federated Suns'));
-    sepExcluded.push(this.universe.getAffiliationWithName('Free Worlds League'));
-    sepExcluded.push(this.universe.getAffiliationWithName('Lyran Commonwealth'));
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Free Worlds League')
+    );
+    sepExcluded.push(
+      this.universe.getAffiliationWithName('Lyran Commonwealth')
+    );
     sepExcluded.push(this.universe.getAffiliationWithName('No record'));
     sepExcluded.push(this.universe.getAffiliationWithName('Inhabited system'));
 
-    const excludedAffiliationIDs = (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
+    const excludedAffiliationIDs =
+      (Config.getInstance().get('excludedAffiliationIDs') as number[]) || [];
 
     for (let i = 0; i < sepExcluded.length; i++) {
       // Only allow 2 cols with each perCol elements
@@ -171,10 +227,16 @@ class ActionBarHandler {
             !excludedAffiliationIDs.includes(affiliation.getID()),
             (input: HTMLInputElement) => {
               if (input.checked) {
-                Config.getInstance().remove('excludedAffiliationIDs', affiliation.getID());
+                Config.getInstance().remove(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
                 this.routeController.removeExcludedAffiliation(affiliation);
               } else {
-                Config.getInstance().add('excludedAffiliationIDs', affiliation.getID());
+                Config.getInstance().add(
+                  'excludedAffiliationIDs',
+                  affiliation.getID()
+                );
                 this.routeController.addExcludedAffiliation(affiliation);
               }
               this.generateJumpCards();
@@ -199,7 +261,10 @@ class ActionBarHandler {
    */
   private addToRouteClicked() {
     // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
-    if (this.selectedPlanet != null && !this.routeController.containsPlanet(this.selectedPlanet)) {
+    if (
+      this.selectedPlanet != null &&
+      !this.routeController.containsPlanet(this.selectedPlanet)
+    ) {
       this.routeController.addTargetPlanet(this.selectedPlanet);
       // TODO: Rework. Don't invoke event of other class!!!
       this.cameraController.updateRouteEvent.invoke({
@@ -226,13 +291,18 @@ class ActionBarHandler {
       this.planetCustomText.value = '';
     } else {
       this.updateText(this.planetNameArea, this.selectedPlanet.getName());
-      this.updateText(this.affiliationNameArea, this.selectedPlanet.getAffiliationName());
+      this.updateText(
+        this.affiliationNameArea,
+        this.selectedPlanet.getAffiliationName()
+      );
       this.updateText(
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
 
-      this.wikiLinkArea.href = this.selectedPlanet.getWikiURL() || 'https://www.sarna.net/wiki/Main_Page';
+      this.wikiLinkArea.href =
+        this.selectedPlanet.getWikiURL() ||
+        'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
       this.planetCustomText.value = this.selectedPlanet.getCustomText();
       // Select first button (Planet Details)
@@ -243,6 +313,22 @@ class ActionBarHandler {
     this.updatePlanetTagVisual(this.selectedPlanet);
     this.updateText(this.planetTypeArea, this.selectedPlanet?.getType() ?? 'X');
     this.planetInfoText.value = this.selectedPlanet?.getDetail() ?? '';
+    this.updateText(
+      this.planetCivilizationArea,
+      this.selectedPlanet?.getCivilization() ?? 'None'
+    );
+    this.updateText(
+      this.planetFuelingStationArea,
+      this.selectedPlanet?.hasFuelingStation() ? 'true' : 'false'
+    ),
+      this.updateText(
+        this.planetSizeArea,
+        this.selectedPlanet?.getSize() ?? 'Unknown'
+      );
+    this.updateText(
+      this.planetPopulationArea,
+      this.selectedPlanet?.getPopulation() ?? 'None'
+    );
   }
 
   /**
@@ -258,7 +344,10 @@ class ActionBarHandler {
         // Iff we have more then 1 planet in the target planets, also generate the jump cards to display how many jumps are needed.
         this.generateJumpCards();
       }
-      this.toastHandler.createAndShowToast('Route', `Added ${routeChanged.planet.getName()} to route.`);
+      this.toastHandler.createAndShowToast(
+        'Route',
+        `Added ${routeChanged.planet.getName()} to route.`
+      );
     }
   }
 
@@ -270,7 +359,8 @@ class ActionBarHandler {
    */
   private showTab(tabName, button) {
     // Hide all tab contents
-    const tabContents = this.contentArea.children as HTMLCollectionOf<HTMLDivElement>;
+    const tabContents = this.contentArea
+      .children as HTMLCollectionOf<HTMLDivElement>;
     for (let i = 0; i < tabContents.length; i++) {
       tabContents[i].classList.add('hide');
     }
@@ -303,7 +393,9 @@ class ActionBarHandler {
    * Function, to generate all jump cards. It removes all first, calculates the route to all planets and added the jump cards between the corresponding planet cards.
    */
   private generateJumpCards(): void {
-    const routeGenerated = this.routeController.calculateRoute(Config.getInstance().get('jumpRange') as number);
+    const routeGenerated = this.routeController.calculateRoute(
+      Config.getInstance().get('jumpRange') as number
+    );
 
     const jumps = this.routeController.getNumberOfJumpsBetween();
     // Remove all existing jump cards
@@ -388,7 +480,8 @@ class ActionBarHandler {
    */
   private createRouteJumpCard(jumps: number) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
+    cardDiv.className =
+      'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
     cardDiv.dataset.jumpCard = 'route-jump-card';
 
     const arrowDiv = document.createElement('div');
@@ -402,7 +495,11 @@ class ActionBarHandler {
     return cardDiv;
   }
 
-  private createExcludeAffiliationToggle(name: string, checked: boolean, handler: (input: HTMLInputElement) => void) {
+  private createExcludeAffiliationToggle(
+    name: string,
+    checked: boolean,
+    handler: (input: HTMLInputElement) => void
+  ) {
     const parent = document.createElement('div');
 
     const input = document.createElement('input');

@@ -187,20 +187,23 @@ class Universe {
       }
 
       // Create object and add to planets array and quadtree
-      const planet = new Planet(
-        planetJSON.id,
-        planetJSON.name,
-        planetJSON.x,
-        planetJSON.y,
-        planetJSON.link,
-        planetJSON.planetText,
-        planetAffiliation,
-        this.selectedUniverseAge,
-        planetJSON.tagObject,
-        planetJSON.fuelingStation ?? false,
-        planetJSON.detail,
-        planetJSON.type
-      );
+      const planet = new Planet({
+        id: planetJSON.id,
+        name: planetJSON.name,
+        x: planetJSON.x,
+        y: planetJSON.y,
+        link: planetJSON.link,
+        customText: planetJSON.planetText,
+        affiliation: planetAffiliation,
+        universeAge: this.selectedUniverseAge,
+        tagObject: planetJSON.tagObject,
+        fuelingStation: planetJSON.fuelingStation ?? false,
+        detail: planetJSON.detail,
+        type: planetJSON.type,
+        civilization: planetJSON.civilization,
+        population: planetJSON.population,
+        size: planetJSON.size
+      });
       this.planets.push(planet);
       this.tree.insert(planet);
     });

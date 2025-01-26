@@ -33,6 +33,7 @@ import {
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
 import PlanetTagEditor from './utils/PlanetTagEditor';
+import { Dropdown } from './utils/components/Dropdown';
 
 // get planet and affiliation data
 const affiliationsData: AffiliationData[] =
@@ -135,6 +136,13 @@ const planetFormType = document.getElementById(
   'planet-type'
 ) as HTMLInputElement;
 
+const planetFormDetail = document.getElementById(
+  'planet-detail'
+) as HTMLTextAreaElement;
+const planetFormFuelingStation = document.getElementById(
+  'planet-fueling-station'
+) as HTMLInputElement;
+
 // affiliation form elements
 const affiliationFormID = document.getElementById(
   'affiliation-id'
@@ -190,6 +198,7 @@ const loadingIndicator = new RingLoadingIndicator(loader, 'lds-ring-dark');
 // planet form and modal setups
 let currentEditPlanet: PlanetCoordData = undefined;
 const planetModal = new Modal(planetModalElement, {});
+
 const planetTagEditor = new PlanetTagEditor({
   newTagInput: document.getElementById(
     'new-planet-tag-input'
@@ -203,6 +212,40 @@ const planetTagEditor = new PlanetTagEditor({
   toastHandler: toastHandler
 });
 
+const planetCivilizationDropdown = new Dropdown(
+  document.getElementById('planet-civilization') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'None', default: true },
+    { value: 'Primitive' },
+    { value: 'Innersphere' },
+    { value: 'Periphery' }
+  ])
+  .render();
+
+const planetPopulationDropdown = new Dropdown(
+  document.getElementById('planet-population') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'None', default: true },
+    { value: 'Low' },
+    { value: 'Small' },
+    { value: 'Medium' },
+    { value: 'Large' }
+  ])
+  .render();
+
+const planetSizeDropdown = new Dropdown(
+  document.getElementById('planet-size') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'Unknown', default: true },
+    { value: 'Small' },
+    { value: 'Medium' },
+    { value: 'Large' }
+  ])
+  .render();
+
 planetForm.addEventListener('submit', (e) => e.preventDefault());
 
 planetSaveBtn.addEventListener('click', () => {
@@ -211,7 +254,13 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
+
   const type = planetFormType.value.trim().slice(0, 1).toUpperCase();
+  const detail = planetFormDetail.value.trim();
+  const size = planetSizeDropdown.getSelected().value;
+  const population = planetPopulationDropdown.getSelected().value;
+  const fuelingStation = planetFormFuelingStation.checked;
+  const civilization = planetCivilizationDropdown.getSelected().value;
 
   const tagObject = planetTagEditor.getCurrentTagUpdates();
 
@@ -280,10 +329,13 @@ planetSaveBtn.addEventListener('click', () => {
         y: y,
         link: link,
         name: name,
-        detail: '',
-        fuelingStation: true,
+        detail: detail,
+        fuelingStation: fuelingStation,
         type: type,
-        tagObject: tagObject
+        tagObject: tagObject,
+        civilization: civilization,
+        population: population,
+        size: size
       })
       .then((planet) => {
         toastHandler.createAndShowToast(
@@ -302,15 +354,18 @@ planetSaveBtn.addEventListener('click', () => {
   } else {
     window.sql
       .updatePlanet({
-        id,
-        name,
-        x,
-        y,
-        detail: '',
-        fuelingStation: true,
-        link,
+        id: id,
+        x: x,
+        y: y,
+        link: link,
+        name: name,
+        detail: detail,
+        fuelingStation: fuelingStation,
+        type: type,
         tagObject: tagObject,
-        type: type
+        civilization: civilization,
+        population: population,
+        size: size
       })
       .then(() => {
         // Update planet
@@ -323,8 +378,12 @@ planetSaveBtn.addEventListener('click', () => {
         // new planet data
         currentEditPlanet.tagObject = tagObject;
         currentEditPlanet.fuelingStation = false;
-        currentEditPlanet.detail = '';
-        currentEditPlanet.type = '';
+        currentEditPlanet.detail = detail;
+        currentEditPlanet.type = type;
+        currentEditPlanet.civilization = civilization;
+        currentEditPlanet.population = population;
+        currentEditPlanet.size = size;
+
         toastHandler.createAndShowToast(
           'Planet',
           'Planet updated',
@@ -347,7 +406,15 @@ function setPlanetFormData(planet: PlanetCoordData) {
   planetFormCoordX.value = String(planet?.coord?.x ?? 0);
   planetFormCoordY.value = String(planet?.coord?.y ?? 0);
   planetFormLink.value = planet?.link ?? '';
+
+  // New planet data
   planetFormType.value = planet?.type ?? 'X';
+  planetFormFuelingStation.checked = planet?.fuelingStation ?? false;
+  planetFormDetail.value = planet?.detail ?? '';
+
+  planetCivilizationDropdown.setSelected(planet?.civilization);
+  planetPopulationDropdown.setSelected(planet?.population);
+  planetSizeDropdown.setSelected(planet?.size);
 }
 
 function openPlanetModalWith(planet: PlanetCoordData = undefined) {

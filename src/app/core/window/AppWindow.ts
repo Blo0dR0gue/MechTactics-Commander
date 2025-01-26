@@ -115,7 +115,7 @@ class AppWindow {
     ipcMain.handle(
       'updatePlanet',
       async (_, { id, ...planetRest }: PlanetData) =>
-        this.planetRepository.update(id, planetRest)
+        this.planetRepository.updateByKey({ id: id }, planetRest)
     );
 
     ipcMain.handle(
@@ -124,7 +124,7 @@ class AppWindow {
         this.planetRepository.create(planetData)
     );
 
-    ipcMain.handle('deletePlanet', (event, planetID: number) =>
+    ipcMain.handle('deletePlanet', (_, planetID: number) =>
       this.planetRepository.deleteByKey({ id: planetID })
     );
 

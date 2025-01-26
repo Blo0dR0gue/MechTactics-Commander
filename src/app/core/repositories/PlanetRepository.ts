@@ -118,22 +118,22 @@ export class PlanetRepository extends BaseRepository<
     });
   }
 
-  public async update(
-    id: number,
+  public async updateByKey(
+    key: { id: number },
     data: ForcefullyOmit<PlanetData, 'id'>
   ): Promise<boolean> {
     return this.runTransaction<boolean>(async (): Promise<boolean> => {
       const { tagObject: planetTagObject, ...planetData } = data;
-      await super.updateByKey({ id: id }, planetData);
+      await super.updateByKey(key, planetData);
 
       // Delete old tags
-      await this.planetTagRepository.deleteAllByPlanet(id);
+      await this.planetTagRepository.deleteAllByPlanet(key.id);
 
       // Insert new tags
       const resultTagObject: Omit<PlanetTag, 'id'>[] = [];
       for (const [tagKey, tagValues] of Object.entries(planetTagObject)) {
         for (const value of tagValues) {
-          resultTagObject.push({ tagKey, tagValue: value, planetID: id });
+          resultTagObject.push({ tagKey, tagValue: value, planetID: key.id });
         }
       }
       await this.planetTagRepository.createMany(resultTagObject);

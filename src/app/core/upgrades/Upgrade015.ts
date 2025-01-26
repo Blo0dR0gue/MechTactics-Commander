@@ -1,10 +1,19 @@
 import { Database } from 'sqlite';
+import { AffiliationData } from '../../types/AffiliationData';
+import { PlanetData, PlanetTag, PlanetTags } from '../../types/PlanetData';
 import { AppUpgradeInfo } from '../AppUpgradeInfo';
 import { CoreConfig } from '../CoreConfig';
+import {
+  AffiliationRepository,
+  PlanetAffiliationAgeRepository,
+  PlanetRepository,
+  PlanetTagRepository
+} from '../repositories';
+import data015 from './data/data015.json';
 
 class Upgrade015 extends AppUpgradeInfo {
   public constructor(config: CoreConfig, database: Database) {
-    super(config, database, '0.1.5', 'New Planet Data');
+    super(config, database, '0.1.5', 'Adding New Planet Data');
 
     // Add new planet columns
     this.actions.push(async () => {
@@ -99,6 +108,107 @@ class Upgrade015 extends AppUpgradeInfo {
           )
           SELECT * FROM PlanetWithTags;
         `);
+    });
+
+    // Insert new data
+    this.actions.push(async () => {
+      const planetRepository = new PlanetRepository(this.database);
+      const planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
+        this.database
+      );
+      const affiliationRepository = new AffiliationRepository(this.database);
+      const planetTagRepository = new PlanetTagRepository(this.database);
+
+      const importData: {
+        name: string;
+        detail: string;
+        type: string;
+        affiliation: string;
+        fuelingStation: boolean;
+        tagObject: PlanetTags;
+        civilization: string;
+        population: string;
+        size: string;
+        x: number;
+        y: number;
+      }[] = data015;
+
+      this.database.run('BEGIN TRANSACTION;');
+
+      const waitingPromises = importData.map(async (val) => {
+        const { tagObject, affiliation, ...planetData } = val;
+
+        const currentPlanet: Omit<PlanetData, 'tagObject'> =
+          await planetRepository.getByName(planetData.name);
+
+        const currentAffiliation: AffiliationData =
+          await affiliationRepository.getByName(affiliation);
+
+        let planetID: number;
+        let affiliationID: number;
+
+        if (currentPlanet) {
+          // Update planet
+          planetID = currentPlanet.id;
+          await planetRepository.updateByKey(
+            { id: currentPlanet.id },
+            { ...planetData, link: currentPlanet.link }
+          );
+        } else {
+          // Insert planet
+          planetID = await planetRepository.create({
+            ...planetData,
+            link: 'http://www.sarna.net/'
+          });
+        }
+
+        // Insert new planet tags
+        const resultTagObject: Omit<PlanetTag, 'id'>[] = [];
+        for (const [tagKey, tagValues] of Object.entries(tagObject)) {
+          for (const value of tagValues) {
+            resultTagObject.push({
+              tagKey,
+              tagValue: value,
+              planetID: planetID
+            });
+          }
+        }
+        await planetTagRepository.createMany(resultTagObject);
+
+        if (currentAffiliation) {
+          affiliationID = currentAffiliation.id;
+          // Insert new affiliation
+        } else {
+          affiliationID = await affiliationRepository.create({
+            name: val.affiliation,
+            color: '#FFFFFF'
+          });
+        }
+
+        // Insert the new planet affiliation age data
+        await planetAffiliationAgeRepository.create({
+          affiliationID: affiliationID,
+          planetID: planetID,
+          planetText: '',
+          universeAge: 3062
+        });
+      });
+
+      await Promise.all(waitingPromises);
+
+      const notUpdatedPlanets: Omit<PlanetData, 'tagObject'>[] =
+        await this.database.all('SELECT * FROM Planet WHERE type = ?;', 'X');
+      const revertNegationOfYPromises = notUpdatedPlanets.map(
+        (notUpdatedPlanet) => {
+          return this.database.run('UPDATE Planet SET y = ? WHERE id = ?', [
+            -notUpdatedPlanet.y,
+            notUpdatedPlanet.id
+          ]);
+        }
+      );
+      await Promise.all(revertNegationOfYPromises);
+
+      this.database.run('COMMIT;');
     });
   }
 }

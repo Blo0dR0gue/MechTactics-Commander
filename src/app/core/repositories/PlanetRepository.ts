@@ -11,7 +11,7 @@ import { ForcefullyOmit } from '../../types/UtilityTypes';
 import { PlanetTagRepository } from '.';
 
 export class PlanetRepository extends BaseRepository<
-  Omit<PlanetData, 'tagObject'>,
+  ForcefullyOmit<PlanetData, 'tagObject'>,
   { id: number },
   { id: number }
 > {
@@ -41,6 +41,19 @@ export class PlanetRepository extends BaseRepository<
           tagObject: parsedTagObject as PlanetTags
         };
       });
+    } finally {
+      stmt.finalize();
+    }
+  }
+
+  public async getByName(name: string): Promise<Omit<PlanetData, 'tagObject'>> {
+    const stmt = await this.database.prepare(
+      'SELECT * FROM Planet WHERE name = ? ORDER BY id ASC;'
+    );
+
+    try {
+      const planet = await stmt.get<Omit<PlanetData, 'tagObject'>>(name);
+      return planet ?? null;
     } finally {
       stmt.finalize();
     }
@@ -96,7 +109,9 @@ export class PlanetRepository extends BaseRepository<
     }
   }
 
-  public create(data: ForcefullyOmit<PlanetData, 'id'>): Promise<number> {
+  public createWithTags(
+    data: ForcefullyOmit<PlanetData, 'id'>
+  ): Promise<number> {
     return this.runTransaction<number>(async (): Promise<number> => {
       const { tagObject: planetTagObject, ...planetData } = data;
       const planetResult = await super.create(planetData);
@@ -118,7 +133,7 @@ export class PlanetRepository extends BaseRepository<
     });
   }
 
-  public async updateByKey(
+  public async updateWithTagsByKey(
     key: { id: number },
     data: ForcefullyOmit<PlanetData, 'id'>
   ): Promise<boolean> {

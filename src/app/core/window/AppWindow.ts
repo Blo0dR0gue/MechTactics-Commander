@@ -115,13 +115,13 @@ class AppWindow {
     ipcMain.handle(
       'updatePlanet',
       async (_, { id, ...planetRest }: PlanetData) =>
-        this.planetRepository.updateByKey({ id: id }, planetRest)
+        this.planetRepository.updateWithTagsByKey({ id: id }, planetRest)
     );
 
     ipcMain.handle(
       'createPlanet',
       (_, planetData: ForcefullyOmit<PlanetData, 'id'>) =>
-        this.planetRepository.create(planetData)
+        this.planetRepository.createWithTags(planetData)
     );
 
     ipcMain.handle('deletePlanet', (_, planetID: number) =>

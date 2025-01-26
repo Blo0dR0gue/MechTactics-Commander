@@ -11,4 +11,17 @@ export class AffiliationRepository extends BaseRepository<
   public constructor(database: Database) {
     super(database, 'Affiliation');
   }
+
+  public async getByName(name: string): Promise<AffiliationData> {
+    const stmt = await this.database.prepare(
+      'SELECT * FROM Affiliation WHERE name = ? ORDER BY id ASC;'
+    );
+
+    try {
+      const affiliation = await stmt.get<AffiliationData>(name);
+      return affiliation ?? null;
+    } finally {
+      stmt.finalize();
+    }
+  }
 }

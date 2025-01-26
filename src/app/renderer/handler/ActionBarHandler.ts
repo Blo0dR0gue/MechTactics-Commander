@@ -260,11 +260,8 @@ class ActionBarHandler {
    * Handler to add the selected planet to the route on button click.
    */
   private addToRouteClicked() {
-    // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
-    if (
-      this.selectedPlanet != null &&
-      !this.routeController.containsPlanet(this.selectedPlanet)
-    ) {
+    // Add to route only, iff a planet is selected.
+    if (this.selectedPlanet != null) {
       this.routeController.addTargetPlanet(this.selectedPlanet);
       // TODO: Rework. Don't invoke event of other class!!!
       this.cameraController.updateRouteEvent.invoke({

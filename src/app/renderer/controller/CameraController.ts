@@ -131,15 +131,12 @@ class CameraController {
   private handleKeyPress(evt: KeyboardEvent) {
     if (evt.type === 'keydown') {
       if (evt.key === 'f') {
-        if (
-          this.universe.getSelectedPlanet() !== null &&
-          !this.routeManager.containsPlanet(this.universe.getSelectedPlanet())
-        ) {
+        if (this.universe.getSelectedPlanet() !== null) {
           this.routeManager.addTargetPlanet(this.universe.getSelectedPlanet());
           this.updateRouteEvent.invoke({
             planet: this.universe.getSelectedPlanet(),
             add: true,
-            numberPlanets: this.routeManager.lengthOfTargetPlanets(),
+            numberPlanets: this.routeManager.lengthOfTargetPlanets()
           });
         }
       } else if (evt.key === 'Control') {

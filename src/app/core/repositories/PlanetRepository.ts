@@ -46,7 +46,9 @@ export class PlanetRepository extends BaseRepository<
     }
   }
 
-  public async getByName(name: string): Promise<Omit<PlanetData, 'tagObject'>> {
+  public async getByName(
+    name: string
+  ): Promise<Omit<PlanetData, 'tagObject'> | null> {
     const stmt = await this.database.prepare(
       'SELECT * FROM Planet WHERE name = ? ORDER BY id ASC;'
     );

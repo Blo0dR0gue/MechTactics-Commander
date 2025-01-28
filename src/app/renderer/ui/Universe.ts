@@ -559,8 +559,8 @@ class Universe {
    * @returns The planet object or undefined
    */
   public getGetPlanetByName(planetName: string): Planet | undefined {
-    return this.planets.find(
-      (planet) => planet.getName().toLowerCase() === planetName.toLowerCase()
+    return this.planets.find((planet) =>
+      planet.getName().toLowerCase().includes(planetName.toLowerCase())
     );
   }
 

@@ -112,104 +112,128 @@ class Upgrade015 extends AppUpgradeInfo {
 
     // Insert new data
     this.actions.push(async () => {
-      const planetRepository = new PlanetRepository(this.database);
-      const planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
-        this.database
-      );
-      const affiliationRepository = new AffiliationRepository(this.database);
-      const planetTagRepository = new PlanetTagRepository(this.database);
+      try {
+        this.database.run('BEGIN TRANSACTION;');
 
-      const importData: {
-        name: string;
-        detail: string;
-        type: string;
-        affiliation: string;
-        fuelingStation: boolean;
-        tagObject: PlanetTags;
-        civilization: string;
-        population: string;
-        size: string;
-        x: number;
-        y: number;
-      }[] = data015;
+        const planetRepository = new PlanetRepository(this.database);
+        const planetAffiliationAgeRepository =
+          new PlanetAffiliationAgeRepository(this.database);
+        const affiliationRepository = new AffiliationRepository(this.database);
+        const planetTagRepository = new PlanetTagRepository(this.database);
 
-      this.database.run('BEGIN TRANSACTION;');
+        const importData: {
+          name: string;
+          detail: string;
+          type: string;
+          affiliation: string;
+          fuelingStation: boolean;
+          tagObject: PlanetTags;
+          civilization: string;
+          population: string;
+          size: string;
+          x: number;
+          y: number;
+        }[] = data015;
 
-      const waitingPromises = importData.map(async (val) => {
-        const { tagObject, affiliation, ...planetData } = val;
+        for (const val of importData) {
+          const { tagObject, affiliation, ...planetData } = val;
 
-        const currentPlanet: Omit<PlanetData, 'tagObject'> =
-          await planetRepository.getByName(planetData.name);
+          let currentPlanet: Omit<PlanetData, 'tagObject'> =
+            await planetRepository.getByName(planetData.name);
 
-        const currentAffiliation: AffiliationData =
-          await affiliationRepository.getByName(affiliation);
+          if (currentPlanet === null) {
+            currentPlanet =
+              (await this.database.get<Omit<PlanetData, 'tagObject'>>(
+                'SELECT * FROM Planet WHERE name LIKE ? AND round(x,2) = round(?,2) AND (round(y,2) = round(?,2) OR round(-y,2) = round(?,2)) AND type = ?',
+                [
+                  planetData.name + '%',
+                  planetData.x,
+                  planetData.y,
+                  planetData.y,
+                  'X'
+                ]
+              )) ?? null;
+          }
 
-        let planetID: number;
-        let affiliationID: number;
+          const currentAffiliation: AffiliationData =
+            await affiliationRepository.getByName(affiliation);
 
-        if (currentPlanet) {
-          // Update planet
-          planetID = currentPlanet.id;
-          await planetRepository.updateByKey(
-            { id: currentPlanet.id },
-            { ...planetData, link: currentPlanet.link }
-          );
-        } else {
-          // Insert planet
-          planetID = await planetRepository.create({
-            ...planetData,
-            link: 'http://www.sarna.net/'
-          });
-        }
+          let planetID: number;
+          let affiliationID: number;
 
-        // Insert new planet tags
-        const resultTagObject: Omit<PlanetTag, 'id'>[] = [];
-        for (const [tagKey, tagValues] of Object.entries(tagObject)) {
-          for (const value of tagValues) {
-            resultTagObject.push({
-              tagKey,
-              tagValue: value,
-              planetID: planetID
+          if (currentPlanet) {
+            // Update planet
+            planetID = currentPlanet.id;
+            await planetRepository.updateByKey(
+              { id: currentPlanet.id },
+              { ...planetData, link: currentPlanet.link }
+            );
+          } else {
+            // Insert planet
+            planetID = await planetRepository.create({
+              ...planetData,
+              link: 'http://www.sarna.net/'
             });
           }
-        }
-        await planetTagRepository.createMany(resultTagObject);
 
-        if (currentAffiliation) {
-          affiliationID = currentAffiliation.id;
-          // Insert new affiliation
-        } else {
-          affiliationID = await affiliationRepository.create({
-            name: val.affiliation,
-            color: '#FFFFFF'
+          // Insert new planet tags
+          const resultTagObject: Omit<PlanetTag, 'id'>[] = [];
+          for (const [tagKey, tagValues] of Object.entries(tagObject)) {
+            for (const value of tagValues) {
+              resultTagObject.push({
+                tagKey,
+                tagValue: value,
+                planetID: planetID
+              });
+            }
+          }
+
+          await planetTagRepository.createMany(resultTagObject);
+
+          if (currentAffiliation) {
+            affiliationID = currentAffiliation.id;
+            // Insert new affiliation
+          } else {
+            affiliationID = await affiliationRepository.create({
+              name: val.affiliation,
+              color: '#FFFFFF'
+            });
+          }
+
+          // Insert the new planet affiliation age data
+          await planetAffiliationAgeRepository.create({
+            affiliationID: affiliationID,
+            planetID: planetID,
+            planetText: '',
+            universeAge: 3062
           });
         }
 
-        // Insert the new planet affiliation age data
-        await planetAffiliationAgeRepository.create({
-          affiliationID: affiliationID,
-          planetID: planetID,
-          planetText: '',
-          universeAge: 3062
-        });
-      });
+        //await Promise.all(waitingPromises);
 
-      await Promise.all(waitingPromises);
+        const notUpdatedPlanets: Omit<PlanetData, 'tagObject'>[] =
+          await this.database.all('SELECT * FROM Planet WHERE type = ?;', 'X');
+        const revertNegationOfYPromises = notUpdatedPlanets.map(
+          (notUpdatedPlanet) => {
+            return this.database.run('UPDATE Planet SET y = ? WHERE id = ?', [
+              -notUpdatedPlanet.y,
+              notUpdatedPlanet.id
+            ]);
+          }
+        );
+        await Promise.all(revertNegationOfYPromises);
 
-      const notUpdatedPlanets: Omit<PlanetData, 'tagObject'>[] =
-        await this.database.all('SELECT * FROM Planet WHERE type = ?;', 'X');
-      const revertNegationOfYPromises = notUpdatedPlanets.map(
-        (notUpdatedPlanet) => {
-          return this.database.run('UPDATE Planet SET y = ? WHERE id = ?', [
-            -notUpdatedPlanet.y,
-            notUpdatedPlanet.id
-          ]);
-        }
-      );
-      await Promise.all(revertNegationOfYPromises);
-
-      this.database.run('COMMIT;');
+        this.database.run('COMMIT;');
+      } catch (error: unknown) {
+        this.database.run('ROLLBACK;');
+        throw new Error('Adding new data failed');
+      }
     });
+  }
+
+  private floatsEqual(num1, num2): boolean {
+    const tolerance = 1e-10;
+    return Math.abs(num1 - num2) < tolerance;
   }
 }
 

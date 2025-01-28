@@ -49,7 +49,7 @@ class Universe {
   /**
    * The current offset of the camera to the default
    */
-  private cameraOffset = new Vector(1, 1);
+  private cameraOffset = new Vector(0, 0);
 
   /**
    * The route controller
@@ -124,7 +124,7 @@ class Universe {
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
       this.zoom = 2.4;
-      this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
+      //this.cameraOffset.set(window.innerWidth / 2, -(window.innerHeight / 2));
 
       this.setBackgroundColor(
         Config.getInstance().get('backgroundColor') as string
@@ -227,11 +227,9 @@ class Universe {
     this.canvas.height = window.innerHeight;
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, this.zoom);
-    this.context.translate(
-      -window.innerWidth / 2 + this.cameraOffset.getX(),
-      -window.innerHeight / 2 + this.cameraOffset.getY()
-    );
+    this.context.scale(this.zoom, -this.zoom);
+    this.context.translate(this.cameraOffset.getX(), -this.cameraOffset.getY());
+
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
@@ -363,9 +361,14 @@ class Universe {
     textColor = 'rgba(255, 255, 255, 1)'
   ) {
     const textWidth = Math.round(width / this.zoom);
+    this.context.save(); // Save current transform state
+    this.context.scale(1, -1); // Flip only the text back
+
     this.context.font = `${textWidth}px serif`;
     this.context.fillStyle = textColor;
-    this.context.fillText(text, pos.getX(), pos.getY()); // Adjust the vertical position as needed
+    this.context.fillText(text, pos.getX(), -pos.getY());
+
+    this.context.restore();
   }
 
   /**

@@ -156,20 +156,12 @@ class CameraController {
 
   public centerOnPlanet(planet: Planet) {
     this.universe.setCameraOffset(
-      new Vector(
-        window.innerWidth / 2 - planet.coord.getX(),
-        window.innerHeight / 2 - planet.coord.getY()
-      )
+      new Vector(-planet.coord.getX(), planet.coord.getY())
     );
   }
 
   public centerOnPlanetAndSelect(planet: Planet) {
-    this.universe.setCameraOffset(
-      new Vector(
-        window.innerWidth / 2 - planet.coord.getX(),
-        window.innerHeight / 2 - planet.coord.getY()
-      )
-    );
+    this.centerOnPlanet(planet);
     // TODO: Create private func
     this.universe.setSelectedPlanet(planet);
   }

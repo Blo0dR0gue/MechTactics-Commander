@@ -282,7 +282,7 @@ class Universe {
         const textY =
           (this.selectedPlanet.coord.getY() +
             this.distancePlanet.coord.getY()) /
-            2 -
+            2 +
           10;
         this.drawText(new Vector(textX, textY), distance, 20);
         this.drawPlanetName(this.selectedPlanet);

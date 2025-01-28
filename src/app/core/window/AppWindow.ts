@@ -57,11 +57,7 @@ class AppWindow {
       this.window.removeMenu();
     }
 
-    this.planetRepository = new PlanetRepository(this.database);
-    this.affiliationRepository = new AffiliationRepository(this.database);
-    this.planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
-      this.database
-    );
+    this.reloadRepositories();
 
     this.csvHelper = new CSVHelper(this, this.database);
 
@@ -85,6 +81,14 @@ class AppWindow {
   public sendIpc(channel: string, ...message): void {
     console.log(`Sending ${message} to ${channel}`);
     this.window.webContents.send(channel, ...message);
+  }
+
+  public reloadRepositories(): void {
+    this.planetRepository = new PlanetRepository(this.database);
+    this.affiliationRepository = new AffiliationRepository(this.database);
+    this.planetAffiliationAgeRepository = new PlanetAffiliationAgeRepository(
+      this.database
+    );
   }
 
   private setupHandler() {

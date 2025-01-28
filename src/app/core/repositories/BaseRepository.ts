@@ -14,6 +14,7 @@ export type OrderBy<DataObject extends ObjectWithKeys> = {
   [key in keyof DataObject]?: 'ASC' | 'DESC';
 };
 
+// TODO: Make updates use partial data (require the keys)
 export class BaseRepository<
   DataObject extends ObjectWithKeys,
   Key extends { [key in keyof DataObject]?: DataObject[key] },

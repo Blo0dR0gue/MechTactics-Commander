@@ -458,6 +458,7 @@ class ActionBarHandler {
       this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
       cardDiv.remove();
       this.generateJumpCards();
+      this.universe.focus();
     };
 
     const cardText = document.createElement('p');
@@ -469,6 +470,7 @@ class ActionBarHandler {
     centerButton.textContent = 'o';
     centerButton.onclick = () => {
       this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
+      this.universe.focus();
     };
 
     // Append the elements to build the card

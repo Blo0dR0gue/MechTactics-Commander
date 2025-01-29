@@ -90,16 +90,31 @@
                   </div>
 
                   <!--Planet name-->
-                  <div class="form-group mb-1">
-                    <label for="planet-name">Name:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="planet-name"
-                      name="planet-name"
-                      placeholder="Enter name"
-                    />
+                  <div class="row mb-1">
+                    <div class="form-group col-md-9">
+                      <label for="planet-name">Name:</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="planet-name"
+                        name="planet-name"
+                        placeholder="Enter name"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="planet-type">Type</label>
+                      <!--TODO: Dropdown-->
+                      <input
+                        type="text"
+                        maxlength="1"
+                        class="form-control text-uppercase"
+                        id="planet-type"
+                        name="planet-type"
+                        placeholder="Type"
+                      />
+                    </div>
                   </div>
+
 
                   <!--Coordinates-->
                   <div class="row mb-1">
@@ -107,7 +122,7 @@
                       <label for="planet-x">Coordinate X:</label>
                       <input
                         type="number"
-                        step="0.01"
+                        step="0.001"
                         class="form-control"
                         id="planet-x"
                         name="planet-x"
@@ -118,13 +133,24 @@
                       <label for="planet-y">Coordinate Y:</label>
                       <input
                         type="number"
-                        step="0.01"
+                        step="0.001"
                         class="form-control"
                         id="planet-y"
                         name="planet-y"
                         placeholder="Enter Y coordinate"
                       />
                     </div>
+                  </div>
+
+                  <div class="form-group mb-1">
+                    <label for="planet-detail">Detail:</label>
+                    <textarea
+                      class="form-control"
+                      cols="2"
+                      id="planet-detail"
+                      name="planet-detail"
+                      placeholder="Enter Details"
+                    ></textarea>
                   </div>
 
                   <!--Link-->
@@ -138,6 +164,68 @@
                       placeholder="Enter link"
                     />
                   </div>
+
+                  <!--Population & Civilization & Size-->
+                  <div class="row mb-1">
+                    <div class="form-group col-md-4">
+                      <label for="planet-population">Population:</label>
+                      <select class="form-select" id="planet-population">
+                      </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="planet-civilization">Civilization</label>
+                      <select
+                        class="form-select"
+                        id="planet-civilization"
+                      ></select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="planet-size">Size</label>
+                      <select
+                      class="form-select"
+                      id="planet-size"
+                    ></select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="form-group col-md-4">
+                      <label for="planet-fueling-station">Fueling Station</label>
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        class="form-check-input form-control"
+                        id="planet-fueling-station"
+                        name="planet-fueling-station"
+                        placeholder="Size"
+                      />
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="planet-jump-distance">Jump Distance</label>
+                      <input
+                        type="number"
+                        step="1"
+                        class="form-control"
+                        id="planet-jump-distance"
+                        name="planet-jump-distance"
+                        placeholder="Jump Distance"
+                      />
+                    </div>
+                  </div>
+
+                  <!--Planet Tags-->
+                  <div class="form-group mb-1">
+                    <label for="planet-tags">Tags:</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="new-planet-tag-input" class="form-control" placeholder="New Tag Key">
+                      <button class="btn btn-success" id="new-planet-tag-btn">Add Tag</button>
+                    </div>
+                    <hr>
+
+                    <div id="planet-tag-editor-container" class="min-h-200 max-h-200 pe-2 overflow-y-scroll"></div>
+                  </div>
+
+
                 </form>
               </div>
               <div class="modal-footer">

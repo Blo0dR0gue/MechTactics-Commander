@@ -12,12 +12,12 @@ describe.each([
       link: 'https://example.com',
       planetText: 'test',
       nameAffiliation: 'Terran',
-      color: 'blue',
+      color: 'blue'
     },
     'Earth',
     'blue',
     0,
-    0,
+    0
   ],
   [
     {
@@ -29,85 +29,117 @@ describe.each([
       link: 'https://example.com/mars',
       planetText: 'test',
       nameAffiliation: 'Martian',
-      color: 'red',
+      color: 'red'
     },
     'Mars',
     'red',
     10,
-    20,
-  ],
+    20
+  ]
 ])(
   'Planet',
   (planetData, expectedName, expectedColor, expectedX, expectedY) => {
     test('should create a Planet instance', () => {
-      const planet = new Planet(
-        planetData.id,
-        planetData.name,
-        planetData.x,
-        planetData.y,
-        planetData.link,
-        planetData.planetText,
-        new Affiliation(
+      const planet = new Planet({
+        id: planetData.id,
+        name: planetData.name,
+        x: planetData.x,
+        y: planetData.y,
+        link: planetData.link,
+        customText: planetData.planetText,
+        affiliation: new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
         ),
-        3025
-      );
+        universeAge: 3025,
+        tagObject: {},
+        fuelingStation: false,
+        detail: '',
+        type: '',
+        civilization: '',
+        population: '',
+        size: '',
+        jumpDistance: 0
+      });
       expect(planet).toBeInstanceOf(Planet);
     });
 
     test('should have the correct name', () => {
-      const planet = new Planet(
-        planetData.id,
-        planetData.name,
-        planetData.x,
-        planetData.y,
-        planetData.link,
-        planetData.planetText,
-        new Affiliation(
+      const planet = new Planet({
+        id: planetData.id,
+        name: planetData.name,
+        x: planetData.x,
+        y: planetData.y,
+        link: planetData.link,
+        customText: planetData.planetText,
+        affiliation: new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
         ),
-        3025
-      );
+        universeAge: 3025,
+        tagObject: {},
+        fuelingStation: false,
+        detail: '',
+        type: '',
+        civilization: '',
+        population: '',
+        size: '',
+        jumpDistance: 0
+      });
       expect(planet.getName()).toBe(expectedName);
     });
 
     test('should have the correct color', () => {
-      const planet = new Planet(
-        planetData.id,
-        planetData.name,
-        planetData.x,
-        planetData.y,
-        planetData.link,
-        planetData.planetText,
-        new Affiliation(
+      const planet = new Planet({
+        id: planetData.id,
+        name: planetData.name,
+        x: planetData.x,
+        y: planetData.y,
+        link: planetData.link,
+        customText: planetData.planetText,
+        affiliation: new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
         ),
-        3025
-      );
+        universeAge: 3025,
+        tagObject: {},
+        fuelingStation: false,
+        detail: '',
+        type: '',
+        civilization: '',
+        population: '',
+        size: '',
+        jumpDistance: 0
+      });
       expect(planet.getColor()).toBe(expectedColor);
     });
 
     test('should have the correct coordinates', () => {
-      const planet = new Planet(
-        planetData.id,
-        planetData.name,
-        planetData.x,
-        planetData.y,
-        planetData.link,
-        planetData.planetText,
-        new Affiliation(
+      const planet = new Planet({
+        id: planetData.id,
+        name: planetData.name,
+        x: planetData.x,
+        y: planetData.y,
+        link: planetData.link,
+        customText: planetData.planetText,
+        affiliation: new Affiliation(
           planetData.affiliationId,
           planetData.nameAffiliation,
           planetData.color
         ),
-        3025
-      );
+        universeAge: 3025,
+        tagObject: {},
+        fuelingStation: false,
+        detail: '',
+        type: '',
+        civilization: '',
+        population: '',
+        size: '',
+        jumpDistance: 0
+      });
       expect(planet.coord.get()).toEqual({ x: expectedX, y: expectedY });
     });
   }

@@ -71,7 +71,7 @@ class Main {
             'commander.db'
           )
           .replace('app.asar', 'app.asar.unpacked'),
-        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+        mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
       });
 
       // Enable FK Checks
@@ -79,7 +79,9 @@ class Main {
       // Enable error tracing
       this.database.on('trace', (data) => {
         // TODO: Error handling database
-        console.log(data);
+        if (this.isDevelopment) {
+          console.log(data);
+        }
       });
 
       this.appWindow = new AppWindow(

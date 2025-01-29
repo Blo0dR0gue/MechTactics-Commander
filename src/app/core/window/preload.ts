@@ -2,6 +2,7 @@ import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { PlanetData } from '../../types/PlanetData';
 import { AffiliationData } from '../../types/AffiliationData';
 import { PlanetAffiliationAgeData } from '../../types/PlanetAffiliationAge';
+import { ForcefullyOmit } from '../../types/UtilityTypes';
 
 contextBridge.exposeInMainWorld('sql', {
   getPlanetsAtAge: (age: string) => ipcRenderer.invoke('getPlanetsAtAge', age),
@@ -15,17 +16,17 @@ contextBridge.exposeInMainWorld('sql', {
 
   updatePlanet: (planet: PlanetData) =>
     ipcRenderer.invoke('updatePlanet', planet),
-  createPlanet: (planet: PlanetData) =>
+  createPlanet: (planet: ForcefullyOmit<PlanetData, 'id'>) =>
     ipcRenderer.invoke('createPlanet', planet),
-  deletePlanet: (planet: PlanetData) =>
-    ipcRenderer.invoke('deletePlanet', planet),
+  deletePlanet: (planetID: number) =>
+    ipcRenderer.invoke('deletePlanet', planetID),
 
   updateAffiliation: (affiliation: AffiliationData) =>
     ipcRenderer.invoke('updateAffiliation', affiliation),
-  createAffiliation: (affiliation: AffiliationData) =>
+  createAffiliation: (affiliation: ForcefullyOmit<AffiliationData, 'id'>) =>
     ipcRenderer.invoke('createAffiliation', affiliation),
-  deleteAffiliation: (affiliation: AffiliationData) =>
-    ipcRenderer.invoke('deleteAffiliation', affiliation),
+  deleteAffiliation: (affiliationID: number) =>
+    ipcRenderer.invoke('deleteAffiliation', affiliationID),
 
   updatePlanetAffiliationAge: (data: PlanetAffiliationAgeData) =>
     ipcRenderer.invoke('updatePlanetAffiliationAge', data),

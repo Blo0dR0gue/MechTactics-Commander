@@ -1,9 +1,7 @@
 import { Vector } from '../models/Vector';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
-import { EventHandler } from '../handler/EventHandler';
 import { RouteController } from './RouteController';
-import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
 
 // TODO: COMMENT, TESTS
 
@@ -14,8 +12,6 @@ class CameraController {
 
   private element: HTMLCanvasElement;
   private universe: Universe;
-
-  public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
   private isMoved = false;
   private isClicked = false;
@@ -28,9 +24,7 @@ class CameraController {
    */
   private routeManager: RouteController;
 
-  public constructor() {
-    this.updateRouteEvent = new EventHandler();
-  }
+  public constructor() {}
 
   public init(universe: Universe, routeController: RouteController) {
     this.universe = universe;
@@ -38,7 +32,7 @@ class CameraController {
     this.routeManager = routeController;
 
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    window.addEventListener('mouseup', this.handleMouseUp.bind(this)); // detect on the whole window to prevent release but if moving cursor out of canvas
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
@@ -83,6 +77,7 @@ class CameraController {
   }
   private handleMouseWheel(e: WheelEvent) {
     if (this.isClicked) return;
+
     const zoomAmount = e.deltaY * this.SCROLL_SENSITIVITY;
     let newZoom = this.universe.getZoom() - zoomAmount;
 
@@ -100,9 +95,7 @@ class CameraController {
   private handleClick(e: MouseEvent) {
     if (this.isMoved) return;
     const clicked = this.universe.getXY(new Vector(e.clientX, e.clientY));
-    console.log(
-      `Clicked at world coordinates (X: ${clicked.getX()}, Y: ${clicked.getY()})`
-    );
+
     const closest = this.universe.getClosestPlanet(clicked, 5);
 
     if (closest !== undefined && closest.dist < 4) {
@@ -131,16 +124,8 @@ class CameraController {
   private handleKeyPress(evt: KeyboardEvent) {
     if (evt.type === 'keydown') {
       if (evt.key === 'f') {
-        if (
-          this.universe.getSelectedPlanet() !== null &&
-          !this.routeManager.containsPlanet(this.universe.getSelectedPlanet())
-        ) {
+        if (this.universe.getSelectedPlanet() !== null) {
           this.routeManager.addTargetPlanet(this.universe.getSelectedPlanet());
-          this.updateRouteEvent.invoke({
-            planet: this.universe.getSelectedPlanet(),
-            add: true,
-            numberPlanets: this.routeManager.lengthOfTargetPlanets(),
-          });
         }
       } else if (evt.key === 'Control') {
         this.ctrlPressed = true;
@@ -159,20 +144,12 @@ class CameraController {
 
   public centerOnPlanet(planet: Planet) {
     this.universe.setCameraOffset(
-      new Vector(
-        window.innerWidth / 2 - planet.coord.getX(),
-        window.innerHeight / 2 - planet.coord.getY()
-      )
+      new Vector(-planet.coord.getX(), planet.coord.getY())
     );
   }
 
   public centerOnPlanetAndSelect(planet: Planet) {
-    this.universe.setCameraOffset(
-      new Vector(
-        window.innerWidth / 2 - planet.coord.getX(),
-        window.innerHeight / 2 - planet.coord.getY()
-      )
-    );
+    this.centerOnPlanet(planet);
     // TODO: Create private func
     this.universe.setSelectedPlanet(planet);
   }

@@ -170,57 +170,139 @@
         <!-- Content-Area -->
         <div
           class="w-100 p-1 bg-actionBar bg-opacity-75"
-          style="height: 120px"
+          style="height: 160px"
           id="content-box"
         >
           <!--Planet details content-->
-          <div id="planet-details-tab-content" class="w-100">
-            <div class="row">
-              <div class="col-md-4 d-flex align-items-center flex-column">
-                <div class="m-0 text-white d-flex align-items-center">
-                  <h2 class="m-0 text-white" id="planet-name">None</h2>
-                  <button
-                    class="btn btn-sm btn-info"
-                    id="center-on-planet"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    data-bs-title="<b class='text-white'>Center on planet</b>"
+          <div id="planet-details-tab-content" class="h-100">
+            <div
+              class="w-100 d-flex flex-nowrap overflow-x-auto flex-lg-row h-100 overflow-y-hidden"
+            >
+              <!-- Planet name and affiliation -->
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex align-items-center flex-column min-w-300">
+                  <div
+                    class="m-0 text-white d-flex align-items-center text-center"
                   >
-                    o
-                  </button>
-                </div>
-                <div class="m-0 text-white d-flex align-items-center">
-                  <p class="m-0 me-2 p-0">Affiliation:</p>
-                  <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
-                </div>
-                <p class="m-0 text-white" id="coordinates">x: None, y: None</p>
-                <p class="m-0 text-white">
-                  <a href="#" id="wiki-link" target="_blank">Wiki</a>
-                  <button
-                    class="btn btn-sm btn-success"
-                    id="add-to-route"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    data-bs-title="<b class='text-white'>Add to route</b>"
+                    <h2
+                      class="text-white me-1 mb-0"
+                      id="planet-name"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Planet Name</b>"
+                    >
+                      None
+                    </h2>
+                    <h2
+                      class="text-danger text-capitalize me-1 mb-0 d-inline-block"
+                      id="planet-type"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Planet Type</b>"
+                    >
+                      X
+                    </h2>
+                    <button
+                      class="btn btn-sm btn-info me-1"
+                      id="center-on-planet"
+                      data-bs-toggle="tooltip"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Center on planet</b>"
+                    >
+                      o
+                    </button>
+                    <button
+                      class="btn btn-sm btn-success"
+                      id="add-to-route"
+                      data-bs-toggle="tooltip"
+                      data-bs-html="true"
+                      data-bs-title="<b class='text-white'>Add to route</b>"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div
+                    class="m-0 text-white d-flex flex-wrap align-items-center"
                   >
-                    +
-                  </button>
-                </p>
+                    <p class="m-0 me-2 p-0">Affiliation:</p>
+                    <div class="d-flex flex-wrap" id="affiliation-container">
+                      <p class="m-0 p-0 ml-2" id="affiliation-name">None</p>
+                    </div>
+                  </div>
+                  <p class="m-0 text-white" id="coordinates">
+                    x: None, y: None
+                  </p>
+                  <p class="m-0 text-white">
+                    <a href="#" id="wiki-link" target="_blank">Wiki</a>
+                  </p>
+                </div>
               </div>
-              <div class="col-md-4 d-flex align-items-center flex-column">
-                <label
-                  for="planet-custom-textarea"
-                  class="form-label text-white"
-                  >Planet Custom Text</label
-                >
-                <textarea
-                  class="form-control resize-none"
-                  id="planet-custom-textarea"
-                  rows="2"
-                  disabled
-                ></textarea>
+              <!-- Additional Information Columns -->
+              <div
+                class="h-100 min-w-200 ps-3 text-white border-end pe-2 me-2 flex-shrink-0"
+                id="additional-info-container"
+              >
+                <h2 class="text-white me-1 mb-0">Details</h2>
+                <div class="d-flex flex-wrap" style="max-height: 100px">
+                  <div class="info-column d-flex flex-column pe-3">
+                    <p class="m-0 me-1">Population:</p>
+                    <p class="m-0 me-1">Civilization:</p>
+                    <p class="m-0 me-1">Size:</p>
+                    <p class="m-0 me-1">Fueling Station:</p>
+                  </div>
+                  <div class="info-column d-flex flex-column">
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-population">None</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-civilization">None</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-size">Unknown</span>
+                    </p>
+                    <p class="m-0 me-1 min-w-150">
+                      <span id="planet-fueling-station">false</span>
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div class="col-md-4 d-flex align-items-center flex-column"></div>
+
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex align-items-center flex-column">
+                  <label
+                    for="planet-custom-textarea"
+                    class="form-label text-white"
+                    >Planet Age Text</label
+                  >
+                  <textarea
+                    class="form-control resize-none min-w-500"
+                    id="planet-custom-textarea"
+                    rows="3"
+                    disabled
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex align-items-center flex-column">
+                  <label for="planet-info-text" class="form-label text-white"
+                    >Planet Info</label
+                  >
+                  <textarea
+                    class="form-control resize-none min-w-500 disabled"
+                    id="planet-info-text"
+                    rows="3"
+                    disabled
+                  ></textarea>
+                </div>
+              </div>
+
+              <!--Planet tags-->
+              <div class="h-100 d-inline-block me-2 flex-shrink-0 min-w-150">
+                <div class="d-flex" id="planet-tag-container"></div>
+              </div>
             </div>
           </div>
           <!--Routing content-->
@@ -229,44 +311,32 @@
               class="h-100 d-flex flex-row flex-nowrap text-nowrap"
               style="overflow-x: auto"
               id="route-container"
-            ></div>
+            >
+              <div
+                class="d-flex align-items-center justify-content-center text-center w-100 h-100 text-white"
+                id="no-routing-data-text"
+              >
+                No Routing Data
+              </div>
+            </div>
           </div>
           <!--Settings content-->
           <div id="settings-tab-content" class="w-100 h-100 hide">
             <div class="row">
               <!--Col 1 (Jump Range)-->
-              <div class="col-md-1 d-flex align-items-center flex-column">
-                <div class="form-group position-relative mb-1">
-                  <!--Jump Range Settings-->
-                  <label for="jump-range" class="text-white">Jump Range</label>
-                  <div id="jump-range">
+              <div class="col-md-2 d-flex align-items-center flex-column ms-1">
+                <div class="form-group position-relative mb-1 w-100">
+                  <label for="jump-input"" class="text-white">Jump Range</label>
+                  <div id="jump-input">
                     <input
-                      type="radio"
-                      class="btn-check"
-                      name="options-jump-range"
-                      id="settings-range-30"
-                      autocomplete="off"
-                      value="30"
+                      type="number"
+                      class="form-control-sm"
+                      step="1"
+                      id="jump-range-input"
                     />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-30"
-                      >30</label
-                    >
-                    <input
-                      type="radio"
-                      class="btn-check"
-                      name="options-jump-range"
-                      id="settings-range-60"
-                      autocomplete="off"
-                      value="60"
-                    />
-                    <label
-                      class="btn btn-sm btn-outline-primary"
-                      for="settings-range-60"
-                      >60</label
-                    >
                   </div>
+
+                  >
                 </div>
               </div>
               <!--Col 2 (Jump Settings)-->

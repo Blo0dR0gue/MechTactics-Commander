@@ -417,7 +417,7 @@ function setPlanetFormData(planet: PlanetCoordData) {
   planetSizeDropdown.setSelected(planet?.size);
 }
 
-function openPlanetModalWith(planet: PlanetCoordData = undefined) {
+function openPlanetCreateModal(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
   setPlanetFormData(planet);
   planetTagEditor.loadEditor(planet?.tagObject);
@@ -429,7 +429,7 @@ planetAgeCopyForm.addEventListener('submit', (e) => e.preventDefault());
 
 const planetAgeCopyModal = new Modal(planetAgeCopyModalElement, {});
 
-function openPlanetAgeCopyModal() {
+function openPlanetAffiliationConnectCopyModal() {
   // clear age selection element to add the current existing one
   planetAgeCopyFormTarget.innerHTML = '';
 
@@ -634,7 +634,7 @@ affiliationSaveBtn.addEventListener('click', () => {
   affiliationModal.hide();
 });
 
-function openAffiliationModalWith(affiliation: AffiliationData = undefined) {
+function openAffiliationCreateModal(affiliation: AffiliationData = undefined) {
   currentEditAffiliation = affiliation;
   setAffiliationFormData(affiliation);
   affiliationModal.show();
@@ -982,7 +982,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
   planetAffiliationConnectModal.hide();
 });
 
-function openPlanetAffiliationConnectModalWith(
+function openPlanetAffiliationConnectCreateModal(
   data: DynamicPlanetAffiliationConnectData = undefined
 ) {
   editPlanetAffiliationConnectData = data;
@@ -1141,7 +1141,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         icon: addIcon,
         classNames: ['btn', 'btn-success', 'btn-sm', 'me-1'],
         onClick() {
-          openPlanetModalWith();
+          openPlanetCreateModal();
         }
       },
       {
@@ -1201,7 +1201,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
             classNames:
               'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
             onClick(data) {
-              openPlanetModalWith(data);
+              openPlanetCreateModal(data);
             }
           },
           {
@@ -1324,7 +1324,7 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
         icon: addIcon,
         classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
         onClick() {
-          openAffiliationModalWith();
+          openAffiliationCreateModal();
         }
       },
       {
@@ -1384,7 +1384,7 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
             classNames:
               'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
             onClick(data) {
-              openAffiliationModalWith(data);
+              openAffiliationCreateModal(data);
             }
           },
           {
@@ -1519,14 +1519,14 @@ const planetAffiliationConnectTable =
           icon: addIcon,
           classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
           onClick() {
-            openPlanetAffiliationConnectModalWith();
+            openPlanetAffiliationConnectCreateModal();
           }
         },
         {
           icon: copyIcon,
           classNames: ['btn', 'btn-sm', 'btn-warning', 'me-2'],
           onClick() {
-            openPlanetAgeCopyModal();
+            openPlanetAffiliationConnectCopyModal();
           }
         },
         {
@@ -1585,7 +1585,7 @@ const planetAffiliationConnectTable =
               icon: editIcon,
               classNames: ['btn', 'btn-sm', 'btn-primary', 'me-1', 'p-1'],
               onClick(data) {
-                openPlanetAffiliationConnectModalWith(data);
+                openPlanetAffiliationConnectCreateModal(data);
               }
             }
           ]

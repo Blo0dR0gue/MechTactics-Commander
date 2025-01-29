@@ -160,8 +160,8 @@ class AppWindow {
         }: PlanetAffiliationAgeData
       ) =>
         this.planetAffiliationAgeRepository.updateByKey(
-          { affiliationID, planetID, universeAge },
-          { planetText }
+          { planetID, universeAge },
+          { planetText, affiliationID }
         )
     );
 
@@ -192,7 +192,7 @@ class AppWindow {
     ipcMain.handle(
       'deletePlanetAffiliationAge',
       (_, { affiliationID, planetID, universeAge }: PlanetAffiliationAgeData) =>
-        this.planetAffiliationAgeRepository.deleteByKey({
+        this.planetAffiliationAgeRepository.deleteByAgePlanetAndAffiliation({
           affiliationID,
           planetID,
           universeAge

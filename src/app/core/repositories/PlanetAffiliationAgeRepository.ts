@@ -7,7 +7,7 @@ import { BaseRepository } from './BaseRepository';
 
 export class PlanetAffiliationAgeRepository extends BaseRepository<
   PlanetAffiliationAgeData,
-  { universeAge: number; planetID: number; affiliationID: number },
+  { universeAge: number; planetID: number },
   object
 > {
   public constructor(database: Database) {
@@ -22,7 +22,9 @@ export class PlanetAffiliationAgeRepository extends BaseRepository<
 
   public getAllUniverseAges(): Promise<Set<number>> {
     return this.database
-      .all(`SELECT DISTINCT universeAge FROM PlanetAffiliationAge;`)
+      .all(
+        `SELECT DISTINCT universeAge FROM PlanetAffiliationAge ORDER BY universeAge;`
+      )
       .then((data) => {
         return data.reduce((acc, val) => {
           acc.add(val.universeAge);
@@ -51,6 +53,17 @@ export class PlanetAffiliationAgeRepository extends BaseRepository<
     await this.database.run(
       'DELETE FROM PlanetAffiliationAge WHERE universeAge = ?;',
       [universeAge]
+    );
+  }
+
+  public async deleteByAgePlanetAndAffiliation(id: {
+    universeAge: number;
+    planetID: number;
+    affiliationID: number;
+  }): Promise<void> {
+    await this.database.run(
+      'DELETE FROM PlanetAffiliationAge WHERE universeAge = ? AND planetID = ? and affiliationID = ?;',
+      [id.universeAge, id.planetID, id.affiliationID]
     );
   }
 }

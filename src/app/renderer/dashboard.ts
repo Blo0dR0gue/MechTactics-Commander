@@ -1026,7 +1026,7 @@ function addAllAffiliationsToSelect() {
   planetAffiliationConnectAffiliationID.innerHTML = '';
 
   // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
-  for (const affiliation of affiliationsData.sort((a1, a2) =>
+  for (const affiliation of affiliationsData.toSorted((a1, a2) =>
     a1.name > a2.name ? 1 : -1
   )) {
     const affiliationOption = document.createElement('option');
@@ -1040,21 +1040,21 @@ function addAllAffiliationsToSelect() {
  * Add all affiliations to the affiliation id select element
  */
 function addAllPlanetsToSelect(data: DynamicPlanetAffiliationConnectData) {
-  // clear affiliation id select
+  // clear planet id select
   planetAffiliationConnectPlanetID.innerHTML = '';
 
-  // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
+  // add all planets from list (list will be updated, iff a affiliation is added or removed or updated via the planets table)
   for (const planet of planetsData
     .filter(
       (planet) =>
         !planetAffiliationConnectMap.has(planet.id) ||
         data?.planetID === planet.id
     )
-    .sort((p1, p2) => (p1.name > p2.name ? 1 : -1))) {
-    const affiliationOption = document.createElement('option');
-    affiliationOption.value = String(planet.id);
-    affiliationOption.textContent = planet.name;
-    planetAffiliationConnectPlanetID.appendChild(affiliationOption);
+    .toSorted((p1, p2) => (p1.name > p2.name ? 1 : -1))) {
+    const planetOption = document.createElement('option');
+    planetOption.value = String(planet.id);
+    planetOption.textContent = planet.name;
+    planetAffiliationConnectPlanetID.appendChild(planetOption);
   }
 }
 

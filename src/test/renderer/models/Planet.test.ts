@@ -59,7 +59,8 @@ describe.each([
         type: '',
         civilization: '',
         population: '',
-        size: ''
+        size: '',
+        jumpDistance: 0
       });
       expect(planet).toBeInstanceOf(Planet);
     });
@@ -84,7 +85,8 @@ describe.each([
         type: '',
         civilization: '',
         population: '',
-        size: ''
+        size: '',
+        jumpDistance: 0
       });
       expect(planet.getName()).toBe(expectedName);
     });
@@ -109,7 +111,8 @@ describe.each([
         type: '',
         civilization: '',
         population: '',
-        size: ''
+        size: '',
+        jumpDistance: 0
       });
       expect(planet.getColor()).toBe(expectedColor);
     });
@@ -134,7 +137,8 @@ describe.each([
         type: '',
         civilization: '',
         population: '',
-        size: ''
+        size: '',
+        jumpDistance: 0
       });
       expect(planet.coord.get()).toEqual({ x: expectedX, y: expectedY });
     });

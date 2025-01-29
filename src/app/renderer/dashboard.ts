@@ -152,6 +152,9 @@ const planetFormDetail = document.getElementById(
 const planetFormFuelingStation = document.getElementById(
   'planet-fueling-station'
 ) as HTMLInputElement;
+const planetFormJumpDistance = document.getElementById(
+  'planet-jump-distance'
+) as HTMLInputElement;
 
 // affiliation form elements
 const affiliationFormID = document.getElementById(
@@ -271,6 +274,7 @@ planetSaveBtn.addEventListener('click', () => {
   const population = planetPopulationDropdown.getSelected().value;
   const fuelingStation = planetFormFuelingStation.checked;
   const civilization = planetCivilizationDropdown.getSelected().value;
+  const jumpDistance = parseInt(planetFormJumpDistance.value);
 
   const tagObject = planetTagEditor.getCurrentTagUpdates();
 
@@ -296,6 +300,19 @@ planetSaveBtn.addEventListener('click', () => {
     toastHandler.createAndShowToast(
       'Error',
       "Coordinates can't be NaN",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (
+    typeof jumpDistance !== 'number' ||
+    isNaN(jumpDistance) ||
+    jumpDistance < 0
+  ) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Jump Distance can't be less then 0 or undefined.",
       ToastType.Danger
     );
     return;
@@ -345,7 +362,8 @@ planetSaveBtn.addEventListener('click', () => {
         tagObject: tagObject,
         civilization: civilization,
         population: population,
-        size: size
+        size: size,
+        jumpDistance: jumpDistance
       })
       .then((newID) => {
         toastHandler.createAndShowToast(
@@ -366,7 +384,8 @@ planetSaveBtn.addEventListener('click', () => {
             tagObject: tagObject,
             civilization: civilization,
             population: population,
-            size: size
+            size: size,
+            jumpDistance: jumpDistance
           })
         );
       })
@@ -390,7 +409,8 @@ planetSaveBtn.addEventListener('click', () => {
         tagObject: tagObject,
         civilization: civilization,
         population: population,
-        size: size
+        size: size,
+        jumpDistance: jumpDistance
       })
       .then(() => {
         // Update planet
@@ -408,6 +428,7 @@ planetSaveBtn.addEventListener('click', () => {
         currentEditPlanet.civilization = civilization;
         currentEditPlanet.population = population;
         currentEditPlanet.size = size;
+        currentEditPlanet.jumpDistance = jumpDistance;
 
         toastHandler.createAndShowToast(
           'Planet',
@@ -436,6 +457,7 @@ function setPlanetFormData(planet: PlanetCoordData) {
   planetFormType.value = planet?.type ?? 'X';
   planetFormFuelingStation.checked = planet?.fuelingStation ?? false;
   planetFormDetail.value = planet?.detail ?? '';
+  planetFormJumpDistance.value = String(planet?.jumpDistance ?? 0);
 
   planetCivilizationDropdown.setSelected(planet?.civilization);
   planetPopulationDropdown.setSelected(planet?.population);

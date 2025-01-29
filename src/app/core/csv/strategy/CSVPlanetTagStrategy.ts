@@ -39,6 +39,7 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
       civilization,
       population,
       size,
+      jumpDistance,
       ...tags
     } = data;
 
@@ -54,7 +55,8 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
         type,
         civilization,
         population,
-        size
+        size,
+        jumpDistance
       }
     );
 

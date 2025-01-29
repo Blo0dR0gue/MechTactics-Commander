@@ -35,6 +35,9 @@ class Upgrade015 extends AppUpgradeInfo {
       await this.database.exec(
         "ALTER TABLE Planet ADD size text NOT NULL DEFAULT 'Unknown';"
       );
+      await this.database.exec(
+        'ALTER TABLE Planet ADD jumpDistance integer NOT NULL DEFAULT 0;'
+      );
     });
 
     // New planet tag table
@@ -133,6 +136,7 @@ class Upgrade015 extends AppUpgradeInfo {
           size: string;
           x: number;
           y: number;
+          jumpDistance: number;
         }[] = data015;
 
         // Delete all in age 3062 because we create these

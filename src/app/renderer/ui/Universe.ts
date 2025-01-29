@@ -242,7 +242,8 @@ class Universe {
         type: planetJSON.type,
         civilization: planetJSON.civilization,
         population: planetJSON.population,
-        size: planetJSON.size
+        size: planetJSON.size,
+        jumpDistance: planetJSON.jumpDistance
       });
       this.planets.push(planet);
       this.tree.insert(planet);

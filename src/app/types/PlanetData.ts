@@ -11,6 +11,7 @@ type PlanetData = {
   civilization: string;
   population: string;
   size: string;
+  jumpDistance: number;
 };
 
 type PlanetCoordData = Omit<PlanetData, 'x' | 'y'> & {

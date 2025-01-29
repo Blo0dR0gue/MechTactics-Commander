@@ -22,6 +22,7 @@ class Planet extends Circle {
   private civilization: string;
   private population: string;
   private size: string;
+  private jumpDistance: number;
 
   /**
    * Creates a new planet object
@@ -59,6 +60,7 @@ class Planet extends Circle {
     this.civilization = props.civilization;
     this.population = props.population;
     this.size = props.size;
+    this.jumpDistance = props.jumpDistance;
   }
 
   // Private Methods
@@ -77,7 +79,8 @@ class Planet extends Circle {
         type: this.type,
         civilization: this.civilization,
         population: this.population,
-        size: this.size
+        size: this.size,
+        jumpDistance: this.jumpDistance
       })
       .then(() => {
         window.sql.updatePlanetAffiliationAge({

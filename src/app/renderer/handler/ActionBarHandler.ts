@@ -356,6 +356,11 @@ class ActionBarHandler {
         `Added ${routeChanged.planet.getName()} to route.`
       );
     }
+    if (routeChanged?.numberPlanets > 0) {
+      this.noRoutingDataText.style.setProperty('display', 'none', 'important');
+    } else {
+      this.noRoutingDataText.style.removeProperty('display');
+    }
   }
 
   /**

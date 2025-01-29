@@ -65,8 +65,8 @@ export default class PlanetTagEditor {
       return;
     }
 
-    if (Object.hasOwn(this.tags, key)) {
-      this.showError('Tag key already exists!');
+    if (this.tags.has(key)) {
+      this.showError(`Tag key '${key}' already exists!`);
       return;
     }
 

@@ -173,15 +173,23 @@ class ActionBarHandler {
     } else if (parseInt(jumpRange) !== jumpRange) {
       jumpRange = parseInt(jumpRange);
       Config.getInstance().set('jumpRange', jumpRange);
+    } else if (isNaN(jumpRange) || jumpRange < 1) {
+      jumpRange = 30;
+      Config.getInstance().set('jumpRange', jumpRange);
     }
 
     this.jumpRangeInput.value = jumpRange.toString();
 
     this.jumpRangeInput.addEventListener('change', () => {
-      Config.getInstance().set(
-        'jumpRange',
-        parseInt(this.jumpRangeInput.value)
-      );
+      let newValue = parseInt(this.jumpRangeInput.value.trim());
+
+      if (isNaN(newValue) || newValue < 1) {
+        newValue = 30;
+      }
+
+      Config.getInstance().set('jumpRange', newValue);
+      this.jumpRangeInput.value = newValue + '';
+
       this.generateJumpCards();
     });
 

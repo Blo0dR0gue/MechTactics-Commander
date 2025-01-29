@@ -1,6 +1,6 @@
 import {
   TypeOfObjectPropRec,
-  ObjectWithKeys,
+  ObjectWithKeys
 } from '../../../../types/UtilityTypes';
 import { Button } from '../Button';
 import { RingLoadingIndicator } from '../RingLoadingIndicator';
@@ -11,7 +11,7 @@ import {
   CellDataClassic,
   TableCellData,
   TableColumnData,
-  TableActionBarData,
+  TableActionBarData
 } from './TableTypes';
 
 import './table.scss';
@@ -317,12 +317,12 @@ class Table<T extends ObjectWithKeys> {
         return {
           data: {
             type: 'classic',
-            text: col.header.name,
+            text: col.header.name
           },
           classNames: [col.header.size],
-          cellType: 'th',
+          cellType: 'th'
         } as TableCellData<T>;
-      }),
+      })
     }).render();
     this.tableElement.appendChild(thead);
   }
@@ -351,10 +351,10 @@ class Table<T extends ObjectWithKeys> {
             {
               data: { type: 'classic', text: 'No Data!' },
               span: this.columnDefinitions.length,
-              classNames: ['text-center', 'h5'], //TODO: Remove bootstrap classes
-            },
+              classNames: ['text-center', 'h5'] //TODO: Remove bootstrap classes
+            }
           ],
-          rowIndex: 0,
+          rowIndex: 0
         }).render()
       );
     } else {
@@ -368,21 +368,21 @@ class Table<T extends ObjectWithKeys> {
                 const cellData = col.data as CellDataBinding<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'button') {
                 const cellData = col.data as CellDataButton<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'classic') {
                 const cellData = col.data as CellDataClassic;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               }
-            }),
+            })
           }).render()
         );
       }
@@ -435,7 +435,7 @@ class Table<T extends ObjectWithKeys> {
     }
     if (this.sorter) this.data.sort(this.sorter);
 
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.tableHolder.parentNode === this.parentElement) {
       this.updateTable();
     }
   }

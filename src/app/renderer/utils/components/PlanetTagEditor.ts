@@ -220,7 +220,7 @@ export default class PlanetTagEditor {
     const updatedTags: PlanetTags = {};
 
     this.tags.forEach((values, key) => {
-      updatedTags[key] = values.reduce(
+      const tagValues = values.reduce(
         (arr: string[], tagEntry: TagMapEntry) => {
           if (tagEntry.value.trim() !== '') {
             arr.push(tagEntry.value);
@@ -229,6 +229,10 @@ export default class PlanetTagEditor {
         },
         [] as string[]
       );
+
+      if (tagValues.length > 0) {
+        updatedTags[key] = tagValues;
+      }
     });
     return updatedTags;
   }

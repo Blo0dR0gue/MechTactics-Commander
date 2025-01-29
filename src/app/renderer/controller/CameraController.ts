@@ -1,9 +1,7 @@
 import { Vector } from '../models/Vector';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
-import { EventHandler } from '../handler/EventHandler';
 import { RouteController } from './RouteController';
-import { UpdateRouteEvent } from '../handler/events/UpdateRouteVent';
 
 // TODO: COMMENT, TESTS
 
@@ -14,8 +12,6 @@ class CameraController {
 
   private element: HTMLCanvasElement;
   private universe: Universe;
-
-  public updateRouteEvent: EventHandler<UpdateRouteEvent>;
 
   private isMoved = false;
   private isClicked = false;
@@ -28,9 +24,7 @@ class CameraController {
    */
   private routeManager: RouteController;
 
-  public constructor() {
-    this.updateRouteEvent = new EventHandler();
-  }
+  public constructor() {}
 
   public init(universe: Universe, routeController: RouteController) {
     this.universe = universe;
@@ -132,7 +126,7 @@ class CameraController {
       if (evt.key === 'f') {
         if (this.universe.getSelectedPlanet() !== null) {
           this.routeManager.addTargetPlanet(this.universe.getSelectedPlanet());
-          this.updateRouteEvent.invoke({
+          this.routeManager.updateRouteEvent.invoke({
             planet: this.universe.getSelectedPlanet(),
             add: true,
             numberPlanets: this.routeManager.lengthOfTargetPlanets()

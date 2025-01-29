@@ -1,7 +1,7 @@
 import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
-import { UpdateRouteEvent } from './events/UpdateRouteVent';
+import { UpdateRouteEvent } from './events/UpdateRouteEvent';
 import { RouteController, RoutePoint } from '../controller/RouteController';
 import { ToastHandler } from '../utils/components/ToastHandler';
 import { Config } from '../utils/Config';
@@ -32,6 +32,7 @@ class ActionBarHandler {
   private planetCivilizationArea: HTMLDivElement;
   private planetSizeArea: HTMLDivElement;
   private planetFuelingStationArea: HTMLDivElement;
+  private noRoutingDataText: HTMLDivElement;
 
   private selectedPlanet: Planet | null;
 
@@ -89,6 +90,10 @@ class ActionBarHandler {
     ) as HTMLDivElement;
     this.planetFuelingStationArea = document.getElementById(
       'planet-fueling-station'
+    ) as HTMLDivElement;
+
+    this.noRoutingDataText = document.getElementById(
+      'no-routing-data-text'
     ) as HTMLDivElement;
 
     // Settings Elements
@@ -158,7 +163,7 @@ class ActionBarHandler {
     this.universe.planetSelectionChangedEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
-    this.cameraController.updateRouteEvent.subscribe(
+    this.routeController.updateRouteEvent.subscribe(
       this.routeChanged.bind(this)
     );
 
@@ -274,12 +279,6 @@ class ActionBarHandler {
     // Add to route only, iff a planet is selected.
     if (this.selectedPlanet != null) {
       this.routeController.addTargetPlanet(this.selectedPlanet);
-      // TODO: Rework. Don't invoke event of other class!!!
-      this.cameraController.updateRouteEvent.invoke({
-        planet: this.selectedPlanet,
-        add: true,
-        numberPlanets: this.routeController.lengthOfTargetPlanets()
-      });
     }
   }
   /**

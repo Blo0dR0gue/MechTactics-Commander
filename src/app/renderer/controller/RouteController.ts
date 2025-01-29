@@ -3,6 +3,8 @@ import { Pathfinding } from '../utils/pathfinding/Pathfinding';
 import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
 import { Affiliation } from '../models/Affiliation';
+import { EventHandler } from '../handler/EventHandler';
+import { UpdateRouteEvent } from '../handler/events/UpdateRouteEvent';
 
 export type RoutePoint = {
   jumps: number;
@@ -20,7 +22,11 @@ class RouteController {
   private route: RoutePoint[];
   private excludeAffiliation: Set<Affiliation>;
 
-  public constructor() {}
+  public updateRouteEvent: EventHandler<UpdateRouteEvent>;
+
+  public constructor() {
+    this.updateRouteEvent = new EventHandler();
+  }
 
   /**
    * Start the controller
@@ -42,6 +48,12 @@ class RouteController {
     // Don't add the same planet behind each other
     if (this.targetPlanets[this.targetPlanets.length - 1] === planet) return;
     this.targetPlanets.push(planet);
+
+    this.updateRouteEvent.invoke({
+      planet: planet,
+      add: true,
+      numberPlanets: this.lengthOfTargetPlanets()
+    });
   }
 
   /**
@@ -85,7 +97,14 @@ class RouteController {
    */
   public removeIndexOfTargetPlanet(index: number): void {
     if (index >= this.targetPlanets.length || index < 0) return;
+    const planet = this.targetPlanets[index];
     this.targetPlanets.splice(index, 1);
+
+    this.updateRouteEvent.invoke({
+      planet: planet,
+      add: false,
+      numberPlanets: this.lengthOfTargetPlanets()
+    });
   }
 
   /**

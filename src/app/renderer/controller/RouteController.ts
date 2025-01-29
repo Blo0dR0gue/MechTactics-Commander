@@ -4,13 +4,20 @@ import { Universe } from '../ui/Universe';
 import { Planet } from '../models/Planet';
 import { Affiliation } from '../models/Affiliation';
 
-// TODO: Rework to store more information about jumps. like is it possible to reach (so that we can draw that correct!)
+export type RoutePoint = {
+  jumps: number;
+  jumpPlanets: Planet[];
+  start: Planet;
+  destination: Planet;
+  jumpPossible: boolean;
+};
+
 class RouteController {
   private universe: Universe;
   private pathfinding: Pathfinding<Planet>;
 
   private targetPlanets: Planet[];
-  private route: Planet[];
+  private route: RoutePoint[];
   private excludeAffiliation: Set<Affiliation>;
 
   public constructor() {}
@@ -108,7 +115,15 @@ class RouteController {
    * @returns True, if the planet is inside the route
    */
   public routeContainsPlanet(planet: Planet): boolean {
-    return this.route?.indexOf(planet) !== -1 || false;
+    if (!this.route) {
+      return false;
+    }
+
+    return (
+      this.route.find(
+        (routePoint) => routePoint.jumpPlanets.indexOf(planet) !== -1
+      ) !== undefined
+    );
   }
 
   /**
@@ -142,20 +157,26 @@ class RouteController {
    * @returns true, if a route got generated
    */
   public calculateRoute(jumpRange: number): boolean {
-    if (this.targetPlanets.length < 2) return false;
     this.route = [];
+    if (this.targetPlanets.length < 2) return false;
 
     for (let i = 0; i < this.targetPlanets.length - 1; i++) {
       const p1 = this.targetPlanets[i];
       const p2 = this.targetPlanets[i + 1];
       const route = this.findRoute(p1, p2, jumpRange);
 
-      if (route !== undefined) {
-        if (i > 0) this.route.pop();
-        this.route = this.route.concat(route);
-      }
+      const jumpPossible = route.length > 1;
+
+      const routePoint: RoutePoint = {
+        start: p1,
+        destination: p2,
+        jumpPlanets: jumpPossible ? route : [p1, p2],
+        jumps: jumpPossible ? route.length - 1 : Infinity,
+        jumpPossible: jumpPossible
+      };
+
+      this.route.push(routePoint);
     }
-    console.log(this.route);
     return true;
   }
 
@@ -163,31 +184,8 @@ class RouteController {
     return this.targetPlanets?.length || 0;
   }
 
-  public getRoute(): Planet[] {
+  public getRoute(): RoutePoint[] {
     return this.route || [];
-  }
-
-  public getNumberOfJumpsBetween(): number[] {
-    const jumps = [] as number[];
-    for (let i = 0; i < this.targetPlanets.length - 1; i++) {
-      const indexStart = this.route.indexOf(this.targetPlanets[i]);
-      const indexDestination = this.route.indexOf(this.targetPlanets[i + 1]);
-      if (indexStart === -1 || indexDestination === -1) jumps.push(Infinity);
-      else jumps.push(indexDestination - indexStart);
-    }
-    return jumps;
-  }
-
-  public getNumberOfJumpsBetweenIDs(
-    start: number,
-    destination: number
-  ): number {
-    const indexStart = this.route.indexOf(this.targetPlanets[start]);
-    const indexDestination = this.route.indexOf(
-      this.targetPlanets[destination]
-    );
-    if (indexStart === -1 || indexDestination === -1) return Infinity;
-    return indexDestination - indexStart;
   }
 
   /**
@@ -217,7 +215,7 @@ class RouteController {
       (elementA: Planet, elementB: Planet) =>
         elementA.coord.distance(elementB.coord)
     );
-    return result;
+    return result ?? [];
   }
 }
 

@@ -1,7 +1,7 @@
 /**
  * Defines an object which has string as keys
  */
-type ObjectWithKeys = Record<string, unknown>;
+type ObjectWithKeys = Record<string | number | symbol, unknown>;
 
 type Icon = SVGElement & HTMLElement;
 
@@ -85,7 +85,17 @@ type TypeOfObjectPropRec<T, U extends keyof T = keyof T> = U extends string
     : T[U]
   : never;
 
-type DatabaseTables = 'Planet' | 'Affiliation' | 'PlanetAffiliationAge';
+type DatabaseTables =
+  | 'Planet'
+  | 'Affiliation'
+  | 'PlanetAffiliationAge'
+  | 'PlanetTag'
+  | 'PlanetWithTagsView';
+
+export type ForcefullyOmit<T, K extends keyof T> = Omit<T, K> &
+  Partial<Record<K, never>>;
+
+export type OnlyFirst<F, S> = F & { [Key in keyof Omit<S, keyof F>]?: never };
 
 export {
   Icon,
@@ -94,5 +104,5 @@ export {
   ObjectPropsRec,
   ArrayObjType,
   ArrayPropPath,
-  DatabaseTables,
+  DatabaseTables
 };

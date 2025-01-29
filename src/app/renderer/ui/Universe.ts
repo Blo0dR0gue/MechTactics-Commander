@@ -49,7 +49,7 @@ class Universe {
   /**
    * The current offset of the camera to the default
    */
-  private cameraOffset = new Vector(1, 1);
+  private cameraOffset = new Vector(0, 0);
 
   /**
    * The route controller
@@ -92,6 +92,46 @@ class Universe {
   public planetSelectionChangedEvent: EventHandler<SelectionChangeEvent>;
 
   /**
+   * Color of the connection between planets, iff the jump is possible
+   */
+  private defaultJumpColor: string = 'rgba(255, 255, 255, 1)' as const;
+
+  /**
+   * Color of the connection between planets, iff the jump is not possible
+   */
+  private infinityJumpColor: string = 'rgb(240, 27, 27)' as const;
+
+  /**
+   * Selected planet border color
+   */
+  private selectedPlanetBorderColor: string = 'rgba(7, 217, 199, 1)' as const;
+
+  /**
+   * Distance planet border color
+   */
+  private distancePlanetBorderColor: string = 'rgba(171, 123, 10, 1)' as const;
+
+  /**
+   * Border color for route planets
+   */
+  private routePlanetBorderColor: string = 'rgba(136, 255, 0, 1)' as const;
+
+  /**
+   * The color of texts rendered on the canvas
+   */
+  private defaultTextColor: string = 'rgba(213, 213, 213, 1)' as const;
+
+  /**
+   * Size of a planet
+   */
+  private planetSize: number = 4 as const;
+
+  /**
+   * Width of a planet border
+   */
+  private planetBorderWidth: number = 3 as const;
+
+  /**
    * Creates a new universe
    *
    * @param canvas The canvas html element to render on
@@ -118,13 +158,13 @@ class Universe {
       this.tree = new Quadtree({
         height: 5000,
         width: 5000,
-        maxObjects: 4,
+        maxObjects: 4
       });
 
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
       this.zoom = 2.4;
-      this.cameraOffset.set(window.innerWidth / 2, window.innerHeight / 2);
+      //this.cameraOffset.set(window.innerWidth / 2, -(window.innerHeight / 2));
 
       this.setBackgroundColor(
         Config.getInstance().get('backgroundColor') as string
@@ -187,16 +227,24 @@ class Universe {
       }
 
       // Create object and add to planets array and quadtree
-      const planet = new Planet(
-        planetJSON.id,
-        planetJSON.name,
-        planetJSON.x,
-        planetJSON.y,
-        planetJSON.link,
-        planetJSON.planetText,
-        planetAffiliation,
-        this.selectedUniverseAge
-      );
+      const planet = new Planet({
+        id: planetJSON.id,
+        name: planetJSON.name,
+        x: planetJSON.x,
+        y: planetJSON.y,
+        link: planetJSON.link,
+        customText: planetJSON.planetText,
+        affiliation: planetAffiliation,
+        universeAge: this.selectedUniverseAge,
+        tagObject: planetJSON.tagObject,
+        fuelingStation: planetJSON.fuelingStation ?? false,
+        detail: planetJSON.detail,
+        type: planetJSON.type,
+        civilization: planetJSON.civilization,
+        population: planetJSON.population,
+        size: planetJSON.size,
+        jumpDistance: planetJSON.jumpDistance
+      });
       this.planets.push(planet);
       this.tree.insert(planet);
     });
@@ -220,11 +268,9 @@ class Universe {
     this.canvas.height = window.innerHeight;
     // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
     this.context.translate(window.innerWidth / 2, window.innerHeight / 2);
-    this.context.scale(this.zoom, this.zoom);
-    this.context.translate(
-      -window.innerWidth / 2 + this.cameraOffset.getX(),
-      -window.innerHeight / 2 + this.cameraOffset.getY()
-    );
+    this.context.scale(this.zoom, -this.zoom);
+    this.context.translate(this.cameraOffset.getX(), -this.cameraOffset.getY());
+
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     this.planets.forEach((planet: Planet) => {
@@ -235,30 +281,50 @@ class Universe {
       )
         return;
       // Render all planets
-      this.drawPlanet(planet, 4);
+      this.drawPlanet(planet, this.planetSize);
     });
 
     // FIXME: Use events instead!
     if (this.routeController.getRoute().length > 0) {
       const route = this.routeController.getRoute();
-      for (let i = 0; i < route.length - 1; i++) {
-        this.drawConnection(route[i].coord, route[i + 1].coord);
-      }
-      for (let i = 0; i < route.length; i++) {
-        if (this.selectedPlanet !== route[i]) {
-          this.drawPlanet(route[i], 7, 'rgb(136, 255, 0)');
-          this.drawPlanet(route[i], 4);
-        }
-      }
+      route.forEach((routePoint) => {
+        routePoint.jumpPlanets.forEach((planet, index, planets) => {
+          if (index < planets.length - 1) {
+            this.drawConnection(
+              planet.coord,
+              planets[index + 1].coord,
+              routePoint.jumpPossible
+                ? this.defaultJumpColor
+                : this.infinityJumpColor
+            );
+          }
+          if (this.selectedPlanet !== planet) {
+            this.drawPlanetWithBorder(
+              planet,
+              this.planetSize,
+              this.planetBorderWidth,
+              this.routePlanetBorderColor
+            );
+          }
+        });
+      });
     }
 
     if (this.selectedPlanet !== null) {
       // Draw the selected planets in the foreground
-      this.drawPlanet(this.selectedPlanet, 7, '#07d9c7');
-      this.drawPlanet(this.selectedPlanet, 4);
+      this.drawPlanetWithBorder(
+        this.selectedPlanet,
+        this.planetSize,
+        this.planetBorderWidth,
+        this.selectedPlanetBorderColor
+      );
       if (this.distancePlanet !== null) {
-        this.drawPlanet(this.distancePlanet, 7, '#ab7b0a');
-        this.drawPlanet(this.distancePlanet, 4);
+        this.drawPlanetWithBorder(
+          this.distancePlanet,
+          this.planetSize,
+          this.planetBorderWidth,
+          this.distancePlanetBorderColor
+        );
         this.drawConnection(
           this.selectedPlanet.coord,
           this.distancePlanet.coord
@@ -266,8 +332,7 @@ class Universe {
         // Draw the distance text
         const distance = this.selectedPlanet.coord
           .distance(this.distancePlanet.coord)
-          .toFixed(2)
-          .toString();
+          .toFixed(3);
         const textWidth = this.context.measureText(distance).width;
         const textX =
           (this.selectedPlanet.coord.getX() +
@@ -277,7 +342,7 @@ class Universe {
         const textY =
           (this.selectedPlanet.coord.getY() +
             this.distancePlanet.coord.getY()) /
-            2 -
+            2 +
           10;
         this.drawText(new Vector(textX, textY), distance, 20);
         this.drawPlanetName(this.selectedPlanet);
@@ -285,22 +350,19 @@ class Universe {
       }
     }
 
-    if (this.zoom > 2) {
-      // Render only at a Zoom of 2 or bigger
-      if (this.hoveredPlanet) {
-        // Highlight the jump range of 30
-        this.context.beginPath();
-        this.context.arc(
-          this.hoveredPlanet.coord.getX(),
-          this.hoveredPlanet.coord.getY(),
-          Config.getInstance().get('jumpRange') as number, // Jump Range
-          0,
-          Math.PI * 2
-        );
-        this.context.lineWidth = 0.4;
-        this.context.strokeStyle = 'white';
-        this.context.stroke();
-      }
+    if (this.hoveredPlanet) {
+      // Highlight the jump range of 30
+      this.context.beginPath();
+      this.context.arc(
+        this.hoveredPlanet.coord.getX(),
+        this.hoveredPlanet.coord.getY(),
+        Config.getInstance().get('jumpRange') as number, // Jump Range
+        0,
+        Math.PI * 2
+      );
+      this.context.lineWidth = 1.5 / this.zoom;
+      this.context.strokeStyle = 'white';
+      this.context.stroke();
     }
 
     if (this.zoom > 3) {
@@ -336,6 +398,26 @@ class Universe {
   }
 
   /**
+   * Helper function to draw a planet on the canvas with a border.
+   *
+   * @param planet The planet to draw
+   * @param planetSize The size of the planet
+   * @param borderWidth The width of the border
+   * @param borderColor The color of the border
+   * @param planetColor (Optional) A color to override the planet color
+   */
+  private drawPlanetWithBorder(
+    planet: Planet,
+    planetSize: number,
+    borderWidth: number,
+    borderColor: string,
+    planetColor?: string
+  ) {
+    this.drawPlanet(planet, planetSize + borderWidth, borderColor);
+    this.drawPlanet(planet, planetSize, planetColor);
+  }
+
+  /**
    * Helper function to draw the planet name on the canvas
    *
    * @param planet The planet for which the planet name should be drawn
@@ -344,8 +426,7 @@ class Universe {
     this.drawText(
       new Vector(planet.coord.getX() + 2, planet.coord.getY()),
       planet.getName(),
-      14,
-      '#D5D5D5'
+      14
     );
   }
 
@@ -353,12 +434,17 @@ class Universe {
     pos: Vector,
     text: string,
     width = 15,
-    textColor = 'rgba(255, 255, 255, 1)'
+    textColor = this.defaultTextColor
   ) {
     const textWidth = Math.round(width / this.zoom);
+    this.context.save(); // Save current transform state
+    this.context.scale(1, -1); // Flip only the text back
+
     this.context.font = `${textWidth}px serif`;
     this.context.fillStyle = textColor;
-    this.context.fillText(text, pos.getX(), pos.getY()); // Adjust the vertical position as needed
+    this.context.fillText(text, pos.getX(), -pos.getY());
+
+    this.context.restore();
   }
 
   /**
@@ -428,7 +514,7 @@ class Universe {
     this.distancePlanet = null;
     this.selectedPlanet = planet;
     this.planetSelectionChangedEvent.invoke({
-      planet: this.selectedPlanet,
+      planet: this.selectedPlanet
     });
   }
 
@@ -549,8 +635,8 @@ class Universe {
    * @returns The planet object or undefined
    */
   public getGetPlanetByName(planetName: string): Planet | undefined {
-    return this.planets.find(
-      (planet) => planet.getName().toLowerCase() === planetName.toLowerCase()
+    return this.planets.find((planet) =>
+      planet.getName().toLowerCase().includes(planetName.toLowerCase())
     );
   }
 

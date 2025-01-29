@@ -2,7 +2,7 @@ import {
   ProgressInfo,
   UpdateDownloadedEvent,
   UpdateInfo,
-  autoUpdater,
+  autoUpdater
 } from 'electron-updater';
 import { Database } from 'sqlite';
 import { CoreConfig } from './CoreConfig';
@@ -86,6 +86,7 @@ class Updater {
       `Upgrade finished. Starting app please wait.`,
       false
     );
+    this.appWindow.reloadRepositories();
     // Wait 4 sec before starting the app.
     setTimeout(() => {
       this.appWindow.loadPage('index.html');

@@ -1,8 +1,7 @@
 import {
   TypeOfObjectPropRec,
-  ObjectWithKeys,
+  ObjectWithKeys
 } from '../../../../types/UtilityTypes';
-import { Binding } from '../Binding';
 import { Button } from '../Button';
 import { RingLoadingIndicator } from '../RingLoadingIndicator';
 import { TableRow } from './TableRow';
@@ -12,7 +11,7 @@ import {
   CellDataClassic,
   TableCellData,
   TableColumnData,
-  TableActionBarData,
+  TableActionBarData
 } from './TableTypes';
 
 import './table.scss';
@@ -33,7 +32,6 @@ class Table<T extends ObjectWithKeys> {
   private footerElement: HTMLElement;
 
   private data: T[];
-  private bindings: Binding<unknown>[];
 
   private loader: RingLoadingIndicator;
 
@@ -71,8 +69,6 @@ class Table<T extends ObjectWithKeys> {
 
     this.currentPage = 1;
     this.filterText = '';
-
-    this.bindings = [];
   }
 
   /**
@@ -193,7 +189,7 @@ class Table<T extends ObjectWithKeys> {
    * Renders the table with the data of the currently selected page and filter. Also updates the pagination items.
    * Remove and add the new rows is more performant then add all rows and hide some of them then.
    */
-  private updateTable(): void {
+  public updateTable(): void {
     if (this.tableHolder.parentNode != this.parentElement) {
       throw new TableError("Table is not rendered. Can't update the table");
     }
@@ -321,12 +317,12 @@ class Table<T extends ObjectWithKeys> {
         return {
           data: {
             type: 'classic',
-            text: col.header.name,
+            text: col.header.name
           },
           classNames: [col.header.size],
-          cellType: 'th',
+          cellType: 'th'
         } as TableCellData<T>;
-      }),
+      })
     }).render();
     this.tableElement.appendChild(thead);
   }
@@ -355,10 +351,10 @@ class Table<T extends ObjectWithKeys> {
             {
               data: { type: 'classic', text: 'No Data!' },
               span: this.columnDefinitions.length,
-              classNames: ['text-center', 'h5'], //TODO: Remove bootstrap classes
-            },
+              classNames: ['text-center', 'h5'] //TODO: Remove bootstrap classes
+            }
           ],
-          rowIndex: 0,
+          rowIndex: 0
         }).render()
       );
     } else {
@@ -372,21 +368,21 @@ class Table<T extends ObjectWithKeys> {
                 const cellData = col.data as CellDataBinding<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'button') {
                 const cellData = col.data as CellDataButton<T>;
                 cellData.dataElement = data;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               } else if (col.data.type === 'classic') {
                 const cellData = col.data as CellDataClassic;
                 return {
-                  data: cellData,
+                  data: cellData
                 } as TableCellData<T>;
               }
-            }),
+            })
           }).render()
         );
       }
@@ -416,11 +412,12 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
-    if (this.tableHolder.parentNode)
-      throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
     this.sorter = sorter;
     if (sorter) this.data.sort(sorter);
+    if (this.tableHolder.parentNode === this.parentElement) {
+      this.updateTable();
+    }
   }
 
   /**
@@ -439,7 +436,7 @@ class Table<T extends ObjectWithKeys> {
     }
     if (this.sorter) this.data.sort(this.sorter);
 
-    if (this.tableElement.parentNode === this.parentElement) {
+    if (this.tableHolder.parentNode === this.parentElement) {
       this.updateTable();
     }
   }
@@ -475,6 +472,11 @@ class Table<T extends ObjectWithKeys> {
 
   public addColumnAt(columnData: TableColumnData<T>, index: number): void {
     this.columnDefinitions.splice(index, 0, columnData);
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
+  }
+
+  public removeColumnByIndex(index: number): void {
+    this.columnDefinitions.splice(index, 1);
     if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
   }
 

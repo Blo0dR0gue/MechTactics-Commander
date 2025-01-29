@@ -21,13 +21,15 @@
     "./dist/app/core/AppConstants.js",
     "./dist/app/core/CoreConfig.js",
     "./dist/app/core/Updater.js",
-    "./dist/app/core/CSVHelper.js",
     "./dist/app/renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter.js",
     "./dist/app/core/AppUpgradeInfo.js",
-    "./dist/app/core/upgrades/*",
+    "./dist/app/core/upgrades/**/*",
+    "./dist/app/core/csv/**/*",
+    "./dist/app/core/repositories/*",
     "./dist/app/core/commander.db",
     "./dist/app/core/window/AppWindow.js",
-    "./dist/app/core/window/preload.js"
+    "./dist/app/core/window/preload.js",
+    "./dist/app/renderer/utils/Utils.js"
   ],
   "win": {
     "target": "nsis",

@@ -1,12 +1,14 @@
 import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
-import { UpdateRouteEvent } from './events/UpdateRouteVent';
-import { RouteController } from '../controller/RouteController';
+import { UpdateRouteEvent } from './events/UpdateRouteEvent';
+import { RouteController, RoutePoint } from '../controller/RouteController';
 import { ToastHandler } from '../utils/components/ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';
 import { Affiliation } from '../models/Affiliation';
+import { PlanetTagGroup } from '../utils/components/PlanetTagGroup';
+import { snakeCaseToTitleCase } from '../utils/Utils';
 
 /**
  * Responsible for the action bar
@@ -23,12 +25,19 @@ class ActionBarHandler {
   private centerOnPlanetBtn: HTMLButtonElement;
   private addToRouteBtn: HTMLButtonElement;
   private planetCustomText: HTMLTextAreaElement;
+  private planetTagContainer: HTMLDivElement;
+  private planetInfoText: HTMLTextAreaElement;
+  private planetTypeArea: HTMLDivElement;
+  private planetPopulationArea: HTMLDivElement;
+  private planetCivilizationArea: HTMLDivElement;
+  private planetSizeArea: HTMLDivElement;
+  private planetFuelingStationArea: HTMLDivElement;
+  private noRoutingDataText: HTMLDivElement;
 
   private selectedPlanet: Planet | null;
 
   // Settings
-  private settingsRange30: HTMLInputElement;
-  private settingsRange60: HTMLInputElement;
+  private jumpRangeInput: HTMLInputElement;
   private excludedAffiliationsParent: HTMLElement;
   private settingsBackgroundColor: HTMLInputElement;
 
@@ -58,13 +67,35 @@ class ActionBarHandler {
     this.addToRouteBtn = document.getElementById(
       'add-to-route'
     ) as HTMLButtonElement;
+    this.planetTagContainer = document.getElementById(
+      'planet-tag-container'
+    ) as HTMLDivElement;
+    this.planetInfoText = document.getElementById(
+      'planet-info-text'
+    ) as HTMLTextAreaElement;
+    this.planetTypeArea = document.getElementById(
+      'planet-type'
+    ) as HTMLDivElement;
+    this.planetPopulationArea = document.getElementById(
+      'planet-population'
+    ) as HTMLDivElement;
+    this.planetCivilizationArea = document.getElementById(
+      'planet-civilization'
+    ) as HTMLDivElement;
+    this.planetSizeArea = document.getElementById(
+      'planet-size'
+    ) as HTMLDivElement;
+    this.planetFuelingStationArea = document.getElementById(
+      'planet-fueling-station'
+    ) as HTMLDivElement;
+
+    this.noRoutingDataText = document.getElementById(
+      'no-routing-data-text'
+    ) as HTMLDivElement;
 
     // Settings Elements
-    this.settingsRange30 = document.getElementById(
-      'settings-range-30'
-    ) as HTMLInputElement;
-    this.settingsRange60 = document.getElementById(
-      'settings-range-60'
+    this.jumpRangeInput = document.getElementById(
+      'jump-range-input'
     ) as HTMLInputElement;
     this.excludedAffiliationsParent = document.getElementById(
       'jump-settings-excluded-affiliations'
@@ -118,7 +149,7 @@ class ActionBarHandler {
     // Add listener to the custom text area changes to update the selected planets custom text
     this.planetCustomText.addEventListener('change', () => {
       if (this.selectedPlanet) {
-        this.selectedPlanet.setText(this.planetCustomText.value);
+        this.selectedPlanet.setCustomText(this.planetCustomText.value);
       }
     });
 
@@ -126,7 +157,7 @@ class ActionBarHandler {
     this.universe.planetSelectionChangedEvent.subscribe(
       this.planetSelectionChanged.bind(this)
     );
-    this.cameraController.updateRouteEvent.subscribe(
+    this.routeController.updateRouteEvent.subscribe(
       this.routeChanged.bind(this)
     );
 
@@ -134,18 +165,31 @@ class ActionBarHandler {
   }
 
   private setupSettingsTab() {
-    const jumpRange = Config.getInstance().get('jumpRange') as number;
-    if (jumpRange === 60) this.settingsRange60.checked = true;
-    else this.settingsRange30.checked = true;
+    let jumpRange = Config.getInstance().get('jumpRange') as number;
 
-    this.settingsRange60.addEventListener('change', () => {
-      Config.getInstance().set('jumpRange', 60);
-      // TODO: Use Event???
-      this.generateJumpCards();
-    });
-    this.settingsRange30.addEventListener('change', () => {
-      Config.getInstance().set('jumpRange', 30);
-      // TODO: Use Event???
+    if (typeof jumpRange !== 'number') {
+      jumpRange = 30;
+      Config.getInstance().set('jumpRange', jumpRange);
+    } else if (parseInt(jumpRange + '') !== jumpRange) {
+      jumpRange = parseInt(jumpRange + '');
+      Config.getInstance().set('jumpRange', jumpRange);
+    } else if (isNaN(jumpRange) || jumpRange < 1) {
+      jumpRange = 30;
+      Config.getInstance().set('jumpRange', jumpRange);
+    }
+
+    this.jumpRangeInput.value = jumpRange.toString();
+
+    this.jumpRangeInput.addEventListener('change', () => {
+      let newValue = parseInt(this.jumpRangeInput.value.trim());
+
+      if (isNaN(newValue) || newValue < 1) {
+        newValue = 30;
+      }
+
+      Config.getInstance().set('jumpRange', newValue);
+      this.jumpRangeInput.value = newValue + '';
+
       this.generateJumpCards();
     });
 
@@ -230,18 +274,9 @@ class ActionBarHandler {
    * Handler to add the selected planet to the route on button click.
    */
   private addToRouteClicked() {
-    // Add to route only, iff a planet is selected and its not already inside the target planets of the route.
-    if (
-      this.selectedPlanet != null &&
-      !this.routeController.containsPlanet(this.selectedPlanet)
-    ) {
+    // Add to route only, iff a planet is selected.
+    if (this.selectedPlanet != null) {
       this.routeController.addTargetPlanet(this.selectedPlanet);
-      // TODO: Rework. Don't invoke event of other class!!!
-      this.cameraController.updateRouteEvent.invoke({
-        planet: this.selectedPlanet,
-        add: true,
-        numberPlanets: this.routeController.lengthOfTargetPlanets(),
-      });
     }
   }
   /**
@@ -269,15 +304,33 @@ class ActionBarHandler {
         this.coordinatesArea,
         `x: ${this.selectedPlanet.coord.getX()}, y: ${this.selectedPlanet.coord.getY()}`
       );
+
       this.wikiLinkArea.href =
         this.selectedPlanet.getWikiURL() ||
         'https://www.sarna.net/wiki/Main_Page';
       this.planetCustomText.disabled = false;
-      this.planetCustomText.value = this.selectedPlanet.getText();
-      // Select first button (Planet Details)
-      // FIXME: Make dynamic
-      this.showTab(this.navButtons[0].dataset.content, this.navButtons[0]);
+      this.planetCustomText.value = this.selectedPlanet.getCustomText();
     }
+
+    this.updatePlanetTagVisual(this.selectedPlanet);
+    this.updateText(this.planetTypeArea, this.selectedPlanet?.getType() ?? 'X');
+    this.planetInfoText.value = this.selectedPlanet?.getDetail() ?? '';
+    this.updateText(
+      this.planetCivilizationArea,
+      this.selectedPlanet?.getCivilization() ?? 'None'
+    );
+    this.updateText(
+      this.planetFuelingStationArea,
+      this.selectedPlanet?.hasFuelingStation() ? 'true' : 'false'
+    ),
+      this.updateText(
+        this.planetSizeArea,
+        this.selectedPlanet?.getSize() ?? 'Unknown'
+      );
+    this.updateText(
+      this.planetPopulationArea,
+      this.selectedPlanet?.getPopulation() ?? 'None'
+    );
   }
 
   /**
@@ -297,6 +350,11 @@ class ActionBarHandler {
         'Route',
         `Added ${routeChanged.planet.getName()} to route.`
       );
+    }
+    if (routeChanged?.numberPlanets > 0) {
+      this.noRoutingDataText.style.setProperty('display', 'none', 'important');
+    } else {
+      this.noRoutingDataText.style.removeProperty('display');
     }
   }
 
@@ -346,7 +404,8 @@ class ActionBarHandler {
       Config.getInstance().get('jumpRange') as number
     );
 
-    const jumps = this.routeController.getNumberOfJumpsBetween();
+    const route = this.routeController.getRoute();
+
     // Remove all existing jump cards
     const jumpCards = document.querySelectorAll('[data-jump-card]');
     jumpCards.forEach((card) => {
@@ -365,8 +424,8 @@ class ActionBarHandler {
     let nextPlanetCard = planetCards[i];
 
     // Add all jump cards between the planet cards
-    jumps.forEach((jump) => {
-      const card = this.createRouteJumpCard(jump);
+    route.forEach((routePoint) => {
+      const card = this.createRouteJumpCard(routePoint);
       this.routeItemsContainer.insertBefore(card, nextPlanetCard.nextSibling);
       nextPlanetCard = planetCards[++i];
     });
@@ -379,8 +438,8 @@ class ActionBarHandler {
    */
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card text-white my-auto flex-shrink-0 bg-dark';
-    cardDiv.style.width = '200px';
+    cardDiv.className =
+      'card text-white my-auto flex-shrink-0 bg-dark min-w-200 p-2';
     cardDiv.dataset.planetCard = planet.getName();
 
     const cardBodyDiv = document.createElement('div');
@@ -397,6 +456,7 @@ class ActionBarHandler {
       this.routeController.removeTargetPlanetByName(cardDiv.dataset.planetCard);
       cardDiv.remove();
       this.generateJumpCards();
+      this.universe.focus();
     };
 
     const cardText = document.createElement('p');
@@ -408,6 +468,7 @@ class ActionBarHandler {
     centerButton.textContent = 'o';
     centerButton.onclick = () => {
       this.cameraController.centerOnPlanetByName(cardDiv.dataset.planetCard);
+      this.universe.focus();
     };
 
     // Append the elements to build the card
@@ -427,7 +488,7 @@ class ActionBarHandler {
    * @param jumps The amount of jumps
    * @returns The dom jump card element
    */
-  private createRouteJumpCard(jumps: number) {
+  private createRouteJumpCard(routePoint: RoutePoint) {
     const cardDiv = document.createElement('div');
     cardDiv.className =
       'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
@@ -437,7 +498,7 @@ class ActionBarHandler {
     arrowDiv.textContent = '→';
 
     const jumpsDiv = document.createElement('div');
-    jumpsDiv.textContent = `${jumps} Jumps`;
+    jumpsDiv.textContent = `${routePoint.jumps} Jumps`;
 
     cardDiv.appendChild(arrowDiv);
     cardDiv.appendChild(jumpsDiv);
@@ -469,6 +530,22 @@ class ActionBarHandler {
     parent.appendChild(label);
 
     return parent;
+  }
+
+  private updatePlanetTagVisual(selectedPlanet: Planet | null): void {
+    this.planetTagContainer.innerHTML = '';
+
+    if (selectedPlanet === null) {
+      return;
+    }
+
+    selectedPlanet.getTags().forEach((tagValues, tagKey) => {
+      new PlanetTagGroup({
+        parentElement: this.planetTagContainer,
+        tagTitle: snakeCaseToTitleCase(tagKey),
+        tagValueList: tagValues
+      }).render();
+    });
   }
 }
 

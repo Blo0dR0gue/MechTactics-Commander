@@ -1,0 +1,35 @@
+.tag-group {
+  margin-right: 2rem;
+  min-width: 150px;
+}
+
+.tag-value-container {
+  display: grid;
+  grid-template-rows: repeat(2, auto);
+  gap: 5px;
+}
+
+.tag-title {
+  margin-bottom: 0.5rem;
+  color: white;
+  border-bottom: 1px solid white;
+}
+
+.tag-item {
+  flex-shrink: 0;
+  min-width: 100px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 20px;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 14px;
+}
+
+.tag-item:nth-child(odd) {
+  grid-row: 1;
+}
+
+.tag-item:nth-child(even) {
+  grid-row: 2;
+}

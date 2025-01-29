@@ -8,10 +8,7 @@
 import { Modal } from 'bootstrap';
 import './styles/main.scss';
 import { Table } from './utils/components/table/Table';
-import {
-  planetCoordDataToPlanetData,
-  planetDataToPlanetCoordData,
-} from './utils/Utils';
+import { planetDataToPlanetCoordData } from './utils/Utils';
 import { ToastHandler, ToastType } from './utils/components/ToastHandler';
 import { RingLoadingIndicator } from './utils/components/RingLoadingIndicator';
 import { Dialog } from './utils/components/Dialog';
@@ -20,7 +17,7 @@ import { PlanetCoordData } from '../types/PlanetData';
 import {
   DynamicPlanetAffiliationConnectData,
   PlanetAffiliationAgeData,
-  PlanetAffiliationAgeWithNamesData,
+  PlanetAffiliationAgeWithNamesData
 } from '../types/PlanetAffiliationAge';
 import { TabGroup } from './utils/components/TabGroup';
 import {
@@ -32,9 +29,11 @@ import {
   editIcon,
   planetAffiliationAgeIcon,
   planetIcon,
-  uploadIcon,
+  uploadIcon
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
+import PlanetTagEditor from './utils/components/PlanetTagEditor';
+import { Dropdown } from './utils/components/Dropdown';
 
 // get planet and affiliation data
 const affiliationsData: AffiliationData[] =
@@ -46,50 +45,58 @@ const planetsData: PlanetCoordData[] = await window.sql
 
 // TODO: Remove mapping of the data with the names of the planet or affiliation. This is because the formatter on the table was to slow while searching. this needs to be optimized
 
-const tmpPlanetAffiliationAgeData: PlanetAffiliationAgeWithNamesData[] =
-  await window.sql.getAllPlanetAffiliationAgesWithNames();
-
-const planetAffiliationConnectMap = new Map<
-  number,
-  DynamicPlanetAffiliationConnectData
->();
-
 const currentUsedUniverseAges = await window.sql.getAllUniverseAges();
 
-tmpPlanetAffiliationAgeData.forEach((planetAffiliationAge) => {
-  let item = planetAffiliationConnectMap.get(planetAffiliationAge.planetID);
-  const key = `age${planetAffiliationAge.universeAge}` as `age${number}`;
-  const affiliationData = {
-    universeAge: planetAffiliationAge.universeAge,
-    affiliationID: planetAffiliationAge.affiliationID,
-    planetText: planetAffiliationAge.planetText,
-    affiliationName: planetAffiliationAge.affiliationName,
-  };
-  if (!item) {
-    item = {
-      planetID: planetAffiliationAge.planetID,
-      planetName: planetAffiliationAge.planetName,
-      affiliationData: {},
+let planetAffiliationConnectMap: Map<
+  number,
+  DynamicPlanetAffiliationConnectData
+> = null;
+let planetAffiliationConnectData: DynamicPlanetAffiliationConnectData[] = null;
+
+async function buildPlanetAffiliationAgeData() {
+  const tmpPlanetAffiliationAgeData: PlanetAffiliationAgeWithNamesData[] =
+    await window.sql.getAllPlanetAffiliationAgesWithNames();
+
+  planetAffiliationConnectMap = new Map<
+    number,
+    DynamicPlanetAffiliationConnectData
+  >();
+
+  tmpPlanetAffiliationAgeData.forEach((planetAffiliationAge) => {
+    let item = planetAffiliationConnectMap.get(planetAffiliationAge.planetID);
+    const key = `age${planetAffiliationAge.universeAge}` as `age${number}`;
+    const affiliationData = {
+      universeAge: planetAffiliationAge.universeAge,
+      affiliationID: planetAffiliationAge.affiliationID,
+      planetText: planetAffiliationAge.planetText,
+      affiliationName: planetAffiliationAge.affiliationName
     };
-    // TODO: Remove the need to define this for each element each time we add a new universe age
-    currentUsedUniverseAges.forEach((age) => {
-      item.affiliationData[`age${age}`] = {
-        affiliationID: undefined,
-        affiliationName: undefined,
-        planetText: undefined,
-        universeAge: undefined,
+    if (!item) {
+      item = {
+        planetID: planetAffiliationAge.planetID,
+        planetName: planetAffiliationAge.planetName,
+        affiliationData: {}
       };
-    });
+      // TODO: Remove the need to define this for each element each time we add a new universe age
+      currentUsedUniverseAges.forEach((age) => {
+        item.affiliationData[`age${age}`] = {
+          affiliationID: undefined,
+          affiliationName: undefined,
+          planetText: undefined,
+          universeAge: undefined
+        };
+      });
 
-    planetAffiliationConnectMap.set(planetAffiliationAge.planetID, item);
-  }
+      planetAffiliationConnectMap.set(planetAffiliationAge.planetID, item);
+    }
 
-  item.affiliationData[key] = affiliationData;
-});
-const planetAffiliationConnectData: DynamicPlanetAffiliationConnectData[] =
-  Array.from(planetAffiliationConnectMap.values());
+    item.affiliationData[key] = affiliationData;
+  });
 
-// icon setup
+  planetAffiliationConnectData = Array.from(
+    planetAffiliationConnectMap.values()
+  );
+}
 
 // element definitions
 const tableParent = document.getElementById('table-holder');
@@ -134,6 +141,19 @@ const planetFormCoordY = document.getElementById(
 ) as HTMLInputElement;
 const planetFormLink = document.getElementById(
   'planet-link'
+) as HTMLInputElement;
+const planetFormType = document.getElementById(
+  'planet-type'
+) as HTMLInputElement;
+
+const planetFormDetail = document.getElementById(
+  'planet-detail'
+) as HTMLTextAreaElement;
+const planetFormFuelingStation = document.getElementById(
+  'planet-fueling-station'
+) as HTMLInputElement;
+const planetFormJumpDistance = document.getElementById(
+  'planet-jump-distance'
 ) as HTMLInputElement;
 
 // affiliation form elements
@@ -192,6 +212,53 @@ const loadingIndicator = new RingLoadingIndicator(loader, 'lds-ring-dark');
 let currentEditPlanet: PlanetCoordData = undefined;
 const planetModal = new Modal(planetModalElement, {});
 
+const planetTagEditor = new PlanetTagEditor({
+  newTagInput: document.getElementById(
+    'new-planet-tag-input'
+  ) as HTMLInputElement,
+  newTagKeyAddBtn: document.getElementById(
+    'new-planet-tag-btn'
+  ) as HTMLButtonElement,
+  tagEditorContainer: document.getElementById(
+    'planet-tag-editor-container'
+  ) as HTMLDivElement,
+  toastHandler: toastHandler
+});
+
+const planetCivilizationDropdown = new Dropdown(
+  document.getElementById('planet-civilization') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'None', default: true },
+    { value: 'Primitive' },
+    { value: 'Innersphere' },
+    { value: 'Periphery' }
+  ])
+  .render();
+
+const planetPopulationDropdown = new Dropdown(
+  document.getElementById('planet-population') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'None', default: true },
+    { value: 'Low' },
+    { value: 'Small' },
+    { value: 'Medium' },
+    { value: 'Large' }
+  ])
+  .render();
+
+const planetSizeDropdown = new Dropdown(
+  document.getElementById('planet-size') as HTMLSelectElement
+)
+  .setItems([
+    { value: 'Unknown', default: true },
+    { value: 'Small' },
+    { value: 'Medium' },
+    { value: 'Large' }
+  ])
+  .render();
+
 planetForm.addEventListener('submit', (e) => e.preventDefault());
 
 planetSaveBtn.addEventListener('click', () => {
@@ -200,6 +267,16 @@ planetSaveBtn.addEventListener('click', () => {
   const x = Number(parseFloat(planetFormCoordX.value).toFixed(2));
   const y = Number(parseFloat(planetFormCoordY.value).toFixed(2));
   const link = planetFormLink.value.trim() || 'https://www.sarna.net/wiki/';
+
+  const type = planetFormType.value.trim().slice(0, 1).toUpperCase();
+  const detail = planetFormDetail.value.trim();
+  const size = planetSizeDropdown.getSelected().value;
+  const population = planetPopulationDropdown.getSelected().value;
+  const fuelingStation = planetFormFuelingStation.checked;
+  const civilization = planetCivilizationDropdown.getSelected().value;
+  const jumpDistance = parseInt(planetFormJumpDistance.value);
+
+  const tagObject = planetTagEditor.getCurrentTagUpdates();
 
   if (name.length <= 0) {
     toastHandler.createAndShowToast(
@@ -210,10 +287,32 @@ planetSaveBtn.addEventListener('click', () => {
     return;
   }
 
+  if (type.length <= 0) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Type can't be empty",
+      ToastType.Danger
+    );
+    return;
+  }
+
   if (isNaN(x) || isNaN(y)) {
     toastHandler.createAndShowToast(
       'Error',
       "Coordinates can't be NaN",
+      ToastType.Danger
+    );
+    return;
+  }
+
+  if (
+    typeof jumpDistance !== 'number' ||
+    isNaN(jumpDistance) ||
+    jumpDistance < 0
+  ) {
+    toastHandler.createAndShowToast(
+      'Error',
+      "Jump Distance can't be less then 0 or undefined.",
       ToastType.Danger
     );
     return;
@@ -253,38 +352,84 @@ planetSaveBtn.addEventListener('click', () => {
     // Create new planet
     window.sql
       .createPlanet({
-        id: id,
         x: x,
         y: y,
         link: link,
         name: name,
+        detail: detail,
+        fuelingStation: fuelingStation,
+        type: type,
+        tagObject: tagObject,
+        civilization: civilization,
+        population: population,
+        size: size,
+        jumpDistance: jumpDistance
       })
-      .then((planet) => {
+      .then((newID) => {
         toastHandler.createAndShowToast(
           'Planet',
           'Planet created',
           ToastType.Info
         );
-        planetTable.addData(planetDataToPlanetCoordData(planet));
+        planetTable.addData(
+          planetDataToPlanetCoordData({
+            id: newID,
+            x: x,
+            y: y,
+            link: link,
+            name: name,
+            detail: detail,
+            fuelingStation: fuelingStation,
+            type: type,
+            tagObject: tagObject,
+            civilization: civilization,
+            population: population,
+            size: size,
+            jumpDistance: jumpDistance
+          })
+        );
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
-  } else {
-    // Update planet
-    // Updating this objects updates the table, because of the data binding used with the table
-    currentEditPlanet.id = id;
-    currentEditPlanet.name = name;
-    currentEditPlanet.coord.x = x;
-    currentEditPlanet.coord.y = y;
-    currentEditPlanet.link = link;
-    window.sql
-      .updatePlanet(
-        JSON.parse(
-          JSON.stringify(planetCoordDataToPlanetData(currentEditPlanet))
-        )
       )
+      .finally(() => {
+        planetTable.updateTable();
+      });
+  } else {
+    window.sql
+      .updatePlanet({
+        id: id,
+        x: x,
+        y: y,
+        link: link,
+        name: name,
+        detail: detail,
+        fuelingStation: fuelingStation,
+        type: type,
+        tagObject: tagObject,
+        civilization: civilization,
+        population: population,
+        size: size,
+        jumpDistance: jumpDistance
+      })
       .then(() => {
+        // Update planet
+        currentEditPlanet.id = id;
+        currentEditPlanet.name = name;
+        currentEditPlanet.coord.x = x;
+        currentEditPlanet.coord.y = y;
+        currentEditPlanet.link = link;
+
+        // new planet data
+        currentEditPlanet.tagObject = tagObject;
+        currentEditPlanet.fuelingStation = false;
+        currentEditPlanet.detail = detail;
+        currentEditPlanet.type = type;
+        currentEditPlanet.civilization = civilization;
+        currentEditPlanet.population = population;
+        currentEditPlanet.size = size;
+        currentEditPlanet.jumpDistance = jumpDistance;
+
         toastHandler.createAndShowToast(
           'Planet',
           'Planet updated',
@@ -293,22 +438,36 @@ planetSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        planetTable.updateTable();
+      });
   }
   planetModal.hide();
 });
 
 function setPlanetFormData(planet: PlanetCoordData) {
-  planetFormID.value = String(planet?.id || -1);
-  planetFormName.value = planet?.name || '';
-  planetFormCoordX.value = String(planet?.coord?.x || 0);
-  planetFormCoordY.value = String(planet?.coord?.y || 0);
-  planetFormLink.value = planet?.link || '';
+  planetFormID.value = String(planet?.id ?? -1);
+  planetFormName.value = planet?.name ?? '';
+  planetFormCoordX.value = String(planet?.coord?.x ?? 0);
+  planetFormCoordY.value = String(planet?.coord?.y ?? 0);
+  planetFormLink.value = planet?.link ?? '';
+
+  // New planet data
+  planetFormType.value = planet?.type ?? 'X';
+  planetFormFuelingStation.checked = planet?.fuelingStation ?? false;
+  planetFormDetail.value = planet?.detail ?? '';
+  planetFormJumpDistance.value = String(planet?.jumpDistance ?? 0);
+
+  planetCivilizationDropdown.setSelected(planet?.civilization);
+  planetPopulationDropdown.setSelected(planet?.population);
+  planetSizeDropdown.setSelected(planet?.size);
 }
 
-function openPlanetModalWith(planet: PlanetCoordData = undefined) {
+function openPlanetCreateModal(planet: PlanetCoordData = undefined) {
   currentEditPlanet = planet;
   setPlanetFormData(planet);
+  planetTagEditor.loadEditor(planet?.tagObject);
   planetModal.show();
 }
 
@@ -317,7 +476,7 @@ planetAgeCopyForm.addEventListener('submit', (e) => e.preventDefault());
 
 const planetAgeCopyModal = new Modal(planetAgeCopyModalElement, {});
 
-function openPlanetAgeCopyModal() {
+function openPlanetAffiliationConnectCopyModal() {
   // clear age selection element to add the current existing one
   planetAgeCopyFormTarget.innerHTML = '';
 
@@ -388,7 +547,7 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
         planetID: data.planetID,
         affiliationID: data.affiliationData[`age${targetAge}`].affiliationID,
         planetText: data.affiliationData[`age${targetAge}`].planetText,
-        universeAge: destinationAge,
+        universeAge: destinationAge
       } as PlanetAffiliationAgeData;
     });
 
@@ -420,12 +579,10 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
           affiliationID: elem?.affiliationID,
           planetText: elem?.planetText,
           affiliationName: planetAffiliationConnectMap.get(elem?.planetID)
-            ?.affiliationData[`age${targetAge}`]?.affiliationName,
+            ?.affiliationData[`age${targetAge}`]?.affiliationName
         };
       }
 
-      // Add the new universe age columns
-      addUniverseAgeColumnsToPlanetAffiliationConnectTable(destinationAge);
       currentUsedUniverseAges.add(destinationAge);
 
       toastHandler.createAndShowToast(
@@ -438,6 +595,9 @@ planetAgeCopySaveBtn.addEventListener('click', () => {
     .catch((reason) => {
       toastHandler.createAndShowToast('Error', reason, ToastType.Danger);
       loadingIndicator.hide();
+    })
+    .finally(() => {
+      refreshFullPlanetAffiliationConnectTableData();
     });
 
   planetAgeCopyModal.hide();
@@ -465,8 +625,9 @@ affiliationSaveBtn.addEventListener('click', () => {
   }
 
   if (
-    affiliationsData.filter((affiliation) => affiliation.name === name).length >
-    0
+    affiliationsData.filter(
+      (affiliation) => affiliation.name === name && id !== affiliation.id
+    ).length > 0
   ) {
     toastHandler.createAndShowToast(
       'Error',
@@ -480,21 +641,23 @@ affiliationSaveBtn.addEventListener('click', () => {
     // Create new affiliation
     window.sql
       .createAffiliation({
-        id: id,
         name: name,
-        color: color,
+        color: color
       })
-      .then((affiliation) => {
+      .then((newID) => {
         toastHandler.createAndShowToast(
           'Affiliation',
           'Affiliation created',
           ToastType.Info
         );
-        affiliationTable.addData(affiliation);
+        affiliationTable.addData({ id: newID, name: name, color: color });
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        affiliationTable.updateTable();
+      });
   } else {
     // Update affiliation
     currentEditAffiliation.id = id;
@@ -511,21 +674,24 @@ affiliationSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        affiliationTable.updateTable();
+      });
   }
   affiliationModal.hide();
 });
 
-function openAffiliationModalWith(affiliation: AffiliationData = undefined) {
+function openAffiliationCreateModal(affiliation: AffiliationData = undefined) {
   currentEditAffiliation = affiliation;
   setAffiliationFormData(affiliation);
   affiliationModal.show();
 }
 
 function setAffiliationFormData(affiliation: AffiliationData) {
-  affiliationFormID.value = String(affiliation?.id || -1);
-  affiliationFormName.value = affiliation?.name || '';
-  affiliationFormColor.value = affiliation?.color || '';
+  affiliationFormID.value = String(affiliation?.id ?? -1);
+  affiliationFormName.value = affiliation?.name ?? '';
+  affiliationFormColor.value = affiliation?.color ?? '';
 }
 
 // planet affiliation connect modal and form setups
@@ -575,7 +741,7 @@ planetAffiliationConnectDeleteBtn.addEventListener('click', () => {
       editPlanetAffiliationConnectData.affiliationData[
         `age${selectedUniverseAge}`
       ].planetText,
-    universeAge: selectedUniverseAge,
+    universeAge: selectedUniverseAge
   } as PlanetAffiliationAgeData;
 
   window.sql
@@ -598,6 +764,28 @@ planetAffiliationConnectDeleteBtn.addEventListener('click', () => {
 
       initPlanetAffiliationConnectForm(editPlanetAffiliationConnectData);
 
+      const ageStillHasValues = planetAffiliationConnectData.some(
+        (dataPoint) =>
+          dataPoint.affiliationData[`age${selectedUniverseAge}`].universeAge !==
+          undefined
+      );
+
+      const planetStillHasUniverseAgeValues = Object.keys(
+        editPlanetAffiliationConnectData.affiliationData
+      ).some(
+        (key) =>
+          editPlanetAffiliationConnectData.affiliationData[key].universeAge !==
+          undefined
+      );
+
+      if (!ageStillHasValues) {
+        currentUsedUniverseAges.delete(selectedUniverseAge);
+      }
+
+      if (!planetStillHasUniverseAgeValues) {
+        planetAffiliationConnectModal.hide();
+      }
+
       toastHandler.createAndShowToast(
         'Planet Affiliation Connect',
         'Data deleted',
@@ -606,6 +794,9 @@ planetAffiliationConnectDeleteBtn.addEventListener('click', () => {
     })
     .catch((reason) => {
       toastHandler.createAndShowToast('Error', reason, ToastType.Danger);
+    })
+    .finally(() => {
+      refreshFullPlanetAffiliationConnectTableData();
     });
 });
 
@@ -652,6 +843,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     );
     return;
   }
+
   if (
     selectedUniverseAge === -1 &&
     currentUsedUniverseAges.has(newUniverseAge)
@@ -668,7 +860,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
     affiliationID: affiliationID,
     planetID: planetID,
     planetText: planetText,
-    universeAge: universeAge,
+    universeAge: universeAge
   } as PlanetAffiliationAgeData;
 
   if (editPlanetAffiliationConnectData) {
@@ -687,7 +879,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
             affiliationName: affiliationsData.find(
               (affiliation) => affiliation.id === affiliationID
             )?.name,
-            universeAge: universeAge,
+            universeAge: universeAge
           };
 
           // add universe age data to all other data points as undefined
@@ -702,13 +894,11 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
                 affiliationID: undefined,
                 affiliationName: undefined,
                 planetText: undefined,
-                universeAge: undefined, // needs to be undefined, for the copy by age modal and the create or update and for the planet affiliation connect data logic
+                universeAge: undefined // needs to be undefined, for the copy by age modal and the create or update and for the planet affiliation connect data logic
               };
             }
-            console.log(planetAffiliationAgeElement);
           }
 
-          addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
           currentUsedUniverseAges.add(universeAge);
 
           toastHandler.createAndShowToast(
@@ -719,7 +909,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
         })
         .catch((reason) =>
           toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-        );
+        )
+        .finally(() => {
+          refreshFullPlanetAffiliationConnectTableData();
+        });
     } else {
       // update data with existing universe age
 
@@ -759,7 +952,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
           })
           .catch((reason) =>
             toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-          );
+          )
+          .finally(() => {
+            refreshFullPlanetAffiliationConnectTableData();
+          });
       } else {
         window.sql
           .updatePlanetAffiliationAge(
@@ -775,7 +971,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
           })
           .catch((reason) =>
             toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-          );
+          )
+          .finally(() => {
+            refreshFullPlanetAffiliationConnectTableData();
+          });
       }
     }
   } else {
@@ -785,13 +984,13 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
       .createPlanetAffiliationAge(
         JSON.parse(JSON.stringify(planetAffiliationAgeElement))
       )
-      .then((newData) => {
+      .then(() => {
         const newPlanetAffiliationConnectDataPoint = {
-          planetID: newData.planetID,
+          planetID: planetAffiliationAgeElement.planetID,
           planetName: planetsData.find(
-            (planet) => planet.id === newData.planetID
+            (planet) => planet.id === planetAffiliationAgeElement.planetID
           )?.name,
-          affiliationData: {},
+          affiliationData: {}
         } as DynamicPlanetAffiliationConnectData;
 
         newPlanetAffiliationConnectDataPoint.affiliationData[
@@ -802,7 +1001,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
           affiliationName: affiliationsData.find(
             (affiliation) => affiliation.id === affiliationID
           )?.name,
-          universeAge: universeAge,
+          universeAge: universeAge
         };
 
         for (const createUniverseAge of currentUsedUniverseAges) {
@@ -813,7 +1012,7 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
               affiliationID: undefined,
               planetText: undefined,
               affiliationName: undefined,
-              universeAge: undefined,
+              universeAge: undefined
             };
           }
         }
@@ -826,11 +1025,10 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
                 affiliationID: undefined,
                 planetText: undefined,
                 affiliationName: undefined,
-                universeAge: undefined,
+                universeAge: undefined
               };
           }
           currentUsedUniverseAges.add(universeAge);
-          addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
         }
 
         // Add new data point to dataset and map
@@ -850,12 +1048,15 @@ planetAffiliationConnectSaveBtn.addEventListener('click', () => {
       })
       .catch((reason) =>
         toastHandler.createAndShowToast('Error', reason, ToastType.Danger)
-      );
+      )
+      .finally(() => {
+        refreshFullPlanetAffiliationConnectTableData();
+      });
   }
   planetAffiliationConnectModal.hide();
 });
 
-function openPlanetAffiliationConnectModalWith(
+function openPlanetAffiliationConnectCreateModal(
   data: DynamicPlanetAffiliationConnectData = undefined
 ) {
   editPlanetAffiliationConnectData = data;
@@ -899,7 +1100,7 @@ function addAllAffiliationsToSelect() {
   planetAffiliationConnectAffiliationID.innerHTML = '';
 
   // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
-  for (const affiliation of affiliationsData.sort((a1, a2) =>
+  for (const affiliation of affiliationsData.toSorted((a1, a2) =>
     a1.name > a2.name ? 1 : -1
   )) {
     const affiliationOption = document.createElement('option');
@@ -913,21 +1114,21 @@ function addAllAffiliationsToSelect() {
  * Add all affiliations to the affiliation id select element
  */
 function addAllPlanetsToSelect(data: DynamicPlanetAffiliationConnectData) {
-  // clear affiliation id select
+  // clear planet id select
   planetAffiliationConnectPlanetID.innerHTML = '';
 
-  // add all affiliations from list (list will be updated, iff a affiliation is added or removed or updated via the affiliations table)
+  // add all planets from list (list will be updated, iff a affiliation is added or removed or updated via the planets table)
   for (const planet of planetsData
     .filter(
       (planet) =>
         !planetAffiliationConnectMap.has(planet.id) ||
         data?.planetID === planet.id
     )
-    .sort((p1, p2) => (p1.name > p2.name ? 1 : -1))) {
-    const affiliationOption = document.createElement('option');
-    affiliationOption.value = String(planet.id);
-    affiliationOption.textContent = planet.name;
-    planetAffiliationConnectPlanetID.appendChild(affiliationOption);
+    .toSorted((p1, p2) => (p1.name > p2.name ? 1 : -1))) {
+    const planetOption = document.createElement('option');
+    planetOption.value = String(planet.id);
+    planetOption.textContent = planet.name;
+    planetAffiliationConnectPlanetID.appendChild(planetOption);
   }
 }
 
@@ -961,13 +1162,13 @@ const tabGroup = new TabGroup(
         'link-dark',
         'align-items-center',
         'd-flex',
-        'active',
+        'active'
       ],
       onClick() {
         affiliationTable.remove();
         planetAffiliationConnectTable.remove();
         planetTable.render();
-      },
+      }
     },
     {
       text: 'Affiliations',
@@ -977,7 +1178,7 @@ const tabGroup = new TabGroup(
         planetTable.remove();
         planetAffiliationConnectTable.remove();
         affiliationTable.render();
-      },
+      }
     },
     {
       text: 'Planet Affiliation Connect',
@@ -987,8 +1188,8 @@ const tabGroup = new TabGroup(
         planetTable.remove();
         affiliationTable.remove();
         planetAffiliationConnectTable.render();
-      },
-    },
+      }
+    }
   ],
   'active'
 );
@@ -1014,8 +1215,8 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         icon: addIcon,
         classNames: ['btn', 'btn-success', 'btn-sm', 'me-1'],
         onClick() {
-          openPlanetModalWith();
-        },
+          openPlanetCreateModal();
+        }
       },
       {
         icon: uploadIcon,
@@ -1023,7 +1224,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         onClick() {
           loadingIndicator.show();
           window.app
-            .importTableFromCSV('Planet')
+            .importTableFromCSV('PlanetWithTagsView')
             .then(() => {
               loadingIndicator.hide();
               location.reload();
@@ -1036,7 +1237,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
               );
               loadingIndicator.hide();
             });
-        },
+        }
       },
       {
         icon: downloadIcon,
@@ -1044,7 +1245,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
         onClick() {
           loadingIndicator.show();
           window.app
-            .exportTableToCSV('Planet')
+            .exportTableToCSV('PlanetWithTagsView')
             .then(() => {
               loadingIndicator.hide();
             })
@@ -1056,15 +1257,15 @@ const planetTable = new Table<(typeof planetsData)[number]>(
               );
               loadingIndicator.hide();
             });
-        },
-      },
-    ],
+        }
+      }
+    ]
   },
   [
     {
       header: {
         name: 'Action',
-        size: 'col-1',
+        size: 'col-1'
       },
       data: {
         type: 'button',
@@ -1074,8 +1275,8 @@ const planetTable = new Table<(typeof planetsData)[number]>(
             classNames:
               'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
             onClick(data) {
-              openPlanetModalWith(data);
-            },
+              openPlanetCreateModal(data);
+            }
           },
           {
             icon: deleteIcon,
@@ -1086,10 +1287,10 @@ const planetTable = new Table<(typeof planetsData)[number]>(
               dynamicDialog.show(
                 {
                   title: 'Delete Planet?',
-                  classNames: ['fs-5'],
+                  classNames: ['fs-5']
                 },
                 {
-                  content: `Do you want to delete the planet '${data.name}?`,
+                  content: `Do you want to delete the planet '${data.name}?`
                 },
                 {
                   buttons: [
@@ -1098,10 +1299,13 @@ const planetTable = new Table<(typeof planetsData)[number]>(
                       classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
                       onClick() {
                         window.sql
-                          .deletePlanet(JSON.parse(JSON.stringify(data)))
-                          .then(() => {
+                          .deletePlanet(data.id)
+                          .then(async () => {
                             dynamicDialog.hide();
                             planetTable.removeDataByIdx(rowIdx);
+
+                            await refreshFullPlanetAffiliationConnectTableData();
+
                             toastHandler.createAndShowToast(
                               'Planet',
                               'Planet deleted',
@@ -1115,49 +1319,69 @@ const planetTable = new Table<(typeof planetsData)[number]>(
                               ToastType.Danger
                             )
                           );
-                      },
+                      }
                     },
                     {
                       text: 'Cancel',
                       classNames: ['btn', 'btn-secondary'],
                       onClick() {
                         dynamicDialog.hide();
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
                 }
               );
-            },
-          },
-        ],
-      },
+            }
+          }
+        ]
+      }
     },
     {
       header: { name: 'ID', size: 'col-1' },
-      data: { type: 'binding', dataAttribute: 'id' },
+      data: { type: 'binding', dataAttribute: 'id' }
     },
     {
       header: { name: 'Name', size: 'col-4' },
-      data: { type: 'binding', dataAttribute: 'name' },
+      data: { type: 'binding', dataAttribute: 'name' }
     },
     {
       header: { name: 'Coordinates', size: 'col-3' },
       data: {
         type: 'binding',
         dataAttribute: 'coord',
-        formatter: new CoordStringFormatter(),
-      },
+        formatter: new CoordStringFormatter()
+      }
     },
     {
       header: {
-        name: 'Link',
-        size: 'col-3',
+        name: 'Civilization',
+        size: 'col-1'
       },
       data: {
         type: 'binding',
-        dataAttribute: 'link',
-      },
+        dataAttribute: 'civilization'
+      }
     },
+    {
+      header: {
+        name: 'Population',
+        size: 'col-1'
+      },
+      data: {
+        type: 'binding',
+        dataAttribute: 'population'
+      }
+    },
+    {
+      header: {
+        name: 'Size',
+        size: 'col-1'
+      },
+      data: {
+        type: 'binding',
+        dataAttribute: 'size'
+      }
+    }
   ]
 );
 
@@ -1177,8 +1401,8 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
         icon: addIcon,
         classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
         onClick() {
-          openAffiliationModalWith();
-        },
+          openAffiliationCreateModal();
+        }
       },
       {
         icon: uploadIcon,
@@ -1199,7 +1423,7 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
               );
               loadingIndicator.hide();
             });
-        },
+        }
       },
       {
         icon: downloadIcon,
@@ -1219,15 +1443,15 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
               );
               loadingIndicator.hide();
             });
-        },
-      },
-    ],
+        }
+      }
+    ]
   },
   [
     {
       header: {
         name: 'Action',
-        size: 'col-1',
+        size: 'col-1'
       },
       data: {
         type: 'button',
@@ -1237,8 +1461,8 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
             classNames:
               'btn btn-primary btn-sm align-items-center p-1 me-1'.split(' '),
             onClick(data) {
-              openAffiliationModalWith(data);
-            },
+              openAffiliationCreateModal(data);
+            }
           },
           {
             icon: deleteIcon,
@@ -1249,10 +1473,10 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
               dynamicDialog.show(
                 {
                   title: 'Delete Affiliation?',
-                  classNames: ['fs-5'],
+                  classNames: ['fs-5']
                 },
                 {
-                  content: `Do you want to delete the affiliation '${data.name}?`,
+                  content: `Do you want to delete the affiliation '${data.name}?`
                 },
                 {
                   buttons: [
@@ -1261,10 +1485,13 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
                       classNames: ['btn', 'btn-primary', 'ms-auto', 'me-1'],
                       onClick() {
                         window.sql
-                          .deleteAffiliation(data)
-                          .then(() => {
+                          .deleteAffiliation(data.id)
+                          .then(async () => {
                             dynamicDialog.hide();
                             affiliationTable.removeDataByIdx(rowIdx);
+
+                            await refreshFullPlanetAffiliationConnectTableData();
+
                             toastHandler.createAndShowToast(
                               'Affiliation',
                               'Affiliation deleted',
@@ -1278,44 +1505,44 @@ const affiliationTable = new Table<(typeof affiliationsData)[number]>(
                               ToastType.Danger
                             )
                           );
-                      },
+                      }
                     },
                     {
                       text: 'Cancel',
                       classNames: ['btn', 'btn-secondary'],
                       onClick() {
                         dynamicDialog.hide();
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
                 }
               );
             },
             enabled(data) {
               return data.id != 0;
-            },
-          },
-        ],
-      },
+            }
+          }
+        ]
+      }
     },
     {
       header: { name: 'ID', size: 'col-1' },
-      data: { type: 'binding', dataAttribute: 'id' },
+      data: { type: 'binding', dataAttribute: 'id' }
     },
     {
       header: { name: 'Name', size: 'col-5' },
-      data: { type: 'binding', dataAttribute: 'name' },
+      data: { type: 'binding', dataAttribute: 'name' }
     },
     {
       header: {
         name: 'Color',
-        size: 'col-5',
+        size: 'col-5'
       },
       data: {
         type: 'binding',
-        dataAttribute: 'color',
-      },
-    },
+        dataAttribute: 'color'
+      }
+    }
   ]
 );
 
@@ -1329,8 +1556,8 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
       header: { name: 'Affiliation ID ' + universeAge, size: 'col-space-3' },
       data: {
         type: 'binding',
-        dataAttribute: `affiliationData.age${universeAge}.affiliationID`,
-      },
+        dataAttribute: `affiliationData.age${universeAge}.affiliationID`
+      }
     },
     planetAffiliationConnectTable.getColumns().length
   );
@@ -1339,8 +1566,8 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
       header: { name: 'Affiliation Name ' + universeAge, size: 'col-space-3' },
       data: {
         type: 'binding',
-        dataAttribute: `affiliationData.age${universeAge}.affiliationName`,
-      },
+        dataAttribute: `affiliationData.age${universeAge}.affiliationName`
+      }
     },
     planetAffiliationConnectTable.getColumns().length
   );
@@ -1349,8 +1576,8 @@ function addUniverseAgeColumnsToPlanetAffiliationConnectTable(
       header: { name: 'Planet Text ' + universeAge, size: 'col-space-7' },
       data: {
         type: 'binding',
-        dataAttribute: `affiliationData.age${universeAge}.planetText`,
-      },
+        dataAttribute: `affiliationData.age${universeAge}.planetText`
+      }
     },
     planetAffiliationConnectTable.getColumns().length
   );
@@ -1372,15 +1599,15 @@ const planetAffiliationConnectTable =
           icon: addIcon,
           classNames: ['btn', 'btn-sm', 'btn-success', 'me-1'],
           onClick() {
-            openPlanetAffiliationConnectModalWith();
-          },
+            openPlanetAffiliationConnectCreateModal();
+          }
         },
         {
           icon: copyIcon,
           classNames: ['btn', 'btn-sm', 'btn-warning', 'me-2'],
           onClick() {
-            openPlanetAgeCopyModal();
-          },
+            openPlanetAffiliationConnectCopyModal();
+          }
         },
         {
           icon: uploadIcon,
@@ -1401,7 +1628,7 @@ const planetAffiliationConnectTable =
                 );
                 loadingIndicator.hide();
               });
-          },
+          }
         },
         {
           icon: downloadIcon,
@@ -1421,15 +1648,15 @@ const planetAffiliationConnectTable =
                 );
                 loadingIndicator.hide();
               });
-          },
-        },
-      ],
+          }
+        }
+      ]
     },
     [
       {
         header: {
           name: 'Action',
-          size: 'col-space-1',
+          size: 'col-space-1'
         },
         data: {
           type: 'button',
@@ -1438,47 +1665,62 @@ const planetAffiliationConnectTable =
               icon: editIcon,
               classNames: ['btn', 'btn-sm', 'btn-primary', 'me-1', 'p-1'],
               onClick(data) {
-                openPlanetAffiliationConnectModalWith(data);
-              },
-            },
-          ],
-        },
+                openPlanetAffiliationConnectCreateModal(data);
+              }
+            }
+          ]
+        }
       },
       {
         header: {
           name: 'Planet-ID',
-          size: 'col-space-1',
+          size: 'col-space-1'
         },
         data: {
           type: 'binding',
-          dataAttribute: 'planetID',
-        },
+          dataAttribute: 'planetID'
+        }
       },
       {
         header: {
           name: 'Planet Name',
-          size: 'col-space-4',
+          size: 'col-space-4'
         },
         data: {
           type: 'binding',
-          dataAttribute: 'planetName',
-        },
-      },
+          dataAttribute: 'planetName'
+        }
+      }
     ]
   );
 
 // Set data to table
 planetTable.setData(planetsData);
 affiliationTable.setData(affiliationsData);
-planetAffiliationConnectTable.setData(
-  planetAffiliationConnectData,
-  (v1, v2) => v1.planetID - v2.planetID
-);
 
-// Add all current active universe ages to the planet affiliation connection table
-for (const universeAge of currentUsedUniverseAges) {
-  addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
+const initialPlanetAffiliationAgeColumnCount =
+  planetAffiliationConnectTable.getColumns().length - 1;
+
+async function refreshFullPlanetAffiliationConnectTableData() {
+  const columnLength = planetAffiliationConnectTable.getColumns().length;
+  for (let i = columnLength; i > initialPlanetAffiliationAgeColumnCount; i--) {
+    planetAffiliationConnectTable.removeColumnByIndex(i);
+  }
+
+  await buildPlanetAffiliationAgeData();
+
+  planetAffiliationConnectTable.setData(
+    planetAffiliationConnectData,
+    (v1, v2) => v1.planetID - v2.planetID
+  );
+
+  // Add all current active universe ages to the planet affiliation connection table
+  for (const universeAge of currentUsedUniverseAges) {
+    addUniverseAgeColumnsToPlanetAffiliationConnectTable(universeAge);
+  }
 }
+
+await refreshFullPlanetAffiliationConnectTableData();
 
 // Start dashboard with planet table
 planetTable.render();

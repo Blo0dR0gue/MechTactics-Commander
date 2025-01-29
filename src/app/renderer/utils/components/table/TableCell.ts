@@ -1,6 +1,6 @@
 import { ObjectWithKeys } from '../../../../types/UtilityTypes';
+import { getDeepestObjectForPath, getLastPathPart } from '../../Utils';
 import { BaseElement } from '../BaseElement';
-import { Binding } from '../Binding';
 import { Button } from '../Button';
 import { TableError } from './Table';
 import { TableRow } from './TableRow';
@@ -8,7 +8,6 @@ import { TableCellData } from './TableTypes';
 
 class TableCell<T extends ObjectWithKeys> extends BaseElement {
   private cellElement: HTMLTableCellElement;
-  binding: Binding<unknown>;
 
   public constructor(
     parentElement: HTMLTableRowElement,
@@ -27,14 +26,21 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
 
     if (data.type === 'binding') {
       const { dataElement, dataAttribute, formatter } = data;
-      // render a text cell using data binding
-      this.binding = new Binding<unknown>(dataElement, dataAttribute);
-      this.binding.addBinding(
-        this.cellElement,
-        'textContent',
-        false,
-        formatter
-      );
+      // render a text cell using the value defined in the attribute inside the dateElement.
+      try {
+        const deepestObj = getDeepestObjectForPath(dataElement, dataAttribute);
+        const deepestPath = getLastPathPart(dataAttribute);
+        const objValue = deepestObj[deepestPath];
+        const sValue = formatter
+          ? formatter.format(objValue)
+          : (objValue as string);
+
+        this.cellElement.textContent = sValue;
+      } catch (err) {
+        if (err instanceof Error) {
+          console.trace(err.message);
+        }
+      }
     } else if (data.type === 'button') {
       // render the button cell
       const { buttons, dataElement } = data;
@@ -82,9 +88,8 @@ class TableCell<T extends ObjectWithKeys> extends BaseElement {
     this.parentElement.appendChild(this.cellElement);
     return this;
   }
+
   public remove(): void {
-    if (this.binding)
-      this.binding.removeBinding(this.cellElement, 'textContent');
     this.cellElement.innerHTML = '';
     this.parentElement.removeChild(this.cellElement);
   }

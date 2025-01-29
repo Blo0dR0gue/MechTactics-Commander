@@ -24,30 +24,30 @@ interface Window {
       planet: import('./src/app/types/PlanetData').PlanetData
     ) => Promise<boolean>;
     createPlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetData
-    ) => Promise<import('./src/app/types/PlanetData').PlanetData>;
-    deletePlanet: (
-      planet: import('./src/app/types/PlanetData').PlanetData
-    ) => Promise<boolean>;
+      planet: import('./src/app/types/UtilityTypes').ForcefullyOmit<
+        import('./src/app/types/PlanetData').PlanetData,
+        'id'
+      >
+    ) => Promise<number>;
+    deletePlanet: (planetID: number) => Promise<boolean>;
 
     updateAffiliation: (
       affiliation: import('./src/app/types/AffiliationData').AffiliationData
     ) => Promise<boolean>;
     createAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationData
-    ) => Promise<import('./src/app/types/AffiliationData').AffiliationData>;
-    deleteAffiliation: (
-      affiliation: import('./src/app/types/AffiliationData').AffiliationData
-    ) => Promise<boolean>;
+      affiliation: import('./src/app/types/UtilityTypes').ForcefullyOmit<
+        import('./src/app/types/AffiliationData').AffiliationData,
+        'id'
+      >
+    ) => Promise<number>;
+    deleteAffiliation: (affiliationID: number) => Promise<boolean>;
 
     updatePlanetAffiliationAge: (
       data: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
     ) => Promise<boolean>;
     createPlanetAffiliationAge: (
       data: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
-    ) => Promise<
-      import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
-    >;
+    ) => Promise<number>;
     createPlanetAffiliationAges: (
       dataPoints: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData[]
     ) => Promise<

@@ -47,6 +47,8 @@ class ActionBarHandler {
   private toastHandler: ToastHandler;
   private universe: Universe;
 
+  private allowedJumpRanges = [30, 60];
+
   /**
    * Setup of all dom element references
    */
@@ -164,9 +166,18 @@ class ActionBarHandler {
   }
 
   private setupSettingsTab() {
-    const jumpRange = Config.getInstance().get('jumpRange') as number;
-    if (jumpRange === 60) this.settingsRange60.checked = true;
-    else this.settingsRange30.checked = true;
+    let jumpRange = Config.getInstance().get('jumpRange') as number;
+
+    if (!this.allowedJumpRanges.includes(jumpRange)) {
+      jumpRange = this.allowedJumpRanges[0];
+      Config.getInstance().set('jumpRange', jumpRange);
+    }
+
+    if (jumpRange === 60) {
+      this.settingsRange60.checked = true;
+    } else {
+      this.settingsRange30.checked = true;
+    }
 
     this.settingsRange60.addEventListener('change', () => {
       Config.getInstance().set('jumpRange', 60);

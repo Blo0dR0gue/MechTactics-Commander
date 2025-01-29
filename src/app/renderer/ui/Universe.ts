@@ -92,6 +92,46 @@ class Universe {
   public planetSelectionChangedEvent: EventHandler<SelectionChangeEvent>;
 
   /**
+   * Color of the connection between planets, iff the jump is possible
+   */
+  private defaultJumpColor: string = 'rgba(255, 255, 255, 1)' as const;
+
+  /**
+   * Color of the connection between planets, iff the jump is not possible
+   */
+  private infinityJumpColor: string = 'rgb(240, 27, 27)' as const;
+
+  /**
+   * Selected planet border color
+   */
+  private selectedPlanetBorderColor: string = 'rgba(7, 217, 199, 1)' as const;
+
+  /**
+   * Distance planet border color
+   */
+  private distancePlanetBorderColor: string = 'rgba(171, 123, 10, 1)' as const;
+
+  /**
+   * Border color for route planets
+   */
+  private routePlanetBorderColor: string = 'rgba(136, 255, 0, 1)' as const;
+
+  /**
+   * The color of texts rendered on the canvas
+   */
+  private defaultTextColor: string = 'rgba(213, 213, 213, 1)' as const;
+
+  /**
+   * Size of a planet
+   */
+  private planetSize: number = 4 as const;
+
+  /**
+   * Width of a planet border
+   */
+  private planetBorderWidth: number = 3 as const;
+
+  /**
    * Creates a new universe
    *
    * @param canvas The canvas html element to render on
@@ -240,30 +280,50 @@ class Universe {
       )
         return;
       // Render all planets
-      this.drawPlanet(planet, 4);
+      this.drawPlanet(planet, this.planetSize);
     });
 
     // FIXME: Use events instead!
     if (this.routeController.getRoute().length > 0) {
       const route = this.routeController.getRoute();
-      for (let i = 0; i < route.length - 1; i++) {
-        this.drawConnection(route[i].coord, route[i + 1].coord);
-      }
-      for (let i = 0; i < route.length; i++) {
-        if (this.selectedPlanet !== route[i]) {
-          this.drawPlanet(route[i], 7, 'rgb(136, 255, 0)');
-          this.drawPlanet(route[i], 4);
-        }
-      }
+      route.forEach((routePoint) => {
+        routePoint.jumpPlanets.forEach((planet, index, planets) => {
+          if (index < planets.length - 1) {
+            this.drawConnection(
+              planet.coord,
+              planets[index + 1].coord,
+              routePoint.jumpPossible
+                ? this.defaultJumpColor
+                : this.infinityJumpColor
+            );
+          }
+          if (this.selectedPlanet !== planet) {
+            this.drawPlanetWithBorder(
+              planet,
+              this.planetSize,
+              this.planetBorderWidth,
+              this.routePlanetBorderColor
+            );
+          }
+        });
+      });
     }
 
     if (this.selectedPlanet !== null) {
       // Draw the selected planets in the foreground
-      this.drawPlanet(this.selectedPlanet, 7, '#07d9c7');
-      this.drawPlanet(this.selectedPlanet, 4);
+      this.drawPlanetWithBorder(
+        this.selectedPlanet,
+        this.planetSize,
+        this.planetBorderWidth,
+        this.selectedPlanetBorderColor
+      );
       if (this.distancePlanet !== null) {
-        this.drawPlanet(this.distancePlanet, 7, '#ab7b0a');
-        this.drawPlanet(this.distancePlanet, 4);
+        this.drawPlanetWithBorder(
+          this.distancePlanet,
+          this.planetSize,
+          this.planetBorderWidth,
+          this.distancePlanetBorderColor
+        );
         this.drawConnection(
           this.selectedPlanet.coord,
           this.distancePlanet.coord
@@ -271,8 +331,7 @@ class Universe {
         // Draw the distance text
         const distance = this.selectedPlanet.coord
           .distance(this.distancePlanet.coord)
-          .toFixed(2)
-          .toString();
+          .toFixed(3);
         const textWidth = this.context.measureText(distance).width;
         const textX =
           (this.selectedPlanet.coord.getX() +
@@ -341,6 +400,26 @@ class Universe {
   }
 
   /**
+   * Helper function to draw a planet on the canvas with a border.
+   *
+   * @param planet The planet to draw
+   * @param planetSize The size of the planet
+   * @param borderWidth The width of the border
+   * @param borderColor The color of the border
+   * @param planetColor (Optional) A color to override the planet color
+   */
+  private drawPlanetWithBorder(
+    planet: Planet,
+    planetSize: number,
+    borderWidth: number,
+    borderColor: string,
+    planetColor?: string
+  ) {
+    this.drawPlanet(planet, planetSize + borderWidth, borderColor);
+    this.drawPlanet(planet, planetSize, planetColor);
+  }
+
+  /**
    * Helper function to draw the planet name on the canvas
    *
    * @param planet The planet for which the planet name should be drawn
@@ -349,8 +428,7 @@ class Universe {
     this.drawText(
       new Vector(planet.coord.getX() + 2, planet.coord.getY()),
       planet.getName(),
-      14,
-      '#D5D5D5'
+      14
     );
   }
 
@@ -358,7 +436,7 @@ class Universe {
     pos: Vector,
     text: string,
     width = 15,
-    textColor = 'rgba(255, 255, 255, 1)'
+    textColor = this.defaultTextColor
   ) {
     const textWidth = Math.round(width / this.zoom);
     this.context.save(); // Save current transform state

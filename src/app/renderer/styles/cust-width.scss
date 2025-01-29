@@ -1,31 +1,35 @@
 .min-w-150 {
-  min-width: 150px;
+  min-width: 150px !important;
+}
+
+.min-w-200 {
+  min-width: 200px !important;
 }
 
 .min-w-300 {
-  min-width: 300px;
+  min-width: 300px !important;
 }
 
 .min-w-400 {
-  min-width: 400px;
+  min-width: 400px !important;
 }
 
 .min-w-500 {
-  min-width: 500px;
+  min-width: 500px !important;
 }
 
 .min-h-150 {
-  min-height: 150;
+  min-height: 150 !important;
 }
 
 .max-h-150 {
-  max-height: 150;
+  max-height: 150 !important;
 }
 
 .min-h-200 {
-  min-height: 200px;
+  min-height: 200px !important;
 }
 
 .max-h-200 {
-  max-height: 200px;
+  max-height: 200px !important;
 }

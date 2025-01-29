@@ -2,7 +2,7 @@ import { CameraController } from '../controller/CameraController';
 import { Planet } from '../models/Planet';
 import { SelectionChangeEvent } from './events/SelectionChangedEvent';
 import { UpdateRouteEvent } from './events/UpdateRouteVent';
-import { RouteController } from '../controller/RouteController';
+import { RouteController, RoutePoint } from '../controller/RouteController';
 import { ToastHandler } from '../utils/components/ToastHandler';
 import { Config } from '../utils/Config';
 import { Universe } from '../ui/Universe';
@@ -394,7 +394,8 @@ class ActionBarHandler {
       Config.getInstance().get('jumpRange') as number
     );
 
-    const jumps = this.routeController.getNumberOfJumpsBetween();
+    const route = this.routeController.getRoute();
+
     // Remove all existing jump cards
     const jumpCards = document.querySelectorAll('[data-jump-card]');
     jumpCards.forEach((card) => {
@@ -413,8 +414,8 @@ class ActionBarHandler {
     let nextPlanetCard = planetCards[i];
 
     // Add all jump cards between the planet cards
-    jumps.forEach((jump) => {
-      const card = this.createRouteJumpCard(jump);
+    route.forEach((routePoint) => {
+      const card = this.createRouteJumpCard(routePoint);
       this.routeItemsContainer.insertBefore(card, nextPlanetCard.nextSibling);
       nextPlanetCard = planetCards[++i];
     });
@@ -427,8 +428,8 @@ class ActionBarHandler {
    */
   private createRoutePlanetCard(planet: Planet) {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card text-white my-auto flex-shrink-0 bg-dark';
-    cardDiv.style.width = '200px';
+    cardDiv.className =
+      'card text-white my-auto flex-shrink-0 bg-dark min-w-200 p-2';
     cardDiv.dataset.planetCard = planet.getName();
 
     const cardBodyDiv = document.createElement('div');
@@ -475,7 +476,7 @@ class ActionBarHandler {
    * @param jumps The amount of jumps
    * @returns The dom jump card element
    */
-  private createRouteJumpCard(jumps: number) {
+  private createRouteJumpCard(routePoint: RoutePoint) {
     const cardDiv = document.createElement('div');
     cardDiv.className =
       'text-center my-auto d-flex flex-column align-items-center text-white mx-1';
@@ -485,7 +486,7 @@ class ActionBarHandler {
     arrowDiv.textContent = '→';
 
     const jumpsDiv = document.createElement('div');
-    jumpsDiv.textContent = `${jumps} Jumps`;
+    jumpsDiv.textContent = `${routePoint.jumps} Jumps`;
 
     cardDiv.appendChild(arrowDiv);
     cardDiv.appendChild(jumpsDiv);

@@ -15,6 +15,7 @@ export type OrderBy<DataObject extends ObjectWithKeys> = {
 };
 
 // TODO: Make updates use partial data (require the keys)
+// TODO: Validate input values, iff they are allowed!
 export class BaseRepository<
   DataObject extends ObjectWithKeys,
   Key extends { [key in keyof DataObject]?: DataObject[key] },

@@ -70,11 +70,12 @@ export default class PlanetTagEditor {
       return;
     }
 
-    this.addTagEditorRow(key, []);
+    const newRow = this.addTagEditorRow(key, []);
     this.newTagInput.value = '';
+    newRow.scrollIntoView();
   }
 
-  private addTagEditorRow(key: string, values: TagMapEntry[]): void {
+  private addTagEditorRow(key: string, values: TagMapEntry[]): HTMLDivElement {
     this.tags.set(key, []);
 
     // Create main wrapper for the tag entry
@@ -124,6 +125,8 @@ export default class PlanetTagEditor {
     row.appendChild(hr);
 
     this.tagEditorContainer.appendChild(row);
+
+    return row;
   }
 
   private createValueInput(key: string, value: TagMapEntry): HTMLElement {

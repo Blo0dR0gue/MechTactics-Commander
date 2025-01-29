@@ -412,11 +412,12 @@ class Table<T extends ObjectWithKeys> {
    * @param data The new data
    */
   public setData(data: T[], sorter?: (v1: T, v2: T) => number): void {
-    if (this.tableHolder.parentNode)
-      throw new TableError("Table is already rendered. Can't change data!");
     this.data = data;
     this.sorter = sorter;
     if (sorter) this.data.sort(sorter);
+    if (this.tableHolder.parentNode === this.parentElement) {
+      this.updateTable();
+    }
   }
 
   /**
@@ -471,6 +472,11 @@ class Table<T extends ObjectWithKeys> {
 
   public addColumnAt(columnData: TableColumnData<T>, index: number): void {
     this.columnDefinitions.splice(index, 0, columnData);
+    if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
+  }
+
+  public removeColumnByIndex(index: number): void {
+    this.columnDefinitions.splice(index, 1);
     if (this.tableHolder.parentNode === this.parentElement) this.updateTable();
   }
 

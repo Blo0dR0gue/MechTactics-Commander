@@ -184,9 +184,7 @@ export class BaseRepository<
     return updateResult.changes === 1;
   }
 
-  protected async runTransaction<T>(
-    transactionFn: () => Promise<T>
-  ): Promise<T> {
+  public async runTransaction<T>(transactionFn: () => Promise<T>): Promise<T> {
     try {
       await this.database.run('BEGIN TRANSACTION;');
       const result = await transactionFn(); // Run the passed function inside the transaction

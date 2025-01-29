@@ -174,7 +174,9 @@ class AppWindow {
     ipcMain.handle(
       'createPlanetAffiliationAges',
       (_, dataPoints: PlanetAffiliationAgeData[]) =>
-        new Promise<PlanetAffiliationAgeData[]>((resolve, reject) => {
+        this.planetAffiliationAgeRepository.runTransaction<
+          PlanetAffiliationAgeData[]
+        >((): Promise<PlanetAffiliationAgeData[]> => {
           const insertPromises = dataPoints.map((point) => {
             return this.planetAffiliationAgeRepository
               .create(point)
@@ -183,9 +185,7 @@ class AppWindow {
               });
           });
 
-          Promise.all(insertPromises)
-            .then((results) => resolve(results))
-            .catch((reason) => reject(reason));
+          return Promise.all(insertPromises);
         })
     );
 

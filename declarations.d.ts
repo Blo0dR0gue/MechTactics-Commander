@@ -28,7 +28,7 @@ interface Window {
         import('./src/app/types/PlanetData').PlanetData,
         'id'
       >
-    ) => Promise<import('./src/app/types/PlanetData').PlanetData>;
+    ) => Promise<number>;
     deletePlanet: (planetID: number) => Promise<boolean>;
 
     updateAffiliation: (
@@ -39,7 +39,7 @@ interface Window {
         import('./src/app/types/AffiliationData').AffiliationData,
         'id'
       >
-    ) => Promise<import('./src/app/types/AffiliationData').AffiliationData>;
+    ) => Promise<number>;
     deleteAffiliation: (affiliationID: number) => Promise<boolean>;
 
     updatePlanetAffiliationAge: (
@@ -47,9 +47,7 @@ interface Window {
     ) => Promise<boolean>;
     createPlanetAffiliationAge: (
       data: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
-    ) => Promise<
-      import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData
-    >;
+    ) => Promise<number>;
     createPlanetAffiliationAges: (
       dataPoints: import('./src/app/types/PlanetAffiliationAge').PlanetAffiliationAgeData[]
     ) => Promise<

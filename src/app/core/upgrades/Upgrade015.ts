@@ -142,17 +142,68 @@ class Upgrade015 extends AppUpgradeInfo {
             await planetRepository.getByName(planetData.name);
 
           if (currentPlanet === null) {
-            currentPlanet =
-              (await this.database.get<Omit<PlanetData, 'tagObject'>>(
-                'SELECT * FROM Planet WHERE name LIKE ? AND round(x,2) = round(?,2) AND (round(y,2) = round(?,2) OR round(-y,2) = round(?,2)) AND type = ?',
-                [
-                  planetData.name + '%',
+            // iff not found with full name match look for planets which start with the current name and have a type of X which is the default value / not updated.
+            const matchingByNameAndType =
+              (await this.database.all<Omit<PlanetData, 'tagObject'>[]>(
+                'SELECT * FROM Planet WHERE name LIKE ? AND type = ?',
+                [planetData.name + '%', 'X']
+              )) ?? [];
+
+            if (matchingByNameAndType.length >= 1) {
+              // Iff there are found planets try to match them based on the x and y coordinates with a rounding tollerance
+              for (const matchingPlanet of matchingByNameAndType) {
+                // First try with 0 tollerance
+                const xCompare = this.floatsEqual(
                   planetData.x,
+                  matchingPlanet.x,
+                  0
+                );
+                const yCompareD = this.floatsEqual(
                   planetData.y,
+                  matchingPlanet.y,
+                  0
+                );
+                const yCompareN = this.floatsEqual(
                   planetData.y,
-                  'X'
-                ]
-              )) ?? null;
+                  -matchingPlanet.y,
+                  0
+                );
+
+                // We prefer the first planet which has a 0 tolerance
+                if (xCompare && (yCompareD || yCompareN)) {
+                  currentPlanet = matchingPlanet;
+                  break;
+                }
+
+                // If no match found with 0 tolerance, check for a match with 0.01 tolerance. But only iff we did not found one yet.
+                // The 0.01 tolerance is because of rounding errors on the initial dataset. Some of the values did not got round correctly.
+                if (currentPlanet === null) {
+                  const softThreshold = 0.01;
+                  const xCompareFallback = this.floatsEqual(
+                    planetData.x,
+                    matchingPlanet.x,
+                    softThreshold
+                  );
+                  const yCompareDFallback = this.floatsEqual(
+                    planetData.y,
+                    matchingPlanet.y,
+                    softThreshold
+                  );
+                  const yCompareNFallback = this.floatsEqual(
+                    planetData.y,
+                    -matchingPlanet.y,
+                    softThreshold
+                  );
+
+                  if (
+                    xCompareFallback &&
+                    (yCompareDFallback || yCompareNFallback)
+                  ) {
+                    currentPlanet = matchingPlanet;
+                  }
+                }
+              }
+            }
           }
 
           const currentAffiliation: AffiliationData =
@@ -209,11 +260,10 @@ class Upgrade015 extends AppUpgradeInfo {
           });
         }
 
-        //await Promise.all(waitingPromises);
-
+        // Update all not yet updated planets to use the not negated
         const notUpdatedPlanets: Omit<PlanetData, 'tagObject'>[] =
           await this.database.all('SELECT * FROM Planet WHERE type = ?;', 'X');
-        const revertNegationOfYPromises = notUpdatedPlanets.map(
+        const revertInversionOfYPromises = notUpdatedPlanets.map(
           (notUpdatedPlanet) => {
             return this.database.run('UPDATE Planet SET y = ? WHERE id = ?', [
               -notUpdatedPlanet.y,
@@ -221,7 +271,7 @@ class Upgrade015 extends AppUpgradeInfo {
             ]);
           }
         );
-        await Promise.all(revertNegationOfYPromises);
+        await Promise.all(revertInversionOfYPromises);
 
         this.database.run('COMMIT;');
       } catch (error: unknown) {
@@ -231,9 +281,18 @@ class Upgrade015 extends AppUpgradeInfo {
     });
   }
 
-  private floatsEqual(num1, num2): boolean {
-    const tolerance = 1e-10;
-    return Math.abs(num1 - num2) < tolerance;
+  private floatsEqual(num1, num2, additionalThreshold = 0): boolean {
+    // Because there is a float precision loss for rounding / subtracting we use a threashhold
+    const defaultThreshold = 1e-10;
+    const tolerance = additionalThreshold + defaultThreshold;
+    return (
+      Math.abs(this.parseTo2Digits(num1) - this.parseTo2Digits(num2)) <
+      tolerance
+    );
+  }
+
+  private parseTo2Digits(float: number): number {
+    return parseFloat(float.toFixed(2));
   }
 }
 

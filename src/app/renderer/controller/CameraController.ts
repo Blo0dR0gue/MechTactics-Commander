@@ -126,11 +126,6 @@ class CameraController {
       if (evt.key === 'f') {
         if (this.universe.getSelectedPlanet() !== null) {
           this.routeManager.addTargetPlanet(this.universe.getSelectedPlanet());
-          this.routeManager.updateRouteEvent.invoke({
-            planet: this.universe.getSelectedPlanet(),
-            add: true,
-            numberPlanets: this.routeManager.lengthOfTargetPlanets()
-          });
         }
       } else if (evt.key === 'Control') {
         this.ctrlPressed = true;

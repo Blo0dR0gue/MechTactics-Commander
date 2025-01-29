@@ -1,6 +1,6 @@
-import { PlanetTags } from '../../types/PlanetData';
-import { ToastHandler, ToastType } from './components/ToastHandler';
-import { snakeCaseToTitleCase, stringToSnakeCase } from './Utils';
+import { PlanetTags } from '../../../types/PlanetData';
+import { ToastHandler, ToastType } from './ToastHandler';
+import { snakeCaseToTitleCase, stringToSnakeCase } from '../Utils';
 
 export type PlanetTagEditorProps = {
   tagEditorContainer: HTMLElement;

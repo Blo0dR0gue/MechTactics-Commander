@@ -32,7 +32,7 @@ import {
   uploadIcon
 } from './utils/Icons';
 import { CoordStringFormatter } from './utils/components/formatter/CoordStringFormatter';
-import PlanetTagEditor from './utils/PlanetTagEditor';
+import PlanetTagEditor from './utils/components/PlanetTagEditor';
 import { Dropdown } from './utils/components/Dropdown';
 
 // get planet and affiliation data

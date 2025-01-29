@@ -167,11 +167,11 @@ class ActionBarHandler {
   private setupSettingsTab() {
     let jumpRange = Config.getInstance().get('jumpRange') as number;
 
-    if (!(typeof jumpRange !== 'number')) {
+    if (typeof jumpRange !== 'number') {
       jumpRange = 30;
       Config.getInstance().set('jumpRange', jumpRange);
-    } else if (parseInt(jumpRange) !== jumpRange) {
-      jumpRange = parseInt(jumpRange);
+    } else if (parseInt(jumpRange + '') !== jumpRange) {
+      jumpRange = parseInt(jumpRange + '');
       Config.getInstance().set('jumpRange', jumpRange);
     } else if (isNaN(jumpRange) || jumpRange < 1) {
       jumpRange = 30;

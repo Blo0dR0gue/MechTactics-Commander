@@ -46,4 +46,11 @@ export class PlanetAffiliationAgeRepository extends BaseRepository<
       [affiliationID]
     );
   }
+
+  public async deleteAllByUniverseAge(universeAge: number): Promise<void> {
+    await this.database.run(
+      'DELETE FROM PlanetAffiliationAge WHERE universeAge = ?;',
+      [universeAge]
+    );
+  }
 }

@@ -135,6 +135,9 @@ class Upgrade015 extends AppUpgradeInfo {
           y: number;
         }[] = data015;
 
+        // Delete all in age 3062 because we create these
+        await planetAffiliationAgeRepository.deleteAllByUniverseAge(3062);
+
         for (const val of importData) {
           const { tagObject, affiliation, ...planetData } = val;
 

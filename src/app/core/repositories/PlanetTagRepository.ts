@@ -1,7 +1,7 @@
 import { Database } from 'sqlite';
 import { BaseRepository } from './BaseRepository';
 import { PlanetTag } from '../../types/PlanetData';
-import { ForcefullyOmit } from '../../types/UtilityTypes';
+import { ForcefullyOmit, OnlyFirst } from '../../types/UtilityTypes';
 import { stringToSnakeCase } from '../../renderer/utils/Utils';
 
 export class PlanetTagRepository extends BaseRepository<
@@ -25,9 +25,15 @@ export class PlanetTagRepository extends BaseRepository<
     return super.create(createData);
   }
 
-  public createOrReplace(data: PlanetTag): Promise<number | null> {
-    const createData = this.convertToDatabaseFormat(data);
-    return super.createOrReplace(createData);
+  public createOrUpdate(
+    key: OnlyFirst<{ planetID: number; tagKey: string }, PlanetTag>,
+    data: ForcefullyOmit<PlanetTag, 'planetID' | 'tagKey'>
+  ): Promise<number | null> {
+    const { tagKey, planetID, tagValue } = this.convertToDatabaseFormat({
+      ...key,
+      ...data
+    });
+    return super.createOrUpdate({ tagKey, planetID }, { tagValue });
   }
 
   public updateByKey(): Promise<boolean> {

@@ -2,7 +2,6 @@ import { Database } from 'sqlite';
 import PlanetAffiliationAgeDynFormatter from '../../../renderer/utils/components/formatter/PlanetAffiliationAgeDynFormatter';
 import {
   DynamicPlanetAffiliationConnectData,
-  PlanetAffiliationAgeData,
   PlanetAffiliationAgeWithNamesData
 } from '../../../types/PlanetAffiliationAge';
 import { PlanetAffiliationAgeRepository } from '../../repositories';
@@ -39,48 +38,46 @@ export class CSVPlanetAffiliationAgeStrategy extends CSVStrategy<DynamicPlanetAf
 
     const ageInserts: Promise<unknown>[] = [];
 
-    ages.forEach((age) => {
-      const insertPromise = new Promise<unknown>((resolve, reject) => {
-        if (typeof age !== 'number' || age < 0) {
-          reject(`Found age not valid: '${age}'!`);
-          return;
-        }
+    ages
+      .map((age) => parseInt(age))
+      .forEach((age) => {
+        const insertPromise = new Promise<unknown>((resolve, reject) => {
+          if (typeof age !== 'number' || age < 0) {
+            reject(`Found age not valid: '${age}'!`);
+            return;
+          }
 
-        const planetID: number = data['planetID'];
+          const planetID: number = parseInt(data['planetID'] + '');
 
-        if (typeof planetID !== 'number' || planetID < 0) {
-          reject(`Found planet id is not valid: '${planetID}'!`);
-          return;
-        }
+          if (typeof planetID !== 'number' || planetID < 0) {
+            reject(`Found planet id is not valid: '${planetID}'!`);
+            return;
+          }
 
-        const affiliationID: number = data[`affiliationID${age}`];
+          const affiliationID: number = parseInt(data[`affiliationID${age}`]);
 
-        if (typeof affiliationID !== 'number' || affiliationID < 0) {
-          reject(`Found affiliation id is not valid: '${affiliationID}'!`);
-          return;
-        }
+          if (typeof affiliationID !== 'number' || affiliationID < 0) {
+            reject(`Found affiliation id is not valid: '${affiliationID}'!`);
+            return;
+          }
 
-        const planetText: string = data[`planetText${age}`] ?? '';
+          const planetText: string = data[`planetText${age}`] ?? '';
 
-        if (typeof planetText !== 'string') {
-          reject(`Found planet text is not valid: '${planetText}'!`);
-          return;
-        }
+          if (typeof planetText !== 'string') {
+            reject(`Found planet text is not valid: '${planetText}'!`);
+            return;
+          }
 
-        const elem = {
-          universeAge: age,
-          planetID: planetID,
-          affiliationID: affiliationID,
-          planetText: planetText
-        } as PlanetAffiliationAgeData;
+          this.planetAffiliationAgeRepository
+            .createOrUpdate(
+              { planetID, universeAge: age },
+              { affiliationID, planetText }
+            )
+            .then(resolve, reject);
+        });
 
-        this.planetAffiliationAgeRepository
-          .createOrReplace(elem)
-          .then(resolve, reject);
+        ageInserts.push(insertPromise);
       });
-
-      ageInserts.push(insertPromise);
-    });
 
     return Promise.all(ageInserts).then(() => {});
   }

@@ -6,7 +6,7 @@ import { Database } from 'sqlite';
 import { DatabaseTables } from '../../types/UtilityTypes';
 import {
   CSVStrategy,
-  CSVDefaultStrategy,
+  CSVAffiliationStrategy,
   CSVPlanetAffiliationAgeStrategy,
   CSVPlanetTagsStrategy
 } from './strategy';
@@ -143,8 +143,10 @@ export class CSVHelper {
         return new CSVPlanetTagsStrategy(this.database, tableName);
       case 'PlanetAffiliationAge':
         return new CSVPlanetAffiliationAgeStrategy(this.database, tableName);
+      case 'Affiliation':
+        return new CSVAffiliationStrategy(this.database, tableName);
       default:
-        return new CSVDefaultStrategy(this.database, tableName);
+        throw new Error(`Unknown strategy for ${tableName}`);
     }
   }
 }

@@ -1,4 +1,4 @@
 export * from './CSVStrategy';
-export * from './CSVDefaultStrategy';
+export * from './CSVAffiliationStrategy';
 export * from './CSVPlanetAffiliationAgeStrategy';
 export * from './CSVPlanetTagStrategy';

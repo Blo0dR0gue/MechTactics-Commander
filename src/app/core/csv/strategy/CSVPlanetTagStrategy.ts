@@ -42,19 +42,21 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
       ...tags
     } = data;
 
-    await this.planetRepository.createOrReplace({
-      id,
-      name,
-      x,
-      y,
-      link,
-      detail,
-      fuelingStation,
-      type,
-      civilization,
-      population,
-      size
-    });
+    await this.planetRepository.createOrUpdate(
+      { id },
+      {
+        name,
+        x,
+        y,
+        link,
+        detail,
+        fuelingStation,
+        type,
+        civilization,
+        population,
+        size
+      }
+    );
 
     await this.planetTagRepository.deleteAllByPlanet(id);
 
@@ -69,7 +71,7 @@ export class CSVPlanetTagsStrategy extends CSVStrategy<PlanetWithSpreadTags> {
             tagValue: tagValue
           };
 
-          await this.planetTagRepository.createOrReplace(planetTag);
+          await this.planetTagRepository.create(planetTag);
         });
     });
   }

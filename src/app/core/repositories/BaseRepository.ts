@@ -127,23 +127,34 @@ export class BaseRepository<
     return result.lastID;
   }
 
-  public async createOrReplace(data: DataObject): Promise<number | null> {
+  public async createOrUpdate(
+    key: OnlyFirst<Key, DataObject>,
+    data: ForcefullyOmit<DataObject, keyof Key>
+  ): Promise<number | null> {
+    this.validateColumns(Object.keys(key));
     this.validateColumns(Object.keys(data));
 
-    const columns = Object.keys(data).join(', ');
-    const placeholders = Object.keys(data)
-      .map(() => '?')
+    const keyColumns = Object.keys(key);
+    const dataColumns = Object.keys(data);
+    const allColumns = [...keyColumns, ...dataColumns];
+
+    const placeholders = allColumns.map(() => '?').join(', ');
+
+    const updateClause = dataColumns
+      .map((col) => `${col} = EXCLUDED.${col}`)
       .join(', ');
 
-    const createValues = Object.keys(data).map((key) =>
-      this.jsToDatabaseValue(data[key])
+    const values = allColumns.map((col) =>
+      this.jsToDatabaseValue(col in key ? key[col] : data[col])
     );
 
     const stmt = await this.database.prepare(
-      `INSERT OR REPLACE INTO ${this.tableName} (${columns}) VALUES (${placeholders})`
+      `INSERT INTO ${this.tableName} (${allColumns.join(', ')})
+       VALUES (${placeholders})
+       ON CONFLICT(${keyColumns.join(', ')}) DO UPDATE SET ${updateClause};`
     );
 
-    const result = await stmt.run(createValues);
+    const result = await stmt.run(values);
 
     return result.lastID ?? null;
   }

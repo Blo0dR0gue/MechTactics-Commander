@@ -38,7 +38,7 @@ class CameraController {
     this.routeManager = routeController;
 
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    window.addEventListener('mouseup', this.handleMouseUp.bind(this)); // detect on the whole window to prevent release but if moving cursor out of canvas
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('wheel', this.handleMouseWheel.bind(this));
     this.element.addEventListener('click', this.handleClick.bind(this));
@@ -83,6 +83,7 @@ class CameraController {
   }
   private handleMouseWheel(e: WheelEvent) {
     if (this.isClicked) return;
+
     const zoomAmount = e.deltaY * this.SCROLL_SENSITIVITY;
     let newZoom = this.universe.getZoom() - zoomAmount;
 

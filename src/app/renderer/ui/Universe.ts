@@ -349,22 +349,19 @@ class Universe {
       }
     }
 
-    if (this.zoom > 2) {
-      // Render only at a Zoom of 2 or bigger
-      if (this.hoveredPlanet) {
-        // Highlight the jump range of 30
-        this.context.beginPath();
-        this.context.arc(
-          this.hoveredPlanet.coord.getX(),
-          this.hoveredPlanet.coord.getY(),
-          Config.getInstance().get('jumpRange') as number, // Jump Range
-          0,
-          Math.PI * 2
-        );
-        this.context.lineWidth = 0.4;
-        this.context.strokeStyle = 'white';
-        this.context.stroke();
-      }
+    if (this.hoveredPlanet) {
+      // Highlight the jump range of 30
+      this.context.beginPath();
+      this.context.arc(
+        this.hoveredPlanet.coord.getX(),
+        this.hoveredPlanet.coord.getY(),
+        Config.getInstance().get('jumpRange') as number, // Jump Range
+        0,
+        Math.PI * 2
+      );
+      this.context.lineWidth = 1.5 / this.zoom;
+      this.context.strokeStyle = 'white';
+      this.context.stroke();
     }
 
     if (this.zoom > 3) {

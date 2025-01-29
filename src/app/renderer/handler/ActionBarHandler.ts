@@ -37,8 +37,7 @@ class ActionBarHandler {
   private selectedPlanet: Planet | null;
 
   // Settings
-  private settingsRange30: HTMLInputElement;
-  private settingsRange60: HTMLInputElement;
+  private jumpRangeInput: HTMLInputElement;
   private excludedAffiliationsParent: HTMLElement;
   private settingsBackgroundColor: HTMLInputElement;
 
@@ -47,8 +46,6 @@ class ActionBarHandler {
   private cameraController: CameraController;
   private toastHandler: ToastHandler;
   private universe: Universe;
-
-  private allowedJumpRanges = [30, 60];
 
   /**
    * Setup of all dom element references
@@ -97,11 +94,8 @@ class ActionBarHandler {
     ) as HTMLDivElement;
 
     // Settings Elements
-    this.settingsRange30 = document.getElementById(
-      'settings-range-30'
-    ) as HTMLInputElement;
-    this.settingsRange60 = document.getElementById(
-      'settings-range-60'
+    this.jumpRangeInput = document.getElementById(
+      'jump-range-input'
     ) as HTMLInputElement;
     this.excludedAffiliationsParent = document.getElementById(
       'jump-settings-excluded-affiliations'
@@ -173,25 +167,21 @@ class ActionBarHandler {
   private setupSettingsTab() {
     let jumpRange = Config.getInstance().get('jumpRange') as number;
 
-    if (!this.allowedJumpRanges.includes(jumpRange)) {
-      jumpRange = this.allowedJumpRanges[0];
+    if (!(typeof jumpRange !== 'number')) {
+      jumpRange = 30;
+      Config.getInstance().set('jumpRange', jumpRange);
+    } else if (parseInt(jumpRange) !== jumpRange) {
+      jumpRange = parseInt(jumpRange);
       Config.getInstance().set('jumpRange', jumpRange);
     }
 
-    if (jumpRange === 60) {
-      this.settingsRange60.checked = true;
-    } else {
-      this.settingsRange30.checked = true;
-    }
+    this.jumpRangeInput.value = jumpRange.toString();
 
-    this.settingsRange60.addEventListener('change', () => {
-      Config.getInstance().set('jumpRange', 60);
-      // TODO: Use Event???
-      this.generateJumpCards();
-    });
-    this.settingsRange30.addEventListener('change', () => {
-      Config.getInstance().set('jumpRange', 30);
-      // TODO: Use Event???
+    this.jumpRangeInput.addEventListener('change', () => {
+      Config.getInstance().set(
+        'jumpRange',
+        parseInt(this.jumpRangeInput.value)
+      );
       this.generateJumpCards();
     });
 

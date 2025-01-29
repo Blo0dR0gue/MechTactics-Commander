@@ -1278,7 +1278,7 @@ const planetTable = new Table<(typeof planetsData)[number]>(
     {
       header: {
         name: 'Civilization',
-        size: 'col-2'
+        size: 'col-1'
       },
       data: {
         type: 'binding',

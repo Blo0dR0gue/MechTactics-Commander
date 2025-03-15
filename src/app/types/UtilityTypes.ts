@@ -92,8 +92,9 @@ type DatabaseTables =
   | 'PlanetTag'
   | 'PlanetWithTagsView';
 
-export type ForcefullyOmit<T, K extends keyof T> = Omit<T, K> &
-  Partial<Record<K, never>>;
+export type ForcefullyOmit<T, K extends keyof T> = {
+  [Key in keyof T as Key extends K ? never : Key]: T[Key];
+};
 
 export type OnlyFirst<F, S> = F & { [Key in keyof Omit<S, keyof F>]?: never };
 
